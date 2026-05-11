@@ -1,0 +1,21 @@
+name: 'Pull request'
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!main'
+
+jobs:
+  build:
+    name: 'Build'
+    uses: ./.github/workflows/build.yml
+    with:
+      image: mcr.microsoft.com/playwright:v1.55.0
+  # test:
+  #   name: 'Test'
+  #   uses: ./.github/workflows/test.yml
+  #   with:
+  #     image: mcr.microsoft.com/playwright:v1.55.0
+  #   needs:
+  #     - build
