@@ -15,8 +15,10 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/vue": "^7.0.2",
     "@porsche-design-system/components-js": "4.6.0",
-    "astro": "^7.3.1"
+    "astro": "^7.3.1",
+    "vue": "^3.5.42"
   },
   "volta": {
     "node": "24.15.0",

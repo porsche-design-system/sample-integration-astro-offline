@@ -122,3 +122,35 @@ const baseUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`;
 
 Once the web application is built and served, open your browser's developer console.
 All Porsche Design System assets should then be loaded from `${YOUR_BASE_URL}`.
+
+## Vue example
+
+The homepage includes an interactive counter in `src/components/VueCounter.vue`. It uses Vue state and native `p-*`
+web components from `@porsche-design-system/components-js`; `@porsche-design-system/components-vue` is not required.
+
+Vue is provided by the official Astro integration:
+
+```sh
+npm run astro -- add vue
+```
+
+In `astro.config.mjs`, the Vue integration sets `template.compilerOptions.isCustomElement` to
+`(tag) => tag.startsWith('p-')`. Keep the existing offline asset and Lightning CSS configuration.
+
+Use `client:load` when embedding the example so Vue hydrates the server-rendered markup and attaches its event handlers:
+
+```astro
+---
+import VueCounter from '../components/VueCounter.vue';
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout>
+  <VueCounter client:load />
+</Layout>
+```
+
+The shared layout still loads PDS once via `getLoaderScript()`. Clicking **Increase counter** updates the Vue state;
+**Reset counter** resets it. Its `:disabled.attr` binding adds the boolean attribute when disabled and removes it with
+`null` when enabled, keeping the form-associated web component's browser behavior in sync with Vue state.
+Vue, PDS, fonts, and icons are all served locally.
