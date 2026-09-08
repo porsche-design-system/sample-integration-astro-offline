@@ -1,0 +1,14 @@
+import { colorPrimary } from '../color/light-dark/colorPrimary.mjs';
+import { typescale5Xl } from '../font/typescale5Xl.mjs';
+import { fontPorscheNext } from '../font/fontPorscheNext.mjs';
+import { fontWeightNormal } from '../font/fontWeightNormal.mjs';
+import { getCJKFontFamilyStyle } from '../font/getCJKFontFamilyStyle.mjs';
+import { leadingNormal } from '../font/leadingNormal.mjs';
+
+const proseHeading5XlStyle = {
+    ...getCJKFontFamilyStyle(),
+    font: `${fontWeightNormal} ${typescale5Xl} / ${leadingNormal} ${fontPorscheNext}`,
+    color: colorPrimary,
+};
+
+export { proseHeading5XlStyle };

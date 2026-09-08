@@ -1,1 +1,1 @@
-export { pdsTheme } from './core/theme.mjs';
+export { pdsTheme, pdsThemeCompact } from './core/theme.mjs';

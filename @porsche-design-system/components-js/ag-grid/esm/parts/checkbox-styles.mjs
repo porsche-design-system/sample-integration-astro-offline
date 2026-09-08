@@ -1,47 +1,45 @@
 import { createPart } from 'ag-grid-community';
-import { themeDarkStateDisabled, themeDarkContrastHigh, themeDarkPrimary, themeDarkBackgroundBase, themeDarkContrastMedium, themeLightStateDisabled, themeLightContrastHigh, themeLightPrimary, themeLightBackgroundBase, themeLightContrastMedium } from '../styles.mjs';
-import { pdsThemeModeDark } from '../types/theme-mode.mjs';
+import { borderWidthThin, radiusLg, colorPrimary, colorFrostedSoft, colorContrastLower, radiusMd } from '../styles.mjs';
 
 const checkboxCheckedShapeImage = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m20.22,7.47l-1.47-1.42-9.26,9.02-4.24-4.15-1.47,1.42,5.71,5.6,10.73-10.47Z"/></svg>`;
 const checkboxIndeterminateShapeImage = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m20,11v2H4v-2h16Z"/></svg>`;
 const radioCheckedShapeImage = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>`;
+/**
+ * Checkbox and radio button styles for AG Grid following v35 standards
+ *
+ * Provides custom styling for checkboxes and radio buttons with Porsche Design System colors.
+ * Supports both light and dark theme via CSS `color-scheme`.
+ *
+ * Includes styling for:
+ * - Unchecked state
+ * - Checked state
+ * - Indeterminate state (checkboxes only)
+ * - Disabled state
+ * - Hover interactions
+ */
 const checkboxStyle = createPart({
     feature: 'checkboxStyle',
     params: {
-        checkboxUncheckedBackgroundColor: { ref: 'backgroundColor' },
-        checkboxCheckedShapeColor: { ref: 'backgroundColor' },
+        // SVG shapes
         checkboxCheckedShapeImage: { svg: checkboxCheckedShapeImage },
         checkboxIndeterminateShapeImage: { svg: checkboxIndeterminateShapeImage },
         radioCheckedShapeImage: { svg: radioCheckedShapeImage },
-        checkboxCheckedBackgroundColor: themeLightPrimary,
-        checkboxCheckedBorderColor: themeLightPrimary,
-        checkboxUncheckedBorderColor: themeLightContrastMedium,
-        checkboxIndeterminateBorderColor: themeLightContrastMedium,
-        checkboxIndeterminateBackgroundColor: themeLightBackgroundBase,
-        checkboxIndeterminateShapeColor: themeLightPrimary,
-        checkboxUncheckedHoverBorderColor: themeLightPrimary,
-        checkboxCheckedHoverBorderColor: themeLightContrastHigh,
-        checkboxCheckedHoverBackgroundColor: themeLightContrastHigh,
-        checkboxDisabledColor: themeLightStateDisabled,
-    },
-    modeParams: {
-        [pdsThemeModeDark]: {
-            checkboxUncheckedBackgroundColor: { ref: 'backgroundColor' },
-            checkboxCheckedShapeColor: { ref: 'backgroundColor' },
-            checkboxCheckedShapeImage: { svg: checkboxCheckedShapeImage },
-            checkboxIndeterminateShapeImage: { svg: checkboxIndeterminateShapeImage },
-            radioCheckedShapeImage: { svg: radioCheckedShapeImage },
-            checkboxCheckedBackgroundColor: themeDarkPrimary,
-            checkboxCheckedBorderColor: themeDarkPrimary,
-            checkboxUncheckedBorderColor: themeDarkContrastMedium,
-            checkboxIndeterminateBorderColor: themeDarkContrastMedium,
-            checkboxIndeterminateBackgroundColor: themeDarkBackgroundBase,
-            checkboxIndeterminateShapeColor: themeDarkPrimary,
-            checkboxUncheckedHoverBorderColor: themeDarkPrimary,
-            checkboxCheckedHoverBorderColor: themeDarkContrastHigh,
-            checkboxCheckedHoverBackgroundColor: themeDarkContrastHigh,
-            checkboxDisabledColor: themeDarkStateDisabled,
-        },
+        // Unchecked state
+        checkboxUncheckedBackgroundColor: colorFrostedSoft,
+        checkboxUncheckedBorderColor: colorContrastLower,
+        checkboxUncheckedHoverBorderColor: colorPrimary,
+        // Checked state
+        checkboxCheckedBackgroundColor: colorFrostedSoft,
+        checkboxCheckedBorderColor: colorContrastLower,
+        checkboxCheckedShapeColor: colorPrimary,
+        checkboxCheckedHoverBorderColor: colorPrimary,
+        checkboxCheckedHoverBackgroundColor: colorFrostedSoft,
+        // Indeterminate state
+        checkboxIndeterminateBackgroundColor: colorFrostedSoft,
+        checkboxIndeterminateBorderColor: colorPrimary,
+        checkboxIndeterminateShapeColor: colorPrimary,
+        // Disabled state
+        checkboxDisabledColor: 'light-dark(hsla(233,6.6%,23.9%,0.412),hsla(240,1.5%,61.8%,0.302))',
     },
     css: `
     .ag-checkbox-input-wrapper,
@@ -51,7 +49,7 @@ const checkboxStyle = createPart({
         width: var(--ag-icon-size);
         height: var(--ag-icon-size);
         background-color: var(--ag-checkbox-unchecked-background-color);
-        border: solid var(--ag-checkbox-border-width) var(--ag-checkbox-unchecked-border-color);
+        border: solid ${borderWidthThin} var(--ag-checkbox-unchecked-border-color);
 
         :where(input) {
             cursor: pointer;
@@ -101,6 +99,7 @@ const checkboxStyle = createPart({
             }
         }
 
+        /* Hover styling for enabled items */
         &:not(.ag-disabled):hover {
             border-color: var(--ag-checkbox-unchecked-hover-border-color) !important;
         }
@@ -112,7 +111,7 @@ const checkboxStyle = createPart({
     }
 
     .ag-checkbox-input-wrapper {
-        border-radius: var(--ag-checkbox-border-radius);
+        border-radius: ${radiusLg};
 
         &.ag-checked::after {
             mask-image: var(--ag-checkbox-checked-shape-image);
@@ -138,5 +137,13 @@ const checkboxStyle = createPart({
     }
   `,
 });
+const checkboxStyleCompact = createPart({
+    feature: 'checkboxStyleCompact',
+    css: `
+    .ag-checkbox-input-wrapper {
+        border-radius: ${radiusMd};
+    }
+  `,
+});
 
-export { checkboxCheckedShapeImage, checkboxIndeterminateShapeImage, checkboxStyle, radioCheckedShapeImage };
+export { checkboxCheckedShapeImage, checkboxIndeterminateShapeImage, checkboxStyle, checkboxStyleCompact, radioCheckedShapeImage };

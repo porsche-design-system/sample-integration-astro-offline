@@ -3,70 +3,99 @@
 var agGridCommunity = require('ag-grid-community');
 var checkboxStyles = require('../parts/checkbox-styles.cjs');
 var iconSet = require('../parts/icon-set.cjs');
+var inputStyles = require('../parts/input-styles.cjs');
 var toggleButtonStyles = require('../parts/toggle-button-styles.cjs');
 var styles = require('../styles.cjs');
-var themeMode = require('../types/theme-mode.cjs');
 
+/**
+ * Porsche Design System theme for AG Grid v35
+ *
+ * This theme extends the Quartz theme with Porsche Design System styling.
+ * It supports both light and dark modes via CSS `color-scheme`.
+ *
+ * Features:
+ * - Custom Porsche Design System colors
+ * - PorscheNext font family
+ * - Custom checkbox, toggle, and input styling
+ * - Optimized spacing and sizing
+ * - Full dark mode support
+ *
+ * Usage:
+ * ```typescript
+ * import { pdsTheme } from '@porsche-design-system/utilities/ag-grid';
+ *
+ * const gridOptions = {
+ *   theme: pdsTheme,
+ *   // ... other options
+ * };
+ * ```
+ *
+ * For dark mode, set `color-scheme` on a parent element:
+ * ```html
+ * <body style="color-scheme: dark;">
+ *   <!-- Grid will render in dark mode -->
+ * </body>
+ * ```
+ *
+ * For light dark mode, set `color-scheme` on a parent element:
+ * ```html
+ * <body style="color-scheme: light dark;">
+ *   <!-- Grid will render in light or dark mode depending on OS settings -->
+ * </body>
+ * ```
+ */
 const pdsTheme = agGridCommunity.themeQuartz
+    // Light mode parameters (default)
     .withParams({
-    checkboxBorderWidth: 2,
-    checkboxBorderRadius: styles.borderRadiusSmall,
-    focusShadow: 'none',
-    inputFocusShadow: 'none',
-    spacing: 10,
-    toggleButtonHeight: 28,
-    toggleButtonWidth: 48,
-    iconSize: 24,
-    borderRadius: styles.borderRadiusSmall,
-    wrapperBorderRadius: styles.borderRadiusMedium,
-    fontFamily: styles.fontFamily,
-    fontSize: styles.fontSizeTextSmall,
-    headerFontWeight: styles.fontWeightSemiBold,
-    headerFontSize: styles.fontSizeTextXSmall,
+    // Component sizing
+    checkboxBorderWidth: styles.pdsCheckboxBorderWidth,
+    checkboxBorderRadius: styles.radiusSm,
+    spacing: styles.gridSpacing,
+    toggleButtonHeight: styles.pdsSwitchHeight,
+    toggleButtonWidth: styles.pdsSwitchWidth,
+    toggleButtonSwitchInset: styles.pdsSwitchInset,
+    iconSize: styles.pdsIconSize,
+    borderRadius: styles.radiusSm,
+    wrapperBorderRadius: styles.radiusMd,
+    // Grid structure
     headerHeight: 'calc(var(--ag-font-size) + var(--ag-spacing) * 2.9)',
     rowHeight: 'calc(var(--ag-font-size) + var(--ag-spacing) * 4)',
-    toggleButtonSwitchInset: 3,
-    browserColorScheme: 'light',
-    accentColor: styles.themeLightNotificationInfo,
-    backgroundColor: styles.themeLightBackgroundBase,
-    foregroundColor: styles.themeLightPrimary,
-    headerBackgroundColor: styles.themeLightBackgroundSurface,
-    selectedRowBackgroundColor: styles.themeLightBackgroundSurfaceDarken,
-    oddRowBackgroundColor: styles.themeLightBackgroundSurface,
-    modalOverlayBackgroundColor: styles.themeLightBackgroundFrosted,
-    rowHoverColor: styles.themeLightStateHover,
-    columnHoverColor: styles.themeLightStateHover,
-    rangeSelectionBorderColor: styles.themeLightStateFocus,
-    borderColor: styles.themeLightContrastLow,
-    inputBorder: `1px solid ${styles.themeLightContrastMedium}`,
-    inputInvalidBorder: `1px solid ${styles.themeLightNotificationError}`,
-    inputDisabledBorder: `1px solid ${styles.themeLightStateDisabled}`,
-    inputDisabledBackgroundColor: styles.themeLightBackgroundBase,
-    invalidColor: styles.themeLightNotificationError,
-    inputFocusBorder: `1px solid ${styles.themeLightPrimary}`,
+    // Typography
+    fontFamily: styles.fontPorscheNext,
+    fontSize: styles.typescaleSm,
+    fontWeight: 'inherit',
+    headerFontWeight: styles.fontWeightSemibold,
+    headerFontSize: styles.typescaleXs,
+    // Color scheme
+    browserColorScheme: 'inherit',
+    // Core Colors
+    accentColor: styles.colorFocus,
+    backgroundColor: styles.colorCanvas,
+    foregroundColor: styles.colorPrimary,
+    borderColor: styles.colorContrastLow,
+    invalidColor: styles.colorErrorLow,
+    // Grid colors
+    headerBackgroundColor: styles.colorContrastLower,
+    selectedRowBackgroundColor: styles.colorInfoLow,
+    oddRowBackgroundColor: styles.colorSurface,
+    modalOverlayBackgroundColor: styles.colorFrosted,
+    rowHoverColor: styles.colorFrosted,
+    columnHoverColor: styles.colorFrosted,
+    rangeSelectionBorderColor: styles.colorFocus,
 })
-    .withParams({
-    browserColorScheme: 'dark',
-    accentColor: styles.themeDarkNotificationInfo,
-    backgroundColor: styles.themeDarkBackgroundBase,
-    foregroundColor: styles.themeDarkPrimary,
-    headerBackgroundColor: styles.themeDarkBackgroundSurface,
-    selectedRowBackgroundColor: styles.themeDarkBackgroundSurfaceDarken,
-    oddRowBackgroundColor: styles.themeDarkBackgroundSurface,
-    modalOverlayBackgroundColor: styles.themeDarkBackgroundFrosted,
-    rowHoverColor: styles.themeDarkStateHover,
-    columnHoverColor: styles.themeDarkStateHover,
-    rangeSelectionBorderColor: styles.themeDarkStateFocus,
-    borderColor: styles.themeDarkContrastLow,
-    inputBorder: `1px solid ${styles.themeDarkContrastMedium}`,
-    inputInvalidBorder: `1px solid ${styles.themeDarkNotificationError}`,
-    inputDisabledBorder: `1px solid ${styles.themeDarkStateDisabled}`,
-    inputDisabledBackgroundColor: styles.themeDarkBackgroundBase,
-    invalidColor: styles.themeDarkNotificationError,
-    inputFocusBorder: `1px solid ${styles.themeDarkPrimary}`,
-}, themeMode.pdsThemeModeDark)
+    // Apply custom parts
     .withPart(iconSet.pdsSvgIcons)
     .withPart(toggleButtonStyles.toggleButtonStyle)
-    .withPart(checkboxStyles.checkboxStyle);
+    .withPart(checkboxStyles.checkboxStyle)
+    .withPart(inputStyles.inputStyles);
+const pdsThemeCompact = pdsTheme
+    .withParams({
+    spacing: styles.gridSpacingCompact,
+    iconSize: styles.pdsIconSizeCompact,
+})
+    .withPart(checkboxStyles.checkboxStyleCompact)
+    .withPart(toggleButtonStyles.toggleButtonStyleCompact)
+    .withPart(inputStyles.inputStylesCompact);
 
 exports.pdsTheme = pdsTheme;
+exports.pdsThemeCompact = pdsThemeCompact;

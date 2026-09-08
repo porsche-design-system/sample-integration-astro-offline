@@ -15,11 +15,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@porsche-design-system/components-js": "^3.35.0",
-    "astro": "^6.3.1"
+    "@porsche-design-system/components-js": "4.6.0",
+    "astro": "^7.3.1"
   },
   "volta": {
     "node": "24.15.0",
     "npm": "11.12.1"
+  },
+  "devDependencies": {
+    "lightningcss": "^1.33.0"
   }
 }

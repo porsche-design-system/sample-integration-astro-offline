@@ -1,9 +1,11 @@
-import type { GetByRole, GetByText } from '@testing-library/dom';
-type RemoveFirst<T extends any[]> = T['length'] extends 0 ? undefined : ((...b: T) => void) extends (a: any, ...b: infer I) => void ? I : [];
-export declare function getByRoleShadowed<T extends HTMLElement>(...args: Parameters<GetByRole<T>>): T;
-export declare function getByRoleShadowed<T extends HTMLElement>(...args: RemoveFirst<Parameters<GetByRole<T>>>): T;
-export declare function getByLabelTextShadowed<T extends HTMLElement>(...args: Parameters<GetByText<T>>): T;
-export declare function getByLabelTextShadowed<T extends HTMLElement>(...args: RemoveFirst<Parameters<GetByText<T>>>): T;
-export declare function getByTextShadowed<T extends HTMLElement>(...args: Parameters<GetByText<T>>): T;
-export declare function getByTextShadowed<T extends HTMLElement>(...args: RemoveFirst<Parameters<GetByText<T>>>): T;
-export {};
+import { ShadowSelectorMatcherParams, ScreenShadowSelectorMatcherParams, ShadowRoleMatcherParams, ScreenShadowRoleMatcherParams } from 'shadow-dom-testing-library';
+export * from 'shadow-dom-testing-library';
+
+declare function getByRoleShadowed<T extends HTMLElement>(...args: ShadowRoleMatcherParams): T;
+declare function getByRoleShadowed<T extends HTMLElement>(...args: ScreenShadowRoleMatcherParams): T;
+declare function getByLabelTextShadowed<T extends HTMLElement>(...args: ShadowSelectorMatcherParams): T;
+declare function getByLabelTextShadowed<T extends HTMLElement>(...args: ScreenShadowSelectorMatcherParams): T;
+declare function getByTextShadowed<T extends HTMLElement>(...args: ShadowSelectorMatcherParams): T;
+declare function getByTextShadowed<T extends HTMLElement>(...args: ScreenShadowSelectorMatcherParams): T;
+
+export { getByLabelTextShadowed, getByRoleShadowed, getByTextShadowed };

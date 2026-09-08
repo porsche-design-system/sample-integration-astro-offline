@@ -1,0 +1,16 @@
+'use strict';
+
+var colorPrimary = require('../color/light-dark/colorPrimary.cjs');
+var fontPorscheNext = require('../font/fontPorscheNext.cjs');
+var fontWeightNormal = require('../font/fontWeightNormal.cjs');
+var getCJKFontFamilyStyle = require('../font/getCJKFontFamilyStyle.cjs');
+var leadingNormal = require('../font/leadingNormal.cjs');
+var typescaleMd = require('../font/typescaleMd.cjs');
+
+const proseTextMdStyle = {
+    ...getCJKFontFamilyStyle.getCJKFontFamilyStyle(),
+    font: `${fontWeightNormal.fontWeightNormal} ${typescaleMd.typescaleMd} / ${leadingNormal.leadingNormal} ${fontPorscheNext.fontPorscheNext}`,
+    color: colorPrimary.colorPrimary,
+};
+
+exports.proseTextMdStyle = proseTextMdStyle;

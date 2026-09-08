@@ -1,0 +1,27 @@
+import { fontPorscheNextJa } from './fontPorscheNextJa.mjs';
+import { fontPorscheNextKo } from './fontPorscheNextKo.mjs';
+import { fontPorscheNextZhHans } from './fontPorscheNextZhHans.mjs';
+import { fontPorscheNextZhHant } from './fontPorscheNextZhHant.mjs';
+
+const getCJKFontFamilyStyle = () => {
+    return {
+        /* Simplified Chinese */
+        '&:lang(zh-Hans), &:lang(zh-CN), &:lang(zh-SG)': {
+            fontFamily: fontPorscheNextZhHans,
+        },
+        /* Traditional Chinese */
+        '&:lang(zh-Hant), &:lang(zh-TW), &:lang(zh-HK), &:lang(zh-MO)': {
+            fontFamily: fontPorscheNextZhHant,
+        },
+        /* Japanese */
+        '&:lang(ja)': {
+            fontFamily: fontPorscheNextJa,
+        },
+        /* Korean */
+        '&:lang(ko)': {
+            fontFamily: fontPorscheNextKo,
+        },
+    };
+};
+
+export { getCJKFontFamilyStyle };

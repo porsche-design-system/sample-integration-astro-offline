@@ -2,65 +2,69 @@
 
 var agGridCommunity = require('ag-grid-community');
 var styles = require('../styles.cjs');
-var themeMode = require('../types/theme-mode.cjs');
 
+/**
+ * Toggle button styles for AG Grid following v35 standards
+ *
+ * Provides custom styling for toggle buttons with Porsche Design System colors.
+ * Supports both light and dark theme via CSS `color-scheme`.
+ *
+ * Color behavior:
+ * - OFF state: Inner circle uses colorPrimary (Light/Dark)
+ * - ON state: Inner circle uses colorSuccess (Light/Dark)
+ */
 const toggleButtonStyle = agGridCommunity.createPart({
     feature: 'toggleButtonStyle',
     params: {
-        toggleButtonOnBackgroundColor: styles.themeLightNotificationSuccess,
-        toggleButtonOffBackgroundColor: styles.themeLightBackgroundBase,
-        toggleButtonSwitchBackgroundColor: styles.themeLightPrimary,
-        toggleButtonOnHoverBackgroundColor: styles.themeLightSuccessColorDarken,
-        toggleButtonOnBorderColor: styles.themeLightNotificationSuccess,
-        toggleButtonOnHoverBorderColor: styles.themeLightSuccessColorDarken,
-        toggleButtonOffHoverBorderColor: styles.themeLightPrimary,
-        toggleButtonOffBorderColor: styles.themeLightContrastMedium,
-        toggleButtonDisabledColor: styles.themeLightStateDisabled,
-    },
-    modeParams: {
-        [themeMode.pdsThemeModeDark]: {
-            toggleButtonOnBackgroundColor: styles.themeDarkNotificationSuccess,
-            toggleButtonOffBackgroundColor: styles.themeDarkBackgroundBase,
-            toggleButtonSwitchBackgroundColor: styles.themeDarkPrimary,
-            toggleButtonOnHoverBackgroundColor: styles.themeDarkSuccessColorDarken,
-            toggleButtonOnBorderColor: styles.themeDarkNotificationSuccess,
-            toggleButtonOnHoverBorderColor: styles.themeDarkSuccessColorDarken,
-            toggleButtonOffHoverBorderColor: styles.themeDarkPrimary,
-            toggleButtonOffBorderColor: styles.themeDarkContrastMedium,
-            toggleButtonDisabledColor: styles.themeDarkStateDisabled,
-        },
+        // On state (when toggle is checked)
+        toggleButtonOnBackgroundColor: styles.colorSuccessFrostedSoft,
+        toggleButtonOnBorderColor: styles.colorSuccessLow,
+        toggleButtonOnHoverBackgroundColor: styles.colorSuccessFrostedSoft,
+        toggleButtonOnHoverBorderColor: styles.colorSuccess,
+        // Off state (when toggle is unchecked)
+        toggleButtonOffBackgroundColor: styles.colorFrostedSoft,
+        toggleButtonOffBorderColor: styles.colorContrastLower,
+        toggleButtonOffHoverBorderColor: styles.colorPrimary,
+        toggleButtonSwitchBackgroundColor: styles.colorPrimary, // Inner circle color when OFF
+        // Disabled state
+        toggleButtonDisabledColor: 'light-dark(hsla(233,6.6%,23.9%,0.412),hsla(240,1.5%,61.8%,0.302))',
     },
     css: `
     .ag-toggle-button-input-wrapper {
-        border: ${styles.borderWidthBase} solid var(--ag-toggle-button-off-border-color);
+        border: ${styles.borderWidthThin} solid var(--ag-toggle-button-off-border-color);
         position: relative;
 
+        /* Inner circle (switch) - default OFF state */
         &::before {
-            height: calc(var(--ag-toggle-button-height) - ${styles.spacingStaticXSmall} * 2) !important;
-            width: calc(var(--ag-toggle-button-height) - ${styles.spacingStaticXSmall} * 2) !important;
-            top: calc(${styles.spacingStaticXSmall} - ${styles.borderWidthBase}) !important;
-            left: calc(${styles.spacingStaticXSmall} - ${styles.borderWidthBase}) !important;
+            height: calc(var(--ag-toggle-button-height) - ${styles.spacingStaticXs} * 2) !important;
+            width: calc(var(--ag-toggle-button-height) - ${styles.spacingStaticXs} * 2) !important;
+            top: calc(${styles.spacingStaticXs} - ${styles.borderWidthThin}) !important;
+            left: calc(${styles.spacingStaticXs} - ${styles.borderWidthThin}) !important;
+            background-color: var(--ag-toggle-button-switch-background-color);
         }
 
+        /* ON state - inner circle becomes success color and moves to the right */
         &.ag-checked {
             border-color: var(--ag-toggle-button-on-border-color);
 
             &::before {
-                --ag-toggle-button-switch-background-color: ${styles.themeLightBackgroundBase};
-                --ag-toggle-button-on-border-color: ${styles.themeLightBackgroundBase};
+                background-color: ${styles.colorSuccess};
                 left: calc(100% - var(--ag-toggle-button-height) + 6px) !important;
             }
         }
 
+        /* Hover state (unchecked) */
         &:not(.ag-disabled):hover {
             border-color: var(--ag-toggle-button-off-hover-border-color);
         }
 
+        /* Hover state (checked) */
         &.ag-checked:not(.ag-disabled):hover {
             border-color: var(--ag-toggle-button-on-hover-border-color);
             background-color: var(--ag-toggle-button-on-hover-background-color);
         }
 
+        /* Disabled state styling */
         &.ag-disabled {
             opacity: 1 !important;
             border-color: var(--ag-toggle-button-disabled-color);
@@ -80,5 +84,14 @@ const toggleButtonStyle = agGridCommunity.createPart({
     }
   `,
 });
+const toggleButtonStyleCompact = agGridCommunity.createPart({
+    feature: 'toggleButtonStyleCompact',
+    params: {
+        toggleButtonWidth: styles.pdsSwitchWidthCompact,
+        toggleButtonHeight: styles.pdsSwitchHeightCompact,
+        toggleButtonSwitchInset: styles.pdsSwitchInsetCompact,
+    },
+});
 
 exports.toggleButtonStyle = toggleButtonStyle;
+exports.toggleButtonStyleCompact = toggleButtonStyleCompact;

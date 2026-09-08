@@ -1,14 +1,15 @@
-# Porsche Design System for Astro (Offline Build v3.35.0)
+# Porsche Design System for Astro (Offline Build v4.6.0)
 
 ## About
 
 This repository demonstrates how to integrate the Porsche Design System with **Astro** using a specialized offline build.
 This is particularly useful for applications that need to function without an internet connection.
 
-A custom offline build of the Porsche Design System `v3.35.0` npm package is located in `./@porsche-design-system/components-js`.
+A custom offline build of the Porsche Design System `v4.6.0` npm package is located in `./@porsche-design-system/components-js`.
 This build is designed for offline use and does not retrieve assets from the global CDN (`https://cdn.ui.porsche.com` or `https://cdn.ui.porsche.cn`).
 
-Instead, it expects all assets — such as fonts, icons, and web components — to be served from `${YOUR_BASE_URL}/assets/porsche-design-system/`.
+Runtime assets, such as icons, flags, and web components, are served from `${YOUR_BASE_URL}/assets/porsche-design-system/`.
+The mandatory global stylesheet includes bundled Porsche Next fonts, which Astro copies into its generated `_astro/` assets.
 
 > With the upcoming version 5 of the Porsche Design System, a new solution will be available that works out of the box in offline contexts, making this workflow obsolete.
 
@@ -36,50 +37,85 @@ Extend the **scripts** section of your `package.json` file.
 
 ### Step 3
 
-Exclude Porsche Design System from Vite's cache.
+Exclude Porsche Design System from Vite's cache and disable Lightning CSS's
+[`light-dark()` polyfill](https://github.com/porsche-design-system/porsche-design-system/issues/4257).
+PDS provides its own fallback.
 
+```sh
+npm install --save-dev lightningcss
 ```
+
+```js
 // astro.config.mjs
 
+import { defineConfig } from 'astro/config';
+import { Features } from 'lightningcss';
+
 export default defineConfig({
-  optimizeDeps: {
-    exclude: ['@porsche-design-system/components-js'],
+  vite: {
+    css: {
+      transformer: 'lightningcss',
+      lightningcss: {
+        exclude: Features.LightDark,
+      },
+    },
+    optimizeDeps: {
+      exclude: ['@porsche-design-system/components-js'],
+    },
   },
 })
 ```
 
 ### Step 4
 
-Add the `@porsche-design-system/components-js` npm package with version `3.35.0`.
+Add the `@porsche-design-system/components-js` npm package with the exact version `4.6.0`.
+The copy script replaces the published package with the custom offline build copied in Step 1.
+Run it explicitly after installing an individual package; a regular `npm install` or `npm ci` also invokes it via postinstall.
 
 ```
-npm install @porsche-design-system/components-js@3.35.0
+npm install --save-exact @porsche-design-system/components-js@4.6.0
+npm run copy:@porsche-design-system/components-js
 ```
 
 ### Step 5
 
-Integrate the Porsche Design System Loader into the `<body>` section of your HTML.
+Import the mandatory v4 global stylesheet, set a color scheme, and integrate the loader into the `<body>` section.
+The removed v3 `getInitialStyles()` and `getFontFaceStyles()` partials are replaced by CSS. Font preloads from
+`getFontLinks()` are unnecessary here because the stylesheet uses bundled fonts.
 
-```diff
-// src/layouts/Layout.astro
+Set the document base URL so the offline build's relative asset URLs also work on nested pages and under
+`ASTRO_PUBLIC_BASE_PATH` (used by `npm run build:ci`).
 
+In `src/layouts/Layout.astro`:
+
+```astro
 ---
-+ import { getLoaderScript } from '@porsche-design-system/components-js/partials';
+import '@porsche-design-system/components-js/index.css';
+import { getLoaderScript } from '@porsche-design-system/components-js/partials';
+
+const baseUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/`;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scheme-light">
   <head>
     <meta charset="UTF-8" />
+    <base href={baseUrl} />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={`${baseUrl}favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
     <title>Astro Basics</title>
   </head>
   <body>
     <slot />
-+   <Fragment set:html={getLoaderScript()} />
+    <Fragment set:html={getLoaderScript()} />
   </body>
 </html>
+
+<style is:global>
+  :not(:defined) {
+    visibility: hidden;
+  }
+</style>
 ```
 
 ### Step 6

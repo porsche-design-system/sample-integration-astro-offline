@@ -1,4 +1,5 @@
-import type { Cdn, Format, FormatWithCSP, FormatWithJS } from '../shared';
+import type { JSX } from 'react';
+import type { Cdn, FormatWithCSP, FormatWithJS } from '../shared';
 type PreloadAs = "audio" | "document" | "embed" | "fetch" | "font" | "image" | "object" | "track" | "script" | "style" | "video" | "worker";
 type PreloadOptions = {
     as: PreloadAs;
@@ -15,31 +16,6 @@ type PartialLink = {
     href: string;
     options?: PreloadOptions;
 };
-type GetFontFaceStylesheetOptions = {
-    cdn?: Cdn;
-    format?: Format;
-};
-export declare function getFontFaceStylesheet(opts: GetFontFaceStylesheetOptions & {
-    format: 'jsx';
-}): JSX.Element;
-export declare function getFontFaceStylesheet(opts?: GetFontFaceStylesheetOptions): string;
-type GetFontFaceStylesOptions = {
-    cdn?: Cdn;
-    format?: FormatWithCSP;
-};
-export declare function getFontFaceStyles(opts: GetFontFaceStylesOptions & {
-    format: 'jsx';
-}): JSX.Element;
-export declare function getFontFaceStyles(opts?: GetFontFaceStylesOptions): string;
-type GetInitialStylesOptions = {
-    prefix?: string | string[];
-    format?: FormatWithCSP;
-    globalStyles?: boolean;
-};
-export declare function getInitialStyles(opts: GetInitialStylesOptions & {
-    format: 'jsx';
-}): JSX.Element;
-export declare function getInitialStyles(opts?: GetInitialStylesOptions): string;
 type FontSubset = 'latin' | 'greek' | 'cyril' | 'thai' | 'arabic' | 'pashto' | 'urdu';
 type FontWeight = 'regular' | 'semi-bold' | 'bold';
 type GetFontLinksOptions = {
@@ -55,7 +31,7 @@ export declare function getFontLinks(opts: GetFontLinksOptions & {
     format: 'jsx';
 }): JSX.Element;
 export declare function getFontLinks(opts?: GetFontLinksOptions): string;
-type ComponentChunkName = 'accordion' | 'ai-tag' | 'banner' | 'button-group' | 'button-pure' | 'button-tile' | 'button' | 'canvas' | 'carousel' | 'checkbox-wrapper' | 'checkbox' | 'content-wrapper' | 'crest' | 'display' | 'divider' | 'drilldown' | 'fieldset-wrapper' | 'fieldset' | 'flag' | 'flex' | 'flyout' | 'grid' | 'heading' | 'headline' | 'icon' | 'inline-notification' | 'input-date' | 'input-email' | 'input-month' | 'input-number' | 'input-password' | 'input-search' | 'input-tel' | 'input-text' | 'input-time' | 'input-url' | 'input-week' | 'link-pure' | 'link-social' | 'link-tile-model-signature' | 'link-tile-product' | 'link-tile' | 'link' | 'marque' | 'modal' | 'model-signature' | 'multi-select' | 'optgroup' | 'pagination' | 'pin-code' | 'popover' | 'radio-button-wrapper' | 'radio-group-option' | 'radio-group' | 'scroller' | 'segmented-control' | 'select-wrapper' | 'select' | 'sheet' | 'spinner' | 'stepper-horizontal' | 'switch' | 'table' | 'tabs-bar' | 'tabs' | 'tag-dismissible' | 'tag' | 'text-field-wrapper' | 'text-list' | 'text' | 'textarea-wrapper' | 'textarea' | 'toast' | 'wordmark';
+type ComponentChunkName = 'accordion' | 'ai-tag' | 'banner' | 'button-pure' | 'button-tile' | 'button' | 'canvas' | 'carousel' | 'checkbox' | 'crest' | 'display' | 'divider' | 'drilldown' | 'fieldset' | 'flag' | 'flyout' | 'heading' | 'icon' | 'inline-notification' | 'input-date' | 'input-email' | 'input-month' | 'input-number' | 'input-password' | 'input-search' | 'input-tel' | 'input-text' | 'input-time' | 'input-url' | 'input-week' | 'link-pure' | 'link-tile-product' | 'link-tile' | 'link' | 'modal' | 'model-signature' | 'multi-select' | 'optgroup' | 'pagination' | 'pin-code' | 'popover' | 'radio-group' | 'scroller' | 'segmented-control' | 'select' | 'sheet' | 'spinner' | 'stepper-horizontal' | 'switch' | 'table' | 'tabs-bar' | 'tabs' | 'tag-dismissible' | 'tag' | 'text-list' | 'text' | 'textarea' | 'toast' | 'wordmark';
 type GetComponentChunkLinksOptions = {
     components?: ComponentChunkName[];
     cdn?: Cdn;
@@ -105,7 +81,7 @@ export declare function getMetaTagsAndIconLinks(opts: GetMetaTagsAndIconLinksOpt
     format: 'jsx';
 }): JSX.Element;
 export declare function getMetaTagsAndIconLinks(opts?: GetMetaTagsAndIconLinksOptions): string;
-type IconName = '360' | '4-wheel-drive' | 'accessibility' | 'active-cabin-ventilation' | 'add' | 'adjust' | 'aggregation' | 'ai-3d-object' | 'ai-code' | 'ai-edit' | 'ai-image' | 'ai-scale' | 'ai-sound' | 'ai-spark' | 'ai-spark-filled' | 'ai-text' | 'ai-video' | 'arrow-compact-down' | 'arrow-compact-left' | 'arrow-compact-right' | 'arrow-compact-up' | 'arrow-double-down' | 'arrow-double-left' | 'arrow-double-right' | 'arrow-double-up' | 'arrow-down' | 'arrow-first' | 'arrow-head-down' | 'arrow-head-left' | 'arrow-head-right' | 'arrow-head-up' | 'arrow-last' | 'arrow-left' | 'arrow-right' | 'arrow-up' | 'arrows' | 'attachment' | 'augmented-reality' | 'battery-empty' | 'battery-empty-co2' | 'battery-empty-fuel' | 'battery-full' | 'battery-half' | 'battery-one-quarter' | 'battery-three-quarters' | 'bell' | 'bookmark' | 'bookmark-filled' | 'brain' | 'broadcast' | 'cabriolet' | 'calculator' | 'calendar' | 'camera' | 'car' | 'car-battery' | 'card' | 'charging-active' | 'charging-network' | 'charging-state' | 'charging-station' | 'chart' | 'chat' | 'check' | 'city' | 'climate' | 'climate-control' | 'clock' | 'close' | 'closed-caption' | 'cloud' | 'co2-class' | 'co2-emission' | 'color-picker' | 'compare' | 'compass' | 'configurate' | 'copy' | 'country-road' | 'coupe' | 'cubic-capacity' | 'cut' | 'delete' | 'disable' | 'dislike' | 'dislike-filled' | 'document' | 'door' | 'download' | 'drag' | 'duration' | 'ear' | 'edit' | 'email' | 'error' | 'error-filled' | 'exclamation' | 'exclamation-filled' | 'external' | 'fast-backward' | 'fast-forward' | 'file-csv' | 'file-excel' | 'filter' | 'fingerprint' | 'flag' | 'flash' | 'fuel-station' | 'garage' | 'genuine-parts' | 'geo-localization' | 'gift' | 'globe' | 'grid' | 'grip' | 'group' | 'hand' | 'heart' | 'heart-filled' | 'highway' | 'highway-filled' | 'history' | 'home' | 'horn' | 'image' | 'increase' | 'information' | 'information-filled' | 'key' | 'laptop' | 'leaf' | 'leather' | 'light' | 'like' | 'like-filled' | 'limousine' | 'linked' | 'list' | 'locate' | 'lock' | 'lock-open' | 'logo-apple-carplay' | 'logo-apple-music' | 'logo-apple-podcast' | 'logo-baidu' | 'logo-delicious' | 'logo-digg' | 'logo-facebook' | 'logo-foursquare' | 'logo-gmail' | 'logo-google' | 'logo-hatena' | 'logo-instagram' | 'logo-kaixin' | 'logo-kakaotalk' | 'logo-kununu' | 'logo-linkedin' | 'logo-naver' | 'logo-pinterest' | 'logo-qq' | 'logo-qq-share' | 'logo-reddit' | 'logo-skyrock' | 'logo-snapchat' | 'logo-sohu' | 'logo-spotify' | 'logo-tecent' | 'logo-telegram' | 'logo-tiktok' | 'logo-tumblr' | 'logo-twitter' | 'logo-viber' | 'logo-vk' | 'logo-wechat' | 'logo-weibo' | 'logo-whatsapp' | 'logo-x' | 'logo-xing' | 'logo-yahoo' | 'logo-youku' | 'logo-youtube' | 'logout' | 'map' | 'menu-dots-horizontal' | 'menu-dots-vertical' | 'menu-lines' | 'microphone' | 'minus' | 'mobile' | 'moon' | 'new-chat' | 'news' | 'north-arrow' | 'oil-can' | 'online-search' | 'parking-brake' | 'parking-light' | 'paste' | 'pause' | 'phone' | 'pin' | 'pin-filled' | 'pivot' | 'play' | 'plug' | 'plus' | 'preheating' | 'price-tag' | 'printer' | 'purchase' | 'push-pin' | 'push-pin-off' | 'qr' | 'qr-off' | 'question' | 'question-filled' | 'racing-flag' | 'radar' | 'radio' | 'refresh' | 'replay' | 'reset' | 'return' | 'road' | 'roof-closed' | 'roof-open' | 'route' | 'rss' | 'save' | 'screen' | 'search' | 'seat' | 'send' | 'service-technician' | 'share' | 'shopping-bag' | 'shopping-bag-filled' | 'shopping-cart' | 'shopping-cart-filled' | 'sidebar' | 'sidelights' | 'skip-backward' | 'skip-forward' | 'snowflake' | 'sort' | 'stack' | 'star' | 'star-filled' | 'steering-wheel' | 'stop' | 'stopwatch' | 'subtract' | 'success' | 'success-filled' | 'sun' | 'suv' | 'switch' | 'tablet' | 'tachometer' | 'theme' | 'tire' | 'trigger-finger' | 'truck' | 'turismo' | 'unlinked' | 'upload' | 'user' | 'user-filled' | 'user-group' | 'user-manual' | 'video' | 'view' | 'view-off' | 'volume-off' | 'volume-up' | 'warning' | 'warning-filled' | 'weather' | 'weight' | 'wifi' | 'work' | 'wrench' | 'wrenches' | 'zoom-in' | 'zoom-out';
+type IconName = '360' | '4-wheel-drive' | 'accessibility' | 'active-cabin-ventilation' | 'add' | 'adjust' | 'aggregation' | 'ai-3d-object' | 'ai-code' | 'ai-edit' | 'ai-image' | 'ai-scale' | 'ai-sound' | 'ai-spark' | 'ai-spark-filled' | 'ai-text' | 'ai-video' | 'arrow-compact-down' | 'arrow-compact-left' | 'arrow-compact-right' | 'arrow-compact-up' | 'arrow-double-down' | 'arrow-double-left' | 'arrow-double-right' | 'arrow-double-up' | 'arrow-down' | 'arrow-down-left' | 'arrow-down-right' | 'arrow-first' | 'arrow-head-down' | 'arrow-head-left' | 'arrow-head-right' | 'arrow-head-up' | 'arrow-last' | 'arrow-left' | 'arrow-right' | 'arrow-up' | 'arrow-up-left' | 'arrow-up-right' | 'arrows' | 'attachment' | 'augmented-reality' | 'battery-empty' | 'battery-empty-co2' | 'battery-empty-fuel' | 'battery-full' | 'battery-half' | 'battery-one-quarter' | 'battery-three-quarters' | 'bell' | 'bookmark' | 'bookmark-filled' | 'brain' | 'broadcast' | 'cabriolet' | 'calculator' | 'calendar' | 'camera' | 'car' | 'car-battery' | 'card' | 'charging-active' | 'charging-network' | 'charging-state' | 'charging-station' | 'chart' | 'chat' | 'check' | 'city' | 'climate' | 'climate-control' | 'clock' | 'close' | 'closed-caption' | 'cloud' | 'co2-class' | 'co2-emission' | 'color-picker' | 'compare' | 'compass' | 'configurate' | 'connect-services' | 'copy' | 'country-road' | 'coupe' | 'cubic-capacity' | 'customer-support' | 'cut' | 'delete' | 'disable' | 'dislike' | 'dislike-filled' | 'document' | 'door' | 'download' | 'drag' | 'duration' | 'ear' | 'edit' | 'email' | 'error' | 'error-filled' | 'exclamation' | 'exclamation-filled' | 'external' | 'fast-backward' | 'fast-forward' | 'file-csv' | 'file-excel' | 'filter' | 'fingerprint' | 'flag' | 'flash' | 'fuel-station' | 'garage' | 'genuine-parts' | 'geo-localization' | 'gift' | 'globe' | 'grid' | 'grip' | 'group' | 'hand' | 'heart' | 'heart-filled' | 'highway' | 'highway-filled' | 'history' | 'home' | 'horn' | 'image' | 'increase' | 'information' | 'information-filled' | 'key' | 'laptop' | 'leaf' | 'leather' | 'light' | 'like' | 'like-filled' | 'limousine' | 'linked' | 'list' | 'locate' | 'lock' | 'lock-open' | 'logo-apple-carplay' | 'logo-apple-music' | 'logo-apple-podcast' | 'logo-baidu' | 'logo-delicious' | 'logo-digg' | 'logo-facebook' | 'logo-foursquare' | 'logo-gmail' | 'logo-google' | 'logo-hatena' | 'logo-instagram' | 'logo-kaixin' | 'logo-kakaotalk' | 'logo-kununu' | 'logo-linkedin' | 'logo-naver' | 'logo-pinterest' | 'logo-qq' | 'logo-qq-share' | 'logo-reddit' | 'logo-skyrock' | 'logo-snapchat' | 'logo-sohu' | 'logo-spotify' | 'logo-tecent' | 'logo-telegram' | 'logo-tiktok' | 'logo-tumblr' | 'logo-twitter' | 'logo-viber' | 'logo-vk' | 'logo-wechat' | 'logo-weibo' | 'logo-whatsapp' | 'logo-x' | 'logo-xing' | 'logo-yahoo' | 'logo-youku' | 'logo-youtube' | 'logout' | 'map' | 'menu-dots-horizontal' | 'menu-dots-vertical' | 'menu-lines' | 'microphone' | 'minus' | 'mobile' | 'moon' | 'new-chat' | 'news' | 'north-arrow' | 'oil-can' | 'online-search' | 'parking-brake' | 'parking-light' | 'paste' | 'pause' | 'phone' | 'pin' | 'pin-filled' | 'pivot' | 'play' | 'play-filled' | 'plug' | 'plus' | 'preheating' | 'price-tag' | 'printer' | 'purchase' | 'push-pin' | 'push-pin-off' | 'qr' | 'qr-off' | 'question' | 'question-filled' | 'racing-flag' | 'radar' | 'radio' | 'refresh' | 'replay' | 'reset' | 'return' | 'road' | 'roof-closed' | 'roof-open' | 'route' | 'rss' | 'save' | 'screen' | 'search' | 'seat' | 'send' | 'service-technician' | 'share' | 'shopping-bag' | 'shopping-bag-filled' | 'shopping-cart' | 'shopping-cart-filled' | 'shopping-cart-off' | 'sidebar' | 'sidelights' | 'skip-backward' | 'skip-forward' | 'snowflake' | 'sort' | 'stack' | 'star' | 'star-filled' | 'steering-wheel' | 'stop' | 'stopwatch' | 'subtract' | 'success' | 'success-filled' | 'sun' | 'suv' | 'switch' | 'tablet' | 'tachometer' | 'theme' | 'tire' | 'trigger-finger' | 'truck' | 'turismo' | 'unlinked' | 'upload' | 'user' | 'user-filled' | 'user-group' | 'user-manual' | 'video' | 'view' | 'view-off' | 'volume-off' | 'volume-up' | 'warning' | 'warning-filled' | 'weather' | 'weight' | 'wifi' | 'work' | 'wrench' | 'wrenches' | 'zoom-in' | 'zoom-out';
 type GetIconLinksOptions = {
     icons?: IconName[];
     cdn?: Cdn;
@@ -126,27 +102,4 @@ export declare function getLoaderScript(opts: GetLoaderScriptOptions & {
     format: 'jsx';
 }): JSX.Element;
 export declare function getLoaderScript(opts?: GetLoaderScriptOptions): string;
-type GetBrowserSupportFallbackScriptOptions = {
-    cdn?: Cdn;
-    format?: FormatWithCSP;
-};
-export declare function getBrowserSupportFallbackScript(opts: GetBrowserSupportFallbackScriptOptions & {
-    format: 'jsx';
-}): JSX.Element;
-export declare function getBrowserSupportFallbackScript(opts?: GetBrowserSupportFallbackScriptOptions): string;
-type GetCookiesFallbackScriptOptions = {
-    cdn?: Cdn;
-    format?: FormatWithCSP;
-};
-export declare function getCookiesFallbackScript(opts: GetCookiesFallbackScriptOptions & {
-    format: 'jsx';
-}): JSX.Element;
-export declare function getCookiesFallbackScript(opts?: GetCookiesFallbackScriptOptions): string;
-type GetDSRPonyfillOptions = {
-    format?: FormatWithCSP;
-};
-export declare function getDSRPonyfill(opts: GetDSRPonyfillOptions & {
-    format: 'jsx';
-}): JSX.Element;
-export declare function getDSRPonyfill(opts?: GetDSRPonyfillOptions): string;
 export {};
