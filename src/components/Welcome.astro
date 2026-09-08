@@ -1,6 +1,15 @@
 ---
+import astroPackage from 'astro/package.json';
+import vuePackage from 'vue/package.json';
+import pdsPackage from '@porsche-design-system/components-js/package.json';
 import astroLogo from '../assets/astro.svg';
 import background from '../assets/background.svg';
+
+const versions = [
+	{ name: 'Astro', version: astroPackage.version },
+	{ name: 'Vue', version: vuePackage.version },
+	{ name: 'Porsche Design System (PDS)', version: pdsPackage.version },
+];
 ---
 
 <div class="grid justify-items-center gap-fluid-md m-static-lg p-fluid-lg bg-surface rounded-lg">
@@ -18,6 +27,17 @@ import background from '../assets/background.svg';
 			<h1>
 				To get started, open the <code><pre>src/pages</pre></code> directory in your project.
 			</h1>
+			<section id="versions" class="box" aria-labelledby="versions-heading">
+				<h2 id="versions-heading">Demo versions</h2>
+				<dl>
+					{versions.map(({ name, version }) => (
+						<div>
+							<dt>{name}</dt>
+							<dd>{version}</dd>
+						</div>
+					))}
+				</dl>
+			</section>
 			<section id="links">
 				<a class="button" href="https://docs.astro.build">Read our docs</a>
 				<a href="https://astro.build/chat"
@@ -31,19 +51,6 @@ import background from '../assets/background.svg';
 			</section>
 		</section>
 	</main>
-
-	<a href="https://astro.build/blog/astro-6-beta/" id="news" class="box">
-		<svg width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg"
-			><path
-				d="M24.667 12c1.333 1.414 2 3.192 2 5.334 0 4.62-4.934 5.7-7.334 12C18.444 28.567 18 27.456 18 26c0-4.642 6.667-7.053 6.667-14Zm-5.334-5.333c1.6 1.65 2.4 3.43 2.4 5.333 0 6.602-8.06 7.59-6.4 17.334C13.111 27.787 12 25.564 12 22.666c0-4.434 7.333-8 7.333-16Zm-6-5.333C15.111 3.555 16 5.556 16 7.333c0 8.333-11.333 10.962-5.333 22-3.488-.774-6-4-6-8 0-8.667 8.666-10 8.666-20Z"
-				fill="#111827"></path></svg
-		>
-		<h2>What's New in Astro 6.0?</h2>
-		<p>
-			Redesigned dev server, fonts, live collections, built-in CSP support, and more! Click to
-			explore Astro 6.0's new features.
-		</p>
-	</a>
 </div>
 
 <style>
@@ -137,14 +144,6 @@ import background from '../assets/background.svg';
 		font-size: 20px;
 	}
 
-	p {
-		color: #4b5563;
-		font-size: 16px;
-		line-height: 24px;
-		letter-spacing: -0.006em;
-		margin: 0;
-	}
-
 	code {
 		display: inline-block;
 		background:
@@ -162,24 +161,28 @@ import background from '../assets/background.svg';
 		border: 1px solid white;
 	}
 
-	#news {
-		position: absolute;
-		bottom: 16px;
-		right: 16px;
-		max-width: 300px;
-		text-decoration: none;
-		transition: background 0.2s;
-		backdrop-filter: blur(50px);
+	#versions {
+		align-self: stretch;
+		margin-bottom: 24px;
 	}
 
-	#news:hover {
-		background: rgba(255, 255, 255, 0.55);
+	dl {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 16px 32px;
+		margin: 0;
 	}
 
-	@media screen and (max-height: 368px) {
-		#news {
-			display: none;
-		}
+	dt {
+		color: #4b5563;
+		font-size: 16px;
+	}
+
+	dd {
+		margin: 4px 0 0;
+		color: #111827;
+		font-size: 24px;
+		font-weight: 600;
 	}
 
 	@media screen and (max-width: 768px) {
@@ -199,13 +202,6 @@ import background from '../assets/background.svg';
 
 		#links a.button {
 			padding: 14px 18px;
-		}
-
-		#news {
-			right: 16px;
-			left: 16px;
-			bottom: 2.5rem;
-			max-width: 100%;
 		}
 
 		h1 {
