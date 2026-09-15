@@ -4,6 +4,7 @@ export type Options = {
     offset?: Offset | string;
     borderRadius?: BorderRadius | string;
 };
+/** @deprecated Use {@link getFocusVisibleStyle} instead. This API will be removed with the next major release. */
 export declare const getFocusStyle: (opts?: Options) => {
     readonly selectors: {
         readonly '&:focus': {

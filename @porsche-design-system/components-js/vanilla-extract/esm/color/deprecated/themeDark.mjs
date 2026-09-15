@@ -19,7 +19,7 @@ import { themeDarkStateDisabled } from './themeDarkStateDisabled.mjs';
 import { themeDarkStateFocus } from './themeDarkStateFocus.mjs';
 import { themeDarkStateHover } from './themeDarkStateHover.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use individual variables instead. */
+/** @deprecated This API will be removed with the next major release. Use individual variables instead. */
 const themeDark = {
     primary: themeDarkPrimary,
     background: {

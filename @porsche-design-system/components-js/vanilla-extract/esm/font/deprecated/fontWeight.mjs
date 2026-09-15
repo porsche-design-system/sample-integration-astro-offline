@@ -2,7 +2,7 @@ import { fontWeightRegular } from './fontWeightRegular.mjs';
 import { fontWeightSemiBold } from './fontWeightSemiBold.mjs';
 import { fontWeightBold } from '../fontWeightBold.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use variables directly instead. */
+/** @deprecated This API will be removed with the next major release. Use variables directly instead. */
 const fontWeight = {
     regular: fontWeightRegular,
     semiBold: fontWeightSemiBold,

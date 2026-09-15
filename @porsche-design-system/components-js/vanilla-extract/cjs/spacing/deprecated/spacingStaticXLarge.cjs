@@ -2,7 +2,7 @@
 
 var spacingStaticXl = require('../../tokens/dist/esm/spacing/static/spacingStaticXl.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use spacingStaticXl instead. */
+/** @deprecated Use {@link spacingStaticXl} instead. This API will be removed with the next major release. */
 const spacingStaticXLarge = spacingStaticXl.spacingStaticXl;
 
 exports.spacingStaticXLarge = spacingStaticXLarge;

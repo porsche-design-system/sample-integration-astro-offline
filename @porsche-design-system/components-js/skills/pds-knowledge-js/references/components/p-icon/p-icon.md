@@ -67,7 +67,7 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 | --- | --- | --- | --- |
 | `aria` | `IconAriaAttribute` | `undefined` | Sets ARIA attributes on the icon — use `aria-label` to make the icon meaningful to screen readers when it conveys information. |
 | `color` | `'primary'` `'contrast-higher'` `'contrast-high'` `'contrast-medium'` `'contrast-low'` `'contrast-lower'` `'success'` `'warning'` `'error'` `'info'` `'inherit'` | `'primary'` | Sets the fill color of the icon using PDS color tokens. |
-| `name` | one of 293 icon names — see [icon names](references/icons.md) | `'arrow-right'` | Selects an icon from the built-in PDS icon library by name (e.g. `arrow-right`, `close`). |
+| `name` | one of 294 icon names — see [icon names](references/icons.md) | `'arrow-right'` | Selects an icon from the built-in PDS icon library by name (e.g. `arrow-right`, `close`). |
 | `size` | `'2xs'` `'xs'` `'sm'` `'md'` `'lg'` `'xl'` `'2xl'` `'3xl'` `'4xl'` `'5xl'` `'inherit'`<br>_deprecated:_ `'xx-small'` `'x-small'` `'small'` `'medium'` `'large'` `'x-large'` `'xx-large'`<br>`BreakpointCustomizable<IconSize>` | `'sm'` | Sets the icon size using the PDS typographic scale. Use `inherit` to derive size from the parent element. Supports responsive breakpoint values. |
 | `source` | `string` | `undefined` | Sets a path to a custom SVG icon, used instead of the built-in icon library. |
 

@@ -1,6 +1,6 @@
 import { easeIn } from '../../tokens/dist/esm/motion/ease/easeIn.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use easeIn instead. */
+/** @deprecated Use {@link easeIn} instead. This API will be removed with the next major release. */
 const motionEasingIn = easeIn;
 
 export { motionEasingIn };

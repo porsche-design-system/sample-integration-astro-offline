@@ -84,7 +84,7 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 | `download` | `string` | `undefined` | Sets the native `download` attribute to trigger a file download. Only applies when `href` is set. |
 | `hideLabel` | `boolean`<br>`BreakpointCustomizable<boolean>` | `false` | Hides the visible label while keeping it accessible to screen readers. Supports responsive breakpoint values. |
 | `href` | `string` | `undefined` | When set, the component renders as an anchor navigating to this URL. Otherwise, provide a slotted anchor element. |
-| `icon` | `'none'`<br>one of 293 icon names — see [icon names](references/icons.md) | `'none'` | Sets the icon displayed next to the link label. Use `none` to show no icon. |
+| `icon` | `'none'`<br>one of 294 icon names — see [icon names](references/icons.md) | `'none'` | Sets the icon displayed next to the link label. Use `none` to show no icon. |
 | `iconSource` | `string` | `undefined` | Sets a path to a custom SVG icon, used instead of the built-in icon set. |
 | `rel` | `string` | `undefined` | Sets the `rel` attribute on the link (e.g. `noopener`). Only applies when `href` is set. |
 | `target` | `'_self'` `'_blank'` `'_parent'` `'_top'` `'string'` | `'_self'` | Specifies where to open the linked URL (e.g. `_self`, `_blank`). Only applies when `href` is set. |
@@ -95,6 +95,17 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 | Slot | Required | Allowed tag names | Description |
 | --- | --- | --- | --- |
 | _(default)_ | no | — | Default slot to render the link label. This slot can be used to slot an anchor tag instead of using the href prop. |
+
+### CSS Variables
+
+| CSS Variable | Default | Description |
+| --- | --- | --- |
+| `--p-link-bg` | — | Overrides the background color of the link in every state, including hover. You are responsible for ensuring sufficient contrast and brand compliance. |
+| `--p-link-fg` | — | Overrides the foreground color (label and icon) of the link in every state, including hover. You are responsible for ensuring sufficient contrast and brand compliance. |
+| `--p-link-px` | — | Horizontal padding of the link. |
+| `--p-link-py` | — | Vertical padding of the link. |
+| `--p-link-gap` | — | Gap between the link's content (label and icon). |
+| `--p-link-radius` | — | Radius of the link |
 
 ## Examples
 

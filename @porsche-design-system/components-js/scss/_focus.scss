@@ -2,13 +2,6 @@
 @use "color";
 @use "sass:map";
 
-@mixin focus-visible($offset: 2px) {
-  &:focus-visible {
-    outline: 2px solid color.$color-focus;
-    outline-offset: $offset;
-  }
-}
-
 $pds-focus-offset-map: (
   "small": 2px,
   "none": 0,
@@ -19,7 +12,13 @@ $pds-focus-border-radius-map: (
   "medium": border.$radius-md,
 );
 
-/* alias (deprecated) */
+@mixin focus-visible($offset: 2px) {
+  &:focus-visible {
+    outline: 2px solid color.$color-focus;
+    outline-offset: $offset;
+  }
+}
+// @deprecated Use focus-visible() instead. This API will be removed with the next major release.
 @mixin pds-focus($offset: "small", $border-radius: "small") {
   // it can easily be overwritten on purpose (when placed here) and visually reflected
   @if map.has-key($pds-focus-border-radius-map, $border-radius) {

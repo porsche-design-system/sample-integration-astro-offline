@@ -24,7 +24,7 @@
     0 0 / 200% 100%;
   animation: skeleton motion.$duration-xl motion.$ease-in-out infinite;
 }
-
+// @deprecated Use skeleton() instead. This API will be removed with the next major release.
 @mixin pds-skeleton($theme: "light") {
   @include skeleton();
   @if ($theme == "dark") {

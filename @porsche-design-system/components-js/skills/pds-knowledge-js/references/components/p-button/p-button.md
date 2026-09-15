@@ -25,6 +25,55 @@ You can use native `click`, `focus`, `focusin`, `blur` and `focusout` events on 
 
 ---
 
+## Custom states
+
+🧪 **Experimental**: The button exposes its loading state as a [CSS custom state](https://developer.mozilla.org/en-US/docs/Web/CSS/:state), which can be targeted with the `:state()` pseudo-class. This is handy to conditionally override the exposed CSS variables (e.g. `--p-button-bg` and `--p-button-fg`) without having to duplicate the state logic in your application.
+
+| Custom state | Applied when |
+| --- | --- |
+| `loading` | `loading` is `true` |
+
+```scss
+p-button:state(loading) {
+  --p-button-bg: light-dark(#025b3f, #21eeae);
+  --p-button-fg: light-dark(#21eeae, #025b3f);
+}
+```
+
+Custom states are a progressive enhancement: browsers without support for `CustomStateSet` or the `:state()` pseudo-class simply ignore these rules, the button keeps working and falls back to its default styling. Be aware that custom states can't be expressed during server side rendering, they are only applied once the component is hydrated on the client. Therefore, don't rely on `:state()` for styling that has to be correct on first paint.
+
+For all other states and variants, use native CSS selectors instead:
+
+| Styling target | Selector |
+| --- | --- |
+| Disabled | `p-button:disabled` (the button is form-associated) |
+| Hover | `p-button:not(:disabled, :state(loading)):hover` |
+| Focus | `p-button:focus-visible` |
+| Variant | a custom class, e.g. `<p-button class="my-button" variant="secondary">` |
+
+Since the button is a form-associated custom element, it is matched by the native `:disabled` pseudo-class as soon as the `disabled` attribute is set — no custom state is needed for it.
+
+```scss
+p-button {
+  --p-button-bg: light-dark(#025b3f, #21eeae);
+  --p-button-fg: light-dark(#21eeae, #025b3f);
+}
+
+p-button:not(:disabled, :state(loading)):hover {
+  --p-button-bg: light-dark(#013d2a, #6ef7cf);
+  --p-button-fg: light-dark(#6ef7cf, #013d2a);
+}
+
+p-button:disabled {
+  --p-button-bg: light-dark(#6f3d0b, #ffaa4f);
+  --p-button-fg: light-dark(#ffaa4f, #6f3d0b);
+}
+```
+
+As with all color customizations, you are responsible for ensuring sufficient contrast and brand compliance.
+
+---
+
 ## Related components
 
 - [Links](../p-link/p-link.md)
@@ -99,19 +148,30 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 | `disabled` | `boolean` | `false` | Disables the button, preventing all interaction and blocking events. |
 | `form` | `string` | `undefined` | Associates the button with a form element by its ID, so it can submit or reset that form even when placed outside of it. |
 | `hideLabel` | `boolean`<br>`BreakpointCustomizable<boolean>` | `false` | Hides the visible label while keeping it accessible to screen readers. Supports responsive breakpoint values. |
-| `icon` | `'none'`<br>one of 293 icon names — see [icon names](references/icons.md) | `'none'` | Sets the icon displayed inside the button. Use `none` to show no icon. |
+| `icon` | `'none'`<br>one of 294 icon names — see [icon names](references/icons.md) | `'none'` | Sets the icon displayed inside the button. Use `none` to show no icon. |
 | `iconSource` | `string` | `undefined` | Sets a path to a custom SVG icon, used instead of the built-in icon set. |
 | `loading` | `boolean` | `false` | Disables the button and replaces its content with a loading spinner to indicate an ongoing operation. |
 | `name` | `string` | `undefined` | Sets the name submitted with the form data when this button triggers form submission. |
 | `type` | `'button'` `'submit'` `'reset'` | `'submit'` | Sets the button's HTML type — `submit` sends the form, `reset` clears it, `button` performs no default action. |
 | `value` | `string` | `undefined` | Sets the value submitted with the form data when this button triggers form submission, paired with `name`. |
-| `variant` | `'primary'` `'secondary'` | `'primary'` | Sets the visual style variant of the button (`primary` or `secondary`). |
+| `variant` | `'primary'` `'secondary'` `'destructive'` | `'primary'` | Sets the visual style variant of the button (`primary`, `secondary` or `destructive`). Use `destructive` for actions with irreversible consequences, e.g. deleting data. |
 
 ### Slots
 
 | Slot | Required | Allowed tag names | Description |
 | --- | --- | --- | --- |
 | _(default)_ | no | — | Default slot for the button label. |
+
+### CSS Variables
+
+| CSS Variable | Default | Description |
+| --- | --- | --- |
+| `--p-button-bg` | — | Overrides the background color of the button in every state, including hover. You are responsible for ensuring sufficient contrast and brand compliance. |
+| `--p-button-fg` | — | Overrides the foreground color (label, icon and loading spinner) of the button in every state, including hover. You are responsible for ensuring sufficient contrast and brand compliance. |
+| `--p-button-px` | — | Horizontal padding of the button. |
+| `--p-button-py` | — | Vertical padding of the button. |
+| `--p-button-gap` | — | Gap between the button's content (label and icon). |
+| `--p-button-radius` | — | Radius of the button |
 
 ## Examples
 
@@ -120,3 +180,5 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 | Default | Minimal default configuration. | [./examples/Default.html](./examples/Default.html) |
 | Form | When used as a submit button, the `name` and `value` props are submitted as a pair as part of the form data. | [./examples/Form.html](./examples/Form.html) |
 | Form Attribute | When a button is used as a submit or reset button outside a form, the `form` attribute can be utilized to explicitly associate the button with a specific form element. | [./examples/FormAttribute.html](./examples/FormAttribute.html) |
+| Custom AI Styling: Drop Shadow | 🧪 **Experimental**: This example shows what's technically possible with the exposed `--p-button-bg` and `--p-button-fg` CSS variables. | [./examples/AiDropShadow.html](./examples/AiDropShadow.html) |
+| Custom AI Styling: Gradient Glow | 🧪 **Experimental**: This example demonstrates the technical possibilities of styling around the button host element. | [./examples/AiGradientGlow.html](./examples/AiGradientGlow.html) |

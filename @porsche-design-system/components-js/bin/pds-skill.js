@@ -1,19 +1,7 @@
 #!/usr/bin/env node
 
-// Links locally installed Porsche Design System wrapper skills into the consumer project.
-// Every wrapper package exposes this same bin through the local node_modules/.bin directory;
-// --package selects which installed wrapper supplies the skills, independently of which
-// wrapper supplies the bin.
-//
-// --location is the destination parent directory for the skill links (e.g. `.claude/skills`,
-// `.agents`, `.github/skills`). Relative locations resolve from the cwd.
-//
-// --skill may be repeated to install only named skills. Omit it to install all discovered skills.
-//
-//   pds-skill --package <package> --location <dir> [--skill <name>...]
-//
-// This is the canonical source copied into all four wrapper package distributions by their
-// `build:subPackages:skill:bin` steps.
+// Canonical installer copied into every wrapper package. It creates portable relative links to
+// locally installed skills; Windows junctions require absolute targets.
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -89,7 +77,6 @@ const readPackageManifest = (packageJsonPath) => {
   }
 };
 
-/** Parse the frontmatter `name:` value from SKILL.md content. Returns null if not found. */
 const parseFrontmatterName = (content) => {
   const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
   if (!fmMatch) {
@@ -99,10 +86,7 @@ const parseFrontmatterName = (content) => {
   return nameMatch ? nameMatch[1] : null;
 };
 
-/**
- * Validate that the SKILL.md at skillMdPath is a readable regular file with a frontmatter name
- * matching expectedName. Calls fail() on any violation.
- */
+/** Fails unless a skill has a readable SKILL.md whose frontmatter name matches its directory. */
 const validateSkillMd = (skillMdPath, expectedName) => {
   let stats;
   try {
@@ -158,7 +142,7 @@ const preflightDestLink = (linkPath, show) => {
   }
 };
 
-/** Resolve the installed package directory by walking up from cwd. Fails if not found. */
+/** Finds the nearest installed wrapper and its owning project root. */
 const resolvePackageDir = (packageName, cwd) => {
   if (!SUPPORTED_PACKAGES.includes(packageName)) {
     fail(`Unsupported package: ${packageName}\n${USAGE}`);
@@ -174,7 +158,7 @@ const resolvePackageDir = (packageName, cwd) => {
       if (installedName !== packageName) {
         fail(`Expected ${packageName} at ${packageDir}, but found ${installedName || 'a package without a name'}.`);
       }
-      return packageDir;
+      return { packageDir, projectRoot: dir };
     }
 
     const parent = path.dirname(dir);
@@ -185,7 +169,6 @@ const resolvePackageDir = (packageName, cwd) => {
   }
 };
 
-/** Discover sorted child directory names under skillsDir. Returns empty array if the dir is absent. */
 const discoverSkillNames = (skillsDir) => {
   let entries;
   try {
@@ -203,6 +186,20 @@ const discoverSkillNames = (skillsDir) => {
     .filter((e) => e.isDirectory())
     .map((e) => e.name)
     .sort();
+};
+
+const isInside = (parentDir, target) => {
+  const rel = path.relative(parentDir, target);
+  return rel === '' || (rel !== '..' && !rel.startsWith(`..${path.sep}`) && !path.isAbsolute(rel));
+};
+
+/** Resolves symlinks when possible, otherwise preserves the input path. */
+const resolveRealPath = (target) => {
+  try {
+    return fs.realpathSync(target);
+  } catch {
+    return target;
+  }
 };
 
 const main = () => {
@@ -228,7 +225,7 @@ const main = () => {
   const destArg = options.location;
   const requestedSkills = options.skill ?? [];
 
-  const packageDir = resolvePackageDir(packageName, cwd);
+  const { packageDir, projectRoot } = resolvePackageDir(packageName, cwd);
   const skillsDir = path.join(packageDir, 'skills');
   const discovered = discoverSkillNames(skillsDir);
 
@@ -236,7 +233,6 @@ const main = () => {
     fail(`The installed package does not ship any skills at ${skillsDir}. Upgrade the package and re-run.`);
   }
 
-  // Validate --skill filters; unknown names fail clearly.
   if (requestedSkills.length > 0) {
     const unknown = requestedSkills.filter((s) => !discovered.includes(s));
     if (unknown.length > 0) {
@@ -247,7 +243,6 @@ const main = () => {
     }
   }
 
-  // Deterministic sorted selection.
   const selected =
     requestedSkills.length > 0
       ? [...new Set(requestedSkills)].filter((s) => discovered.includes(s)).sort()
@@ -255,13 +250,12 @@ const main = () => {
 
   const destDir = path.isAbsolute(destArg) ? destArg : path.resolve(cwd, destArg);
 
-  // Prefer a cwd-relative path in messages; fall back to absolute when outside.
+  // Prefer cwd-relative paths in messages.
   const show = (target) => {
     const rel = path.relative(cwd, target);
     return rel && !rel.startsWith('..') && !path.isAbsolute(rel) ? rel : target;
   };
 
-  // Preflight every selected skill tree before touching the destination at all.
   for (const skillName of selected) {
     validateSkillMd(path.join(skillsDir, skillName, 'SKILL.md'), skillName);
   }
@@ -278,19 +272,30 @@ const main = () => {
     throw error;
   }
 
-  // Preflight all destination links before any mutation.
   for (const skillName of selected) {
     preflightDestLink(path.join(destDir, skillName), show);
   }
 
-  // All preflights passed — perform link operations.
+  // Relative targets must be computed from the destination's resolved path.
+  const realDestDir = resolveRealPath(destDir);
+
+  // Windows junctions require absolute targets. Destinations outside the project do not gain
+  // portability from relative targets.
   const linkType = process.platform === 'win32' ? 'junction' : 'dir';
+  const useRelativeTarget = linkType !== 'junction' && isInside(projectRoot, realDestDir);
+
+  // Compare resolved targets so older absolute links remain idempotent.
+  const matchesDesiredTarget = (currentTarget, desiredTarget) =>
+    useRelativeTarget
+      ? path.normalize(currentTarget) === path.normalize(desiredTarget)
+      : path.resolve(realDestDir, currentTarget) === desiredTarget;
+
   for (const skillName of selected) {
     const skillDir = path.join(skillsDir, skillName);
     const linkPath = path.join(destDir, skillName);
+    const linkTarget = useRelativeTarget ? path.relative(realDestDir, skillDir) : skillDir;
 
-    // Idempotent: repoint an existing symlink (including a dangling one), but never touch a
-    // real directory a user may have hand-maintained — the preflight above already rejected that.
+    // Existing symlinks may be replaced; user-managed directories were rejected above.
     let existingLink = null;
     try {
       existingLink = fs.lstatSync(linkPath);
@@ -301,20 +306,24 @@ const main = () => {
     }
 
     if (existingLink?.isSymbolicLink()) {
+      let currentTarget = null;
       try {
-        if (fs.realpathSync(linkPath) === fs.realpathSync(skillDir)) {
-          console.log(`Porsche Design System skill already linked: ${show(linkPath)} -> ${skillDir}`);
-          continue;
-        }
+        currentTarget = fs.readlinkSync(linkPath);
       } catch (error) {
-        if (error.code !== 'ENOENT') {
-          if (isPermissionError(error)) {
-            fail(`Cannot inspect ${show(linkPath)}: permission denied. Check the destination permissions and re-run.`);
-          }
+        if (isPermissionError(error)) {
+          fail(`Cannot inspect ${show(linkPath)}: permission denied. Check the destination permissions and re-run.`);
+        }
+        // Windows reparse points can produce EINVAL despite lstat reporting a symlink.
+        if (error.code !== 'ENOENT' && error.code !== 'EINVAL') {
           throw error;
         }
-        // Dangling symlink — fall through to replace it.
       }
+
+      if (currentTarget !== null && matchesDesiredTarget(currentTarget, linkTarget)) {
+        console.log(`Porsche Design System skill already linked: ${show(linkPath)} -> ${skillDir}`);
+        continue;
+      }
+
       try {
         fs.rmSync(linkPath, { force: true });
       } catch (error) {
@@ -326,7 +335,7 @@ const main = () => {
     }
 
     try {
-      fs.symlinkSync(skillDir, linkPath, linkType);
+      fs.symlinkSync(linkTarget, linkPath, linkType);
     } catch (error) {
       if (process.platform === 'win32' && error.code === 'EPERM') {
         fail(

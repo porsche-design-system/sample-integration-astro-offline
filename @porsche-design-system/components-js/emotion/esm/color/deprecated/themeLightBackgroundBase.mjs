@@ -1,6 +1,6 @@
 import { colorCanvasLight } from '../../tokens/dist/esm/color/light/background/colorCanvasLight.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use colorCanvasLight instead. */
+/** @deprecated Use {@link colorCanvas} instead. This API will be removed with the next major release. */
 const themeLightBackgroundBase = colorCanvasLight;
 
 export { themeLightBackgroundBase };

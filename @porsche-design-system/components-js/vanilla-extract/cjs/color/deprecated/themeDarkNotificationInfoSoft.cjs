@@ -2,7 +2,7 @@
 
 var colorInfoFrostedDark = require('../../tokens/dist/esm/color/dark/semantic/colorInfoFrostedDark.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use colorInfoFrostedDark instead. */
+/** @deprecated Use {@link colorInfoFrosted} instead. This API will be removed with the next major release. */
 const themeDarkNotificationInfoSoft = colorInfoFrostedDark.colorInfoFrostedDark;
 
 exports.themeDarkNotificationInfoSoft = themeDarkNotificationInfoSoft;

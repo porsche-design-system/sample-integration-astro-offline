@@ -4499,13 +4499,13 @@ var require$$7 = /*@__PURE__*/getAugmentedNamespace(ResizeObserver_es);
 
 var loader_cjs = {};
 
-var indexDXYpCE_Y = {};
+var indexCO1jYG4D = {};
 
-var hasRequiredIndexDXYpCE_Y;
+var hasRequiredIndexCO1jYG4D;
 
-function requireIndexDXYpCE_Y () {
-	if (hasRequiredIndexDXYpCE_Y) return indexDXYpCE_Y;
-	hasRequiredIndexDXYpCE_Y = 1;
+function requireIndexCO1jYG4D () {
+	if (hasRequiredIndexCO1jYG4D) return indexCO1jYG4D;
+	hasRequiredIndexCO1jYG4D = 1;
 	(function (exports) {
 		function __variableDynamicImportRuntime0__(path) {
 		  switch (path) {
@@ -7842,7 +7842,7 @@ function requireIndexDXYpCE_Y () {
 
 		const breakpoints = ['base', 'xs', 's', 'm', 'l', 'xl', 'xxl'];
 
-		const parseJSON = (prop) => {
+		const parse = (prop) => {
 		    if (typeof prop === 'string') {
 		        try {
 		            // prop is potentially JSON parsable string, e.g. "{ base: 'block', l: 'inline' }" or "true" or "false"
@@ -7860,6 +7860,20 @@ function requireIndexDXYpCE_Y () {
 		        // prop is object, e.g. { base: 'block', l: 'inline' } or number, e.g. 123 or boolean, e.g. true
 		        return prop;
 		    }
+		};
+		// boolean props have to be parsed via parseJSONBoolean(), therefore the parameter type excludes them to make it
+		// impossible to lose the HTML boolean attribute shorthand by accident
+		const parseJSON = (prop) => parse(prop);
+		const parseJSONBoolean = (prop) => 
+		// prop is an HTML boolean attribute used without a value, e.g. <p-input-text hide-label>
+		// Stencil resolves BreakpointCustomizable<T> to "any" and therefore skips its own boolean coercion
+		// TODO: [v5] obsolete once objects can only be set via property, since Stencil coerces booleans itself then, see #4708
+		(prop === '' ? true : parse(prop));
+		// a BreakpointCustomizable value can be true for certain breakpoints only, e.g. { base: false, l: true },
+		// therefore styles which are needed as soon as it is true anywhere have to be determined like this
+		const isTruthyForAnyBreakpoint = (prop) => {
+		    const value = parseJSONBoolean(prop);
+		    return typeof value === 'object' ? Object.values(value).some(Boolean) : !!value;
 		};
 
 		// NOTE: handpicked selection of plugins from jss-preset-default
@@ -7924,8 +7938,7 @@ function requireIndexDXYpCE_Y () {
 		        host.shadowRoot.prepend(styleEl);
 		    }
 		};
-		const buildResponsiveStyles = (rawValue, getJssStyle) => {
-		    const value = parseJSON(rawValue);
+		const buildStyles = (value, getJssStyle) => {
 		    return typeof value === 'object'
 		        ? Object.keys(value)
 		            // base styles are applied on root object, responsive styles are nested within
@@ -7937,6 +7950,11 @@ function requireIndexDXYpCE_Y () {
 		        }), getJssStyle(value.base))
 		        : getJssStyle(value);
 		};
+		// boolean props have to use buildResponsiveBooleanStyles(), therefore the generic excludes them to make it impossible
+		// to lose the HTML boolean attribute shorthand by accident
+		const buildResponsiveStyles = (rawValue, getJssStyle) => buildStyles(parseJSON(rawValue), getJssStyle);
+		// TODO: [v5] can be merged back into buildResponsiveStyles() once objects can only be set via property, see #4708
+		const buildResponsiveBooleanStyles = (rawValue, getJssStyle) => buildStyles(parseJSONBoolean(rawValue), getJssStyle);
 		const isObject = (obj) => typeof obj === 'object' && !Array.isArray(obj);
 		// NOTE: taken from https://stackoverflow.com/a/48218209
 		const mergeDeep = (...objects) => {
@@ -8120,7 +8138,7 @@ function requireIndexDXYpCE_Y () {
 		    observedNodesMap.delete(node);
 		};
 
-		const prefix = `[Porsche Design System v${"4.6.0"}]` // this part isn't covered by unit tests
+		const prefix = `[Porsche Design System v${"4.7.0"}]` // this part isn't covered by unit tests
 		    ;
 		const consoleWarn = (...messages) => {
 		    console.warn(prefix, ...messages);
@@ -8220,7 +8238,10 @@ function requireIndexDXYpCE_Y () {
 		    // @ts-expect-error: Not all code paths return a value
 		    function breakpoint(propName, propValue) {
 		        // TODO: do parseJSON once in the component, currently it is happening multiple times in a single lifecycle
-		        const value = parseJSON(propValue);
+		        // only a boolean prop supports the HTML boolean attribute shorthand, all other props report their actual value
+		        const value = allowedValues === 'boolean'
+		            ? parseJSONBoolean(propValue)
+		            : parseJSON(propValue);
 		        let isInvalid = false;
 		        if (typeof value === 'object') {
 		            if (
@@ -9292,14 +9313,6 @@ function requireIndexDXYpCE_Y () {
 		  const endUpdate = createTime("update", hostRef.$cmpMeta$.$tagName$);
 		  const rc = elm["s-rc"];
 		  const endRender = createTime("render", hostRef.$cmpMeta$.$tagName$);
-
-		  //========= PDS PATCH START
-		  if (elm.hasDSR) {
-		    elm.shadowRoot.innerHTML = '';
-		    delete elm.hasDSR;
-		  }
-		  //========= PDS PATCH END
-
 		  {
 		    callRender(hostRef, instance, elm, isInitialLoad);
 		  }
@@ -9856,13 +9869,6 @@ function requireIndexDXYpCE_Y () {
 		          registerHost(self, cmpMeta);
 		          if (cmpMeta.$flags$ & 1 /* shadowDomEncapsulation */) {
 		            {
-
-		              //========= PDS PATCH START
-		              if (self.shadowRoot) {
-		                self.hasDSR = true;
-		              }
-		              //========= PDS PATCH END
-
 		              if (!self.shadowRoot) {
 		                createShadowRoot.call(self, cmpMeta);
 		              } else {
@@ -9996,6 +10002,7 @@ function requireIndexDXYpCE_Y () {
 		exports.bootstrapLazy = bootstrapLazy;
 		exports.breakpoint = breakpoint;
 		exports.breakpointS = breakpointS;
+		exports.buildResponsiveBooleanStyles = buildResponsiveBooleanStyles;
 		exports.buildResponsiveStyles = buildResponsiveStyles;
 		exports.consoleError = consoleError$1;
 		exports.consoleWarn = consoleWarn;
@@ -10013,12 +10020,14 @@ function requireIndexDXYpCE_Y () {
 		exports.getTagNameWithoutPrefix = getTagNameWithoutPrefix;
 		exports.h = h;
 		exports.hasWindow = hasWindow;
+		exports.isTruthyForAnyBreakpoint = isTruthyForAnyBreakpoint;
 		exports.mergeDeep = mergeDeep;
 		exports.observeBreakpointChange = observeBreakpointChange;
 		exports.observeChildren = observeChildren;
 		exports.paramCaseToCamelCase = paramCaseToCamelCase;
 		exports.parseJSON = parseJSON;
 		exports.parseJSONAttribute = parseJSONAttribute;
+		exports.parseJSONBoolean = parseJSONBoolean;
 		exports.promiseResolve = promiseResolve;
 		exports.registerInstance = registerInstance;
 		exports.setNonce = setNonce;
@@ -10026,19 +10035,19 @@ function requireIndexDXYpCE_Y () {
 		exports.unobserveBreakpointChange = unobserveBreakpointChange;
 		exports.unobserveChildren = unobserveChildren;
 		exports.validateProps = validateProps; 
-	} (indexDXYpCE_Y));
-	return indexDXYpCE_Y;
+	} (indexCO1jYG4D));
+	return indexCO1jYG4D;
 }
 
-var appGlobalsMAeV97Ka = {};
+var appGlobalsCfJVEOB = {};
 
-var hasRequiredAppGlobalsMAeV97Ka;
+var hasRequiredAppGlobalsCfJVEOB;
 
-function requireAppGlobalsMAeV97Ka () {
-	if (hasRequiredAppGlobalsMAeV97Ka) return appGlobalsMAeV97Ka;
-	hasRequiredAppGlobalsMAeV97Ka = 1;
+function requireAppGlobalsCfJVEOB () {
+	if (hasRequiredAppGlobalsCfJVEOB) return appGlobalsCfJVEOB;
+	hasRequiredAppGlobalsCfJVEOB = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	// Timout after which the version validation will happen to increase changes of different versions being loaded and initialized
 	const VERSION_VALIDATION_TIMEOUT = 3000;
@@ -10069,7 +10078,7 @@ function requireAppGlobalsMAeV97Ka () {
 	var setup = () => {
 	    {
 	        // not available during `npm run start` of components package
-	        document.porscheDesignSystem["4.6.0"].readyResolve(); // provided via load() of components-js package
+	        document.porscheDesignSystem["4.7.0"].readyResolve(); // provided via load() of components-js package
 	    }
 	    validateVersions();
 	};
@@ -10077,8 +10086,8 @@ function requireAppGlobalsMAeV97Ka () {
 	const appGlobalScript = setup || (() => {});
 	const globalScripts = appGlobalScript;
 
-	appGlobalsMAeV97Ka.globalScripts = globalScripts;
-	return appGlobalsMAeV97Ka;
+	appGlobalsCfJVEOB.globalScripts = globalScripts;
+	return appGlobalsCfJVEOB;
 }
 
 var hasRequiredLoader_cjs;
@@ -10087,13 +10096,13 @@ function requireLoader_cjs () {
 	if (hasRequiredLoader_cjs) return loader_cjs;
 	hasRequiredLoader_cjs = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var appGlobals = requireAppGlobalsMAeV97Ka();
+	var index = requireIndexCO1jYG4D();
+	var appGlobals = requireAppGlobalsCfJVEOB();
 
 	const defineCustomElements = async (win, options) => {
 	  if (typeof window === 'undefined') return undefined;
 	  appGlobals.globalScripts();
-	  return index.bootstrapLazy(JSON.parse("[[\"p-table_7.cjs\",[[257,\"p-table\",{\"caption\":[1],\"compact\":[4],\"layout\":[1],\"sticky\":[4]}],[257,\"p-table-body\"],[257,\"p-table-cell\",{\"multiline\":[4]}],[257,\"p-table-head\"],[257,\"p-table-head-cell\",{\"sort\":[16],\"hideLabel\":[4,\"hide-label\"],\"multiline\":[4]}],[257,\"p-table-head-row\"],[257,\"p-table-row\"]]],[\"p-drilldown_3.cjs\",[[257,\"p-drilldown\",{\"open\":[4],\"activeIdentifier\":[1,\"active-identifier\"],\"aria\":[1],\"drilldownItemElements\":[32],\"primary\":[32],\"isSecondaryDrawerVisible\":[32]},[[0,\"internalUpdate\",\"onInternalUpdate\"]],{\"open\":[{\"openChangeHandler\":0}],\"activeIdentifier\":[{\"activeIdentifierChangeHandler\":0}]}],[257,\"p-drilldown-item\",{\"label\":[1],\"identifier\":[513],\"primary\":[1540],\"secondary\":[1540],\"cascade\":[1540]}],[273,\"p-drilldown-link\",{\"href\":[1],\"active\":[4],\"target\":[1],\"download\":[1],\"rel\":[1],\"aria\":[1]}]]],[\"p-multi-select_2.cjs\",[[337,\"p-multi-select\",{\"label\":[1],\"description\":[1],\"name\":[513],\"value\":[1040],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"disabled\":[1028],\"required\":[4],\"dropdownDirection\":[1,\"dropdown-direction\"],\"compact\":[4],\"form\":[513],\"isOpen\":[32],\"hasFilterResults\":[32],\"filterStatusMessage\":[32],\"selectedOptions\":[32]},[[0,\"internalOptionUpdate\",\"updateOptionHandler\"],[0,\"internalOptgroupUpdate\",\"optgroupUpdateHandler\"]],{\"value\":[{\"onValueChange\":0}],\"isOpen\":[{\"onIsOpenChange\":0}]}],[257,\"p-multi-select-option\",{\"value\":[8],\"disabled\":[4]}]]],[\"p-radio-group_2.cjs\",[[337,\"p-radio-group\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"direction\":[1],\"name\":[513],\"value\":[1032],\"form\":[513],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},[[0,\"internalRadioGroupOptionChange\",\"updateOptionHandler\"],[0,\"internalRadioGroupOptionBlur\",\"emitBlurEvent\"]],{\"value\":[{\"onValueChange\":0}]}],[17,\"p-radio-group-option\",{\"value\":[8],\"label\":[1],\"disabled\":[4],\"loading\":[4]}]]],[\"p-segmented-control_2.cjs\",[[321,\"p-segmented-control\",{\"label\":[1],\"description\":[1],\"value\":[1032],\"name\":[513],\"compact\":[4],\"state\":[1],\"required\":[4],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"columns\":[8],\"form\":[513],\"disabled\":[1028],\"noWrap\":[4,\"no-wrap\"]},[[0,\"internalSegmentedControlItemUpdate\",\"updateSegmentedControlItemHandler\"],[0,\"internalBlur\",\"emitBlurEvent\"]],{\"value\":[{\"onValueChange\":0}]}],[273,\"p-segmented-control-item\",{\"value\":[8],\"disabled\":[4],\"label\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"aria\":[1]},null,{\"label\":[{\"handleLabelChange\":0}],\"icon\":[{\"handleLabelChange\":0}],\"iconSource\":[{\"handleLabelChange\":0}]}]]],[\"p-select_2.cjs\",[[337,\"p-select\",{\"label\":[1],\"description\":[1],\"name\":[513],\"value\":[1032],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"disabled\":[1028],\"required\":[4],\"dropdownDirection\":[1,\"dropdown-direction\"],\"filter\":[4],\"compact\":[4],\"form\":[513],\"isOpen\":[32],\"hasFilterResults\":[32],\"filterStatusMessage\":[32],\"selectedOption\":[32]},[[0,\"internalOptionUpdate\",\"updateOptionHandler\"],[0,\"internalOptgroupUpdate\",\"optgroupUpdateHandler\"]],{\"value\":[{\"onValueChange\":0}],\"isOpen\":[{\"onIsOpenChange\":0}]}],[257,\"p-select-option\",{\"value\":[8],\"disabled\":[4]}]]],[\"p-stepper-horizontal_2.cjs\",[[257,\"p-stepper-horizontal\",{\"size\":[1]}],[273,\"p-stepper-horizontal-item\",{\"state\":[1],\"disabled\":[4]},[[2,\"click\",\"onClick\"]],{\"state\":[{\"onStateChange\":0}]}]]],[\"p-tabs_2.cjs\",[[257,\"p-tabs\",{\"size\":[1],\"activeTabIndex\":[1026,\"active-tab-index\"],\"background\":[1],\"compact\":[4],\"weight\":[1],\"aria\":[1],\"tabsItems\":[32]},null,{\"activeTabIndex\":[{\"activeTabHandler\":0}]}],[257,\"p-tabs-item\",{\"label\":[1]},null,{\"label\":[{\"handleLabelChange\":0}]}]]],[\"p-text-list_2.cjs\",[[257,\"p-text-list\",{\"type\":[1]}],[257,\"p-text-list-item\"]]],[\"p-toast_2.cjs\",[[1,\"p-toast\",{\"addMessage\":[64]}],[1,\"p-toast-item\",{\"text\":[1],\"state\":[1]}]]],[\"p-accordion.cjs\",[[273,\"p-accordion\",{\"open\":[4],\"alignMarker\":[1,\"align-marker\"],\"background\":[1],\"compact\":[4],\"indent\":[8],\"size\":[1],\"heading\":[1],\"headingTag\":[1,\"heading-tag\"],\"sticky\":[4]}]]],[\"p-ai-tag.cjs\",[[1,\"p-ai-tag\",{\"locale\":[1],\"variant\":[1]}]]],[\"p-banner.cjs\",[[1,\"p-banner\",{\"open\":[4],\"heading\":[1],\"headingTag\":[1,\"heading-tag\"],\"description\":[1],\"position\":[1],\"state\":[1],\"dismissButton\":[4,\"dismiss-button\"]}]]],[\"p-button.cjs\",[[337,\"p-button\",{\"type\":[1],\"name\":[513],\"value\":[1],\"disabled\":[4],\"loading\":[4],\"variant\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"hideLabel\":[8,\"hide-label\"],\"compact\":[8],\"aria\":[1],\"form\":[513]},[[2,\"click\",\"onClick\"]],{\"value\":[{\"onValueChange\":0}]}]]],[\"p-button-pure.cjs\",[[337,\"p-button-pure\",{\"type\":[1],\"name\":[513],\"value\":[1],\"disabled\":[4],\"loading\":[4],\"size\":[1],\"color\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"underline\":[4],\"active\":[4],\"hideLabel\":[8,\"hide-label\"],\"alignLabel\":[1,\"align-label\"],\"stretch\":[8],\"aria\":[1],\"form\":[513]},[[2,\"click\",\"onClick\"]],{\"value\":[{\"onValueChange\":0}]}]]],[\"p-button-tile.cjs\",[[273,\"p-button-tile\",{\"size\":[1],\"weight\":[1],\"aspectRatio\":[1,\"aspect-ratio\"],\"label\":[1],\"description\":[1],\"align\":[1],\"gradient\":[4],\"compact\":[8],\"type\":[1],\"disabled\":[4],\"loading\":[4],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"aria\":[1],\"hasFooterSlot\":[32]},[[2,\"click\",\"onClick\"]]]]],[\"p-canvas.cjs\",[[257,\"p-canvas\",{\"sidebarStartOpen\":[4,\"sidebar-start-open\"],\"sidebarEndOpen\":[4,\"sidebar-end-open\"],\"background\":[1]}]]],[\"p-carousel.cjs\",[[257,\"p-carousel\",{\"heading\":[1],\"headingSize\":[1,\"heading-size\"],\"description\":[1],\"alignHeader\":[1,\"align-header\"],\"alignControls\":[1,\"align-controls\"],\"rewind\":[4],\"width\":[1],\"slidesPerPage\":[8,\"slides-per-page\"],\"pagination\":[8],\"aria\":[1],\"intl\":[1],\"activeSlideIndex\":[2,\"active-slide-index\"],\"skipLinkTarget\":[1,\"skip-link-target\"],\"focusOnCenterSlide\":[4,\"focus-on-center-slide\"],\"gradient\":[4],\"trimSpace\":[4,\"trim-space\"],\"amountOfPages\":[32]},null,{\"activeSlideIndex\":[{\"activeSlideHandler\":0}]}]]],[\"p-checkbox.cjs\",[[81,\"p-checkbox\",{\"name\":[513],\"required\":[4],\"disabled\":[1028],\"indeterminate\":[4],\"checked\":[1028],\"form\":[513],\"value\":[1],\"label\":[1],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"loading\":[4],\"compact\":[4]},[[0,\"keydown\",\"onKeydown\"]],{\"indeterminate\":[{\"onIndeterminateChange\":0}]}]]],[\"p-crest.cjs\",[[17,\"p-crest\",{\"href\":[1],\"target\":[1],\"aria\":[1]}]]],[\"p-display.cjs\",[[257,\"p-display\",{\"tag\":[1],\"size\":[1],\"align\":[1],\"color\":[1],\"ellipsis\":[4]}]]],[\"p-divider.cjs\",[[1,\"p-divider\",{\"color\":[1],\"direction\":[1]}]]],[\"p-fieldset.cjs\",[[257,\"p-fieldset\",{\"label\":[1],\"labelSize\":[1,\"label-size\"],\"required\":[4],\"state\":[1],\"message\":[1],\"aria\":[16]}]]],[\"p-flag.cjs\",[[1,\"p-flag\",{\"name\":[1],\"size\":[1],\"aria\":[1]}]]],[\"p-flyout.cjs\",[[257,\"p-flyout\",{\"open\":[4],\"position\":[1],\"disableBackdropClick\":[4,\"disable-backdrop-click\"],\"background\":[1],\"backdrop\":[1],\"footerBehavior\":[1,\"footer-behavior\"],\"fullscreen\":[8],\"aria\":[1]}]]],[\"p-heading.cjs\",[[257,\"p-heading\",{\"tag\":[1],\"size\":[1],\"weight\":[1],\"align\":[1],\"color\":[1],\"hyphens\":[1],\"ellipsis\":[4]}]]],[\"p-icon.cjs\",[[1,\"p-icon\",{\"name\":[1],\"source\":[1],\"color\":[1],\"size\":[1],\"aria\":[1]}]]],[\"p-inline-notification.cjs\",[[1,\"p-inline-notification\",{\"heading\":[1],\"headingTag\":[1,\"heading-tag\"],\"description\":[1],\"state\":[1],\"dismissButton\":[4,\"dismiss-button\"],\"actionLabel\":[1,\"action-label\"],\"actionLoading\":[4,\"action-loading\"],\"actionIcon\":[1,\"action-icon\"]}]]],[\"p-input-date.cjs\",[[81,\"p-input-date\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[1],\"min\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-email.cjs\",[[81,\"p-input-email\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"indicator\":[4],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"multiple\":[4],\"pattern\":[1]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-month.cjs\",[[81,\"p-input-month\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[1],\"min\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-number.cjs\",[[81,\"p-input-number\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1032],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[2],\"min\":[2],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"controls\":[4]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-password.cjs\",[[81,\"p-input-password\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"toggle\":[4],\"showPassword\":[32]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-search.cjs\",[[81,\"p-input-search\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"clear\":[4],\"indicator\":[4],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"aria\":[1],\"isClearable\":[32]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-tel.cjs\",[[81,\"p-input-tel\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"indicator\":[4],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"pattern\":[1]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-text.cjs\",[[81,\"p-input-text\",{\"label\":[1],\"spellCheck\":[4,\"spell-check\"],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1032],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"counter\":[4]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-time.cjs\",[[81,\"p-input-time\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[1],\"min\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-url.cjs\",[[81,\"p-input-url\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"indicator\":[4],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"pattern\":[1]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-week.cjs\",[[81,\"p-input-week\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[1],\"min\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-link.cjs\",[[273,\"p-link\",{\"variant\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"href\":[1],\"target\":[1],\"download\":[1],\"rel\":[1],\"hideLabel\":[8,\"hide-label\"],\"compact\":[8],\"aria\":[1]}]]],[\"p-link-pure.cjs\",[[273,\"p-link-pure\",{\"alignLabel\":[1,\"align-label\"],\"stretch\":[8],\"size\":[1],\"color\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"underline\":[4],\"href\":[1],\"active\":[4],\"hideLabel\":[8,\"hide-label\"],\"target\":[1],\"download\":[1],\"rel\":[1],\"aria\":[1]}]]],[\"p-link-tile.cjs\",[[273,\"p-link-tile\",{\"size\":[1],\"weight\":[1],\"aspectRatio\":[1,\"aspect-ratio\"],\"label\":[1],\"description\":[1],\"align\":[1],\"gradient\":[4],\"compact\":[8],\"href\":[1],\"target\":[1],\"download\":[1],\"rel\":[1],\"aria\":[1],\"hasFooterSlot\":[32]}]]],[\"p-link-tile-product.cjs\",[[273,\"p-link-tile-product\",{\"heading\":[1],\"price\":[1],\"priceOriginal\":[1,\"price-original\"],\"description\":[1],\"likeButton\":[4,\"like-button\"],\"liked\":[4],\"href\":[1],\"aspectRatio\":[1,\"aspect-ratio\"],\"target\":[1],\"rel\":[1]}]]],[\"p-modal.cjs\",[[257,\"p-modal\",{\"open\":[4],\"dismissButton\":[4,\"dismiss-button\"],\"disableBackdropClick\":[4,\"disable-backdrop-click\"],\"backdrop\":[1],\"background\":[1],\"fullscreen\":[8],\"aria\":[1]}]]],[\"p-model-signature.cjs\",[[257,\"p-model-signature\",{\"model\":[1],\"safeZone\":[4,\"safe-zone\"],\"fetchPriority\":[1,\"fetch-priority\"],\"lazy\":[4],\"size\":[1],\"color\":[1]}]]],[\"p-optgroup.cjs\",[[257,\"p-optgroup\",{\"label\":[1],\"disabled\":[4]},null,{\"disabled\":[{\"handleDisabledChange\":0}]}]]],[\"p-pagination.cjs\",[[17,\"p-pagination\",{\"totalItemsCount\":[2,\"total-items-count\"],\"itemsPerPage\":[2,\"items-per-page\"],\"activePage\":[1026,\"active-page\"],\"showLastPage\":[4,\"show-last-page\"],\"intl\":[1]}]]],[\"p-pin-code.cjs\",[[81,\"p-pin-code\",{\"label\":[1],\"description\":[1],\"name\":[513],\"length\":[2],\"hideLabel\":[8,\"hide-label\"],\"state\":[1],\"disabled\":[1028],\"loading\":[4],\"required\":[4],\"message\":[1],\"type\":[1],\"value\":[1032],\"compact\":[4],\"form\":[513]}]]],[\"p-popover.cjs\",[[257,\"p-popover\",{\"open\":[4],\"direction\":[1],\"description\":[1],\"compact\":[4],\"aria\":[1],\"isOpen\":[32]},[[0,\"click\",\"onClick\"],[0,\"focusout\",\"onFocusout\"]]]]],[\"p-scroller.cjs\",[[257,\"p-scroller\",{\"scrollbar\":[4],\"compact\":[4],\"aria\":[1],\"sticky\":[4],\"alignScrollIndicator\":[1,\"align-scroll-indicator\"],\"scrollToPosition\":[1025,\"scroll-to-position\"],\"isIndicatorPrevVisible\":[32],\"isIndicatorNextVisible\":[32]},null,{\"scrollToPosition\":[{\"scrollToPositionHandler\":0}]}]]],[\"p-sheet.cjs\",[[257,\"p-sheet\",{\"open\":[4],\"dismissButton\":[4,\"dismiss-button\"],\"disableBackdropClick\":[4,\"disable-backdrop-click\"],\"background\":[1],\"aria\":[1]}]]],[\"p-spinner.cjs\",[[1,\"p-spinner\",{\"color\":[1],\"size\":[1],\"aria\":[1]}]]],[\"p-switch.cjs\",[[273,\"p-switch\",{\"alignLabel\":[1,\"align-label\"],\"hideLabel\":[8,\"hide-label\"],\"stretch\":[8],\"checked\":[4],\"disabled\":[4],\"loading\":[4],\"compact\":[4]},[[2,\"click\",\"onClick\"]]]]],[\"p-tabs-bar.cjs\",[[257,\"p-tabs-bar\",{\"activeTabIndex\":[2,\"active-tab-index\"],\"background\":[1],\"size\":[1],\"compact\":[4],\"weight\":[1],\"aria\":[1],\"tabs\":[32]},null,{\"activeTabIndex\":[{\"activeTabIndexHandler\":0}]}]]],[\"p-tag.cjs\",[[257,\"p-tag\",{\"variant\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"compact\":[4]}]]],[\"p-tag-dismissible.cjs\",[[273,\"p-tag-dismissible\",{\"label\":[1],\"aria\":[1],\"compact\":[4]}]]],[\"p-text.cjs\",[[257,\"p-text\",{\"tag\":[1],\"size\":[1],\"weight\":[1],\"align\":[1],\"color\":[1],\"hyphens\":[1],\"ellipsis\":[4]}]]],[\"p-textarea.cjs\",[[81,\"p-textarea\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"counter\":[4],\"placeholder\":[1],\"required\":[4],\"disabled\":[1028],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"form\":[513],\"rows\":[2],\"autoComplete\":[1,\"auto-complete\"],\"spellCheck\":[4,\"spell-check\"],\"wrap\":[1],\"resize\":[1],\"readOnly\":[4,\"read-only\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-wordmark.cjs\",[[17,\"p-wordmark\",{\"size\":[1],\"href\":[1],\"target\":[1],\"aria\":[1]}]]]]"), options);
+	  return index.bootstrapLazy(JSON.parse("[[\"p-table_7.cjs\",[[257,\"p-table\",{\"caption\":[1],\"compact\":[4],\"layout\":[1],\"sticky\":[4]}],[257,\"p-table-body\"],[257,\"p-table-cell\",{\"multiline\":[4]}],[257,\"p-table-head\"],[257,\"p-table-head-cell\",{\"sort\":[16],\"hideLabel\":[4,\"hide-label\"],\"multiline\":[4]}],[257,\"p-table-head-row\"],[257,\"p-table-row\"]]],[\"p-drilldown_3.cjs\",[[257,\"p-drilldown\",{\"open\":[4],\"activeIdentifier\":[1,\"active-identifier\"],\"aria\":[1],\"drilldownItemElements\":[32],\"primary\":[32],\"isSecondaryDrawerVisible\":[32]},[[0,\"internalUpdate\",\"onInternalUpdate\"]],{\"open\":[{\"openChangeHandler\":0}],\"activeIdentifier\":[{\"activeIdentifierChangeHandler\":0}]}],[257,\"p-drilldown-item\",{\"label\":[1],\"identifier\":[513],\"primary\":[1540],\"secondary\":[1540],\"cascade\":[1540]}],[273,\"p-drilldown-link\",{\"href\":[1],\"active\":[4],\"target\":[1],\"download\":[1],\"rel\":[1],\"aria\":[1]}]]],[\"p-multi-select_2.cjs\",[[337,\"p-multi-select\",{\"label\":[1],\"description\":[1],\"name\":[513],\"value\":[1040],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"disabled\":[1028],\"required\":[4],\"dropdownDirection\":[1,\"dropdown-direction\"],\"compact\":[4],\"form\":[513],\"isOpen\":[32],\"hasFilterResults\":[32],\"filterStatusMessage\":[32],\"selectedOptions\":[32]},[[0,\"internalOptionUpdate\",\"updateOptionHandler\"],[0,\"internalOptgroupUpdate\",\"optgroupUpdateHandler\"]],{\"value\":[{\"onValueChange\":0}],\"isOpen\":[{\"onIsOpenChange\":0}]}],[257,\"p-multi-select-option\",{\"value\":[8],\"disabled\":[4]}]]],[\"p-radio-group_2.cjs\",[[337,\"p-radio-group\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"direction\":[1],\"name\":[513],\"value\":[1032],\"form\":[513],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},[[0,\"internalRadioGroupOptionChange\",\"updateOptionHandler\"],[0,\"internalRadioGroupOptionBlur\",\"emitBlurEvent\"]],{\"value\":[{\"onValueChange\":0}]}],[17,\"p-radio-group-option\",{\"value\":[8],\"label\":[1],\"disabled\":[4],\"loading\":[4]}]]],[\"p-segmented-control_2.cjs\",[[321,\"p-segmented-control\",{\"label\":[1],\"description\":[1],\"value\":[1032],\"name\":[513],\"compact\":[4],\"state\":[1],\"required\":[4],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"columns\":[8],\"form\":[513],\"disabled\":[1028],\"noWrap\":[4,\"no-wrap\"]},[[0,\"internalSegmentedControlItemUpdate\",\"updateSegmentedControlItemHandler\"],[0,\"internalBlur\",\"emitBlurEvent\"]],{\"value\":[{\"onValueChange\":0}]}],[273,\"p-segmented-control-item\",{\"value\":[8],\"disabled\":[4],\"label\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"aria\":[1]},null,{\"label\":[{\"handleLabelChange\":0}],\"icon\":[{\"handleLabelChange\":0}],\"iconSource\":[{\"handleLabelChange\":0}]}]]],[\"p-select_2.cjs\",[[337,\"p-select\",{\"label\":[1],\"description\":[1],\"name\":[513],\"value\":[1032],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"disabled\":[1028],\"required\":[4],\"dropdownDirection\":[1,\"dropdown-direction\"],\"filter\":[4],\"compact\":[4],\"form\":[513],\"isOpen\":[32],\"hasFilterResults\":[32],\"filterStatusMessage\":[32],\"selectedOption\":[32]},[[0,\"internalOptionUpdate\",\"updateOptionHandler\"],[0,\"internalOptgroupUpdate\",\"optgroupUpdateHandler\"]],{\"value\":[{\"onValueChange\":0}],\"isOpen\":[{\"onIsOpenChange\":0}]}],[257,\"p-select-option\",{\"value\":[8],\"disabled\":[4]}]]],[\"p-stepper-horizontal_2.cjs\",[[257,\"p-stepper-horizontal\",{\"size\":[1]}],[273,\"p-stepper-horizontal-item\",{\"state\":[1],\"disabled\":[4]},[[2,\"click\",\"onClick\"]],{\"state\":[{\"onStateChange\":0}]}]]],[\"p-tabs_2.cjs\",[[257,\"p-tabs\",{\"size\":[1],\"activeTabIndex\":[1026,\"active-tab-index\"],\"background\":[1],\"compact\":[4],\"weight\":[1],\"aria\":[1],\"tabsItems\":[32]},null,{\"activeTabIndex\":[{\"activeTabHandler\":0}]}],[257,\"p-tabs-item\",{\"label\":[1]},null,{\"label\":[{\"handleLabelChange\":0}]}]]],[\"p-text-list_2.cjs\",[[257,\"p-text-list\",{\"type\":[1]}],[257,\"p-text-list-item\"]]],[\"p-toast_2.cjs\",[[1,\"p-toast\",{\"addMessage\":[64]}],[1,\"p-toast-item\",{\"text\":[1],\"state\":[1]}]]],[\"p-accordion.cjs\",[[273,\"p-accordion\",{\"open\":[4],\"alignMarker\":[1,\"align-marker\"],\"background\":[1],\"compact\":[4],\"indent\":[8],\"size\":[1],\"heading\":[1],\"headingTag\":[1,\"heading-tag\"],\"sticky\":[4]}]]],[\"p-ai-tag.cjs\",[[1,\"p-ai-tag\",{\"locale\":[1],\"variant\":[1]}]]],[\"p-banner.cjs\",[[1,\"p-banner\",{\"open\":[4],\"heading\":[1],\"headingTag\":[1,\"heading-tag\"],\"description\":[1],\"position\":[1],\"state\":[1],\"dismissButton\":[4,\"dismiss-button\"]}]]],[\"p-button.cjs\",[[337,\"p-button\",{\"type\":[1],\"name\":[513],\"value\":[1],\"disabled\":[4],\"loading\":[4],\"variant\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"hideLabel\":[8,\"hide-label\"],\"compact\":[8],\"aria\":[1],\"form\":[513]},[[2,\"click\",\"onClick\"]],{\"value\":[{\"onValueChange\":0}]}]]],[\"p-button-pure.cjs\",[[337,\"p-button-pure\",{\"type\":[1],\"name\":[513],\"value\":[1],\"disabled\":[4],\"loading\":[4],\"size\":[1],\"color\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"underline\":[4],\"active\":[4],\"hideLabel\":[8,\"hide-label\"],\"alignLabel\":[1,\"align-label\"],\"stretch\":[8],\"aria\":[1],\"form\":[513]},[[2,\"click\",\"onClick\"]],{\"value\":[{\"onValueChange\":0}]}]]],[\"p-button-tile.cjs\",[[273,\"p-button-tile\",{\"size\":[1],\"weight\":[1],\"aspectRatio\":[1,\"aspect-ratio\"],\"label\":[1],\"description\":[1],\"align\":[1],\"gradient\":[4],\"compact\":[8],\"type\":[1],\"disabled\":[4],\"loading\":[4],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"aria\":[1],\"hasFooterSlot\":[32]},[[2,\"click\",\"onClick\"]]]]],[\"p-canvas.cjs\",[[257,\"p-canvas\",{\"sidebarStartOpen\":[4,\"sidebar-start-open\"],\"sidebarEndOpen\":[4,\"sidebar-end-open\"],\"background\":[1]}]]],[\"p-carousel.cjs\",[[257,\"p-carousel\",{\"heading\":[1],\"headingSize\":[1,\"heading-size\"],\"description\":[1],\"alignHeader\":[1,\"align-header\"],\"alignControls\":[1,\"align-controls\"],\"rewind\":[4],\"width\":[1],\"slidesPerPage\":[8,\"slides-per-page\"],\"pagination\":[8],\"aria\":[1],\"intl\":[1],\"activeSlideIndex\":[2,\"active-slide-index\"],\"skipLinkTarget\":[1,\"skip-link-target\"],\"focusOnCenterSlide\":[4,\"focus-on-center-slide\"],\"gradient\":[4],\"trimSpace\":[4,\"trim-space\"],\"amountOfPages\":[32]},null,{\"activeSlideIndex\":[{\"activeSlideHandler\":0}],\"slidesPerPage\":[{\"slidesPerPageHandler\":0}]}]]],[\"p-checkbox.cjs\",[[81,\"p-checkbox\",{\"name\":[513],\"required\":[4],\"disabled\":[1028],\"indeterminate\":[4],\"checked\":[1028],\"form\":[513],\"value\":[1],\"label\":[1],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"loading\":[4],\"compact\":[4]},[[0,\"keydown\",\"onKeydown\"]],{\"indeterminate\":[{\"onIndeterminateChange\":0}]}]]],[\"p-crest.cjs\",[[17,\"p-crest\",{\"href\":[1],\"target\":[1],\"aria\":[1]}]]],[\"p-display.cjs\",[[257,\"p-display\",{\"tag\":[1],\"size\":[1],\"align\":[1],\"color\":[1],\"ellipsis\":[4]}]]],[\"p-divider.cjs\",[[1,\"p-divider\",{\"color\":[1],\"direction\":[1]}]]],[\"p-fieldset.cjs\",[[257,\"p-fieldset\",{\"label\":[1],\"labelSize\":[1,\"label-size\"],\"required\":[4],\"state\":[1],\"message\":[1],\"aria\":[16]}]]],[\"p-flag.cjs\",[[1,\"p-flag\",{\"name\":[1],\"size\":[1],\"aria\":[1]}]]],[\"p-flyout.cjs\",[[257,\"p-flyout\",{\"open\":[4],\"position\":[1],\"disableBackdropClick\":[4,\"disable-backdrop-click\"],\"background\":[1],\"backdrop\":[1],\"footerBehavior\":[1,\"footer-behavior\"],\"fullscreen\":[8],\"aria\":[1]}]]],[\"p-heading.cjs\",[[257,\"p-heading\",{\"tag\":[1],\"size\":[1],\"weight\":[1],\"align\":[1],\"color\":[1],\"hyphens\":[1],\"ellipsis\":[4]}]]],[\"p-icon.cjs\",[[1,\"p-icon\",{\"name\":[1],\"source\":[1],\"color\":[1],\"size\":[1],\"aria\":[1]}]]],[\"p-inline-notification.cjs\",[[1,\"p-inline-notification\",{\"heading\":[1],\"headingTag\":[1,\"heading-tag\"],\"description\":[1],\"state\":[1],\"dismissButton\":[4,\"dismiss-button\"],\"actionLabel\":[1,\"action-label\"],\"actionLoading\":[4,\"action-loading\"],\"actionIcon\":[1,\"action-icon\"]}]]],[\"p-input-date.cjs\",[[81,\"p-input-date\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[1],\"min\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-email.cjs\",[[81,\"p-input-email\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"indicator\":[4],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"multiple\":[4],\"pattern\":[1]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-month.cjs\",[[81,\"p-input-month\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[1],\"min\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-number.cjs\",[[81,\"p-input-number\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1032],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[2],\"min\":[2],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"controls\":[4]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-password.cjs\",[[81,\"p-input-password\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"toggle\":[4],\"showPassword\":[32]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-search.cjs\",[[81,\"p-input-search\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"clear\":[4],\"indicator\":[4],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"aria\":[1],\"isClearable\":[32]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-tel.cjs\",[[81,\"p-input-tel\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"indicator\":[4],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"pattern\":[1]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-text.cjs\",[[81,\"p-input-text\",{\"label\":[1],\"spellCheck\":[4,\"spell-check\"],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1032],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"counter\":[4]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-time.cjs\",[[81,\"p-input-time\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[1],\"min\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-url.cjs\",[[81,\"p-input-url\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"placeholder\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"indicator\":[4],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"pattern\":[1]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-input-week.cjs\",[[81,\"p-input-week\",{\"label\":[1],\"step\":[2],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"autoComplete\":[1,\"auto-complete\"],\"readOnly\":[4,\"read-only\"],\"form\":[513],\"max\":[1],\"min\":[1],\"disabled\":[1028],\"required\":[4],\"loading\":[4],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-link.cjs\",[[273,\"p-link\",{\"variant\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"href\":[1],\"target\":[1],\"download\":[1],\"rel\":[1],\"hideLabel\":[8,\"hide-label\"],\"compact\":[8],\"aria\":[1]}]]],[\"p-link-pure.cjs\",[[273,\"p-link-pure\",{\"alignLabel\":[1,\"align-label\"],\"stretch\":[8],\"size\":[1],\"color\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"underline\":[4],\"href\":[1],\"active\":[4],\"hideLabel\":[8,\"hide-label\"],\"target\":[1],\"download\":[1],\"rel\":[1],\"aria\":[1]}]]],[\"p-link-tile.cjs\",[[273,\"p-link-tile\",{\"size\":[1],\"weight\":[1],\"aspectRatio\":[1,\"aspect-ratio\"],\"label\":[1],\"description\":[1],\"align\":[1],\"gradient\":[4],\"compact\":[8],\"href\":[1],\"target\":[1],\"download\":[1],\"rel\":[1],\"aria\":[1],\"hasFooterSlot\":[32]}]]],[\"p-link-tile-product.cjs\",[[273,\"p-link-tile-product\",{\"heading\":[1],\"price\":[1],\"priceOriginal\":[1,\"price-original\"],\"description\":[1],\"likeButton\":[4,\"like-button\"],\"liked\":[4],\"href\":[1],\"aspectRatio\":[1,\"aspect-ratio\"],\"target\":[1],\"rel\":[1]}]]],[\"p-modal.cjs\",[[257,\"p-modal\",{\"open\":[4],\"dismissButton\":[4,\"dismiss-button\"],\"disableBackdropClick\":[4,\"disable-backdrop-click\"],\"backdrop\":[1],\"background\":[1],\"fullscreen\":[8],\"aria\":[1]}]]],[\"p-model-signature.cjs\",[[257,\"p-model-signature\",{\"model\":[1],\"safeZone\":[4,\"safe-zone\"],\"fetchPriority\":[1,\"fetch-priority\"],\"lazy\":[4],\"size\":[1],\"color\":[1]}]]],[\"p-optgroup.cjs\",[[257,\"p-optgroup\",{\"label\":[1],\"disabled\":[4]},null,{\"disabled\":[{\"handleDisabledChange\":0}]}]]],[\"p-pagination.cjs\",[[17,\"p-pagination\",{\"totalItemsCount\":[2,\"total-items-count\"],\"itemsPerPage\":[2,\"items-per-page\"],\"activePage\":[1026,\"active-page\"],\"showLastPage\":[4,\"show-last-page\"],\"intl\":[1]}]]],[\"p-pin-code.cjs\",[[81,\"p-pin-code\",{\"label\":[1],\"description\":[1],\"name\":[513],\"length\":[2],\"hideLabel\":[8,\"hide-label\"],\"state\":[1],\"disabled\":[1028],\"loading\":[4],\"required\":[4],\"message\":[1],\"type\":[1],\"value\":[1032],\"compact\":[4],\"form\":[513]}]]],[\"p-popover.cjs\",[[257,\"p-popover\",{\"open\":[4],\"direction\":[1],\"description\":[1],\"compact\":[4],\"aria\":[1],\"isOpen\":[32]},[[0,\"click\",\"onClick\"],[0,\"focusout\",\"onFocusout\"]]]]],[\"p-scroller.cjs\",[[257,\"p-scroller\",{\"scrollbar\":[4],\"compact\":[4],\"aria\":[1],\"sticky\":[4],\"alignScrollIndicator\":[1,\"align-scroll-indicator\"],\"scrollToPosition\":[1025,\"scroll-to-position\"],\"isIndicatorPrevVisible\":[32],\"isIndicatorNextVisible\":[32]},null,{\"scrollToPosition\":[{\"scrollToPositionHandler\":0}]}]]],[\"p-sheet.cjs\",[[257,\"p-sheet\",{\"open\":[4],\"dismissButton\":[4,\"dismiss-button\"],\"disableBackdropClick\":[4,\"disable-backdrop-click\"],\"background\":[1],\"aria\":[1]}]]],[\"p-spinner.cjs\",[[1,\"p-spinner\",{\"color\":[1],\"size\":[1],\"aria\":[1]}]]],[\"p-switch.cjs\",[[273,\"p-switch\",{\"alignLabel\":[1,\"align-label\"],\"hideLabel\":[8,\"hide-label\"],\"stretch\":[8],\"checked\":[4],\"disabled\":[4],\"loading\":[4],\"compact\":[4]},[[2,\"click\",\"onClick\"]]]]],[\"p-tabs-bar.cjs\",[[257,\"p-tabs-bar\",{\"activeTabIndex\":[2,\"active-tab-index\"],\"background\":[1],\"size\":[1],\"compact\":[4],\"weight\":[1],\"aria\":[1],\"tabs\":[32]},null,{\"activeTabIndex\":[{\"activeTabIndexHandler\":0}]}]]],[\"p-tag.cjs\",[[257,\"p-tag\",{\"variant\":[1],\"icon\":[1],\"iconSource\":[1,\"icon-source\"],\"compact\":[4]}]]],[\"p-tag-dismissible.cjs\",[[273,\"p-tag-dismissible\",{\"label\":[1],\"aria\":[1],\"compact\":[4]}]]],[\"p-text.cjs\",[[257,\"p-text\",{\"tag\":[1],\"size\":[1],\"weight\":[1],\"align\":[1],\"color\":[1],\"hyphens\":[1],\"ellipsis\":[4]}]]],[\"p-textarea.cjs\",[[81,\"p-textarea\",{\"label\":[1],\"description\":[1],\"compact\":[4],\"name\":[513],\"value\":[1025],\"state\":[1],\"message\":[1],\"hideLabel\":[8,\"hide-label\"],\"counter\":[4],\"placeholder\":[1],\"required\":[4],\"disabled\":[1028],\"maxLength\":[2,\"max-length\"],\"minLength\":[2,\"min-length\"],\"form\":[513],\"rows\":[2],\"autoComplete\":[1,\"auto-complete\"],\"spellCheck\":[4,\"spell-check\"],\"wrap\":[1],\"resize\":[1],\"readOnly\":[4,\"read-only\"]},null,{\"value\":[{\"onValueChange\":0}]}]]],[\"p-wordmark.cjs\",[[17,\"p-wordmark\",{\"size\":[1],\"href\":[1],\"target\":[1],\"aria\":[1]}]]]]"), options);
 	};
 
 	loader_cjs.setNonce = index.setNonce;
@@ -10147,13 +10156,13 @@ function requireSrc () {
 
 	// jsdom polyfill build does not load anything from CDN and also does not use our web components manager
 	// therefore, we have to setup the document.porscheDesignSystem ourselves here
-	// '4.6.0' is replaced during build
+	// '4.7.0' is replaced during build
 	document.porscheDesignSystem = {
 	  cdn: {
 	    url: 'https://cdn.ui.porsche.com', // needs to be set because we're not initializing via components-js load() method which would normally set this
 	    prefixes: [],
 	  },
-	  ['4.6.0']: {
+	  ['4.7.0']: {
 	    readyResolve: () => {},
 	    isReady: () => Promise.resolve(),
 	  },
@@ -10172,36 +10181,36 @@ var index = /*@__PURE__*/getDefaultExportFromCjs(srcExports);
 
 var pAccordion_cjs_entry$2 = {};
 
-var hasNamedSlotDHrM1th = {};
+var hasNamedSlotCpOkED0y = {};
 
-var getNamedSlotER751mnq = {};
+var getNamedSlotDBF_9hiQ = {};
 
-var hasRequiredGetNamedSlotER751mnq;
+var hasRequiredGetNamedSlotDBF_9hiQ;
 
-function requireGetNamedSlotER751mnq () {
-	if (hasRequiredGetNamedSlotER751mnq) return getNamedSlotER751mnq;
-	hasRequiredGetNamedSlotER751mnq = 1;
+function requireGetNamedSlotDBF_9hiQ () {
+	if (hasRequiredGetNamedSlotDBF_9hiQ) return getNamedSlotDBF_9hiQ;
+	hasRequiredGetNamedSlotDBF_9hiQ = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const getNamedSlot = (el, slotName) => index.getHTMLElement(el, `:scope>[slot="${slotName}"]`);
 
-	getNamedSlotER751mnq.getNamedSlot = getNamedSlot;
-	return getNamedSlotER751mnq;
+	getNamedSlotDBF_9hiQ.getNamedSlot = getNamedSlot;
+	return getNamedSlotDBF_9hiQ;
 }
 
-var hasRequiredHasNamedSlotDHrM1th;
+var hasRequiredHasNamedSlotCpOkED0y;
 
-function requireHasNamedSlotDHrM1th () {
-	if (hasRequiredHasNamedSlotDHrM1th) return hasNamedSlotDHrM1th;
-	hasRequiredHasNamedSlotDHrM1th = 1;
+function requireHasNamedSlotCpOkED0y () {
+	if (hasRequiredHasNamedSlotCpOkED0y) return hasNamedSlotCpOkED0y;
+	hasRequiredHasNamedSlotCpOkED0y = 1;
 
-	var getNamedSlot = requireGetNamedSlotER751mnq();
+	var getNamedSlot = requireGetNamedSlotDBF_9hiQ();
 
 	const hasNamedSlot = (el, slotName) => !!getNamedSlot.getNamedSlot(el, slotName);
 
-	hasNamedSlotDHrM1th.hasNamedSlot = hasNamedSlot;
-	return hasNamedSlotDHrM1th;
+	hasNamedSlotCpOkED0y.hasNamedSlot = hasNamedSlot;
+	return hasNamedSlotCpOkED0y;
 }
 
 var hasPropValueChangedD2Ej_Hhe = {};
@@ -10619,8 +10628,8 @@ function requirePAccordion_cjs_entry () {
 	if (hasRequiredPAccordion_cjs_entry) return pAccordion_cjs_entry$2;
 	hasRequiredPAccordion_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
+	var index = requireIndexCO1jYG4D();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -10637,7 +10646,7 @@ function requirePAccordion_cjs_entry () {
 	var radius2Xl = requireRadius2XlCy_MgMg();
 	var colorSurface = requireColorSurfaceDHToV0CL();
 	var colorCanvas = requireColorCanvasCvcJTS2L();
-	requireGetNamedSlotER751mnq();
+	requireGetNamedSlotDBF_9hiQ();
 
 	/**
 	 * @css-variable {"name": "--p-accordion-summary-top", "description": "Controls the sticky top position when `sticky` is enabled.", "defaultValue": "0px"}
@@ -10750,7 +10759,7 @@ function requirePAccordion_cjs_entry () {
 	                }),
 	                '& > div': {
 	                    gridArea: '2/1/auto/-1',
-	                    ...index.buildResponsiveStyles(indent, (isIndented) => ({
+	                    ...index.buildResponsiveBooleanStyles(indent, (isIndented) => ({
 	                        gridColumnStart: isIndented ? summaryColumnStart : 1,
 	                    })),
 	                    zIndex: 0, // ensures stacking to be below the summary section
@@ -11012,7 +11021,7 @@ function requirePAiTag_cjs_entry () {
 	if (hasRequiredPAiTag_cjs_entry) return pAiTag_cjs_entry$2;
 	hasRequiredPAiTag_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var getInlineSVGBackgroundImage = requireGetInlineSVGBackgroundImageC2AJYBEX();
 	var colorContrastHigh = requireColorContrastHighWG95shR6();
@@ -11466,20 +11475,20 @@ var pAiTag_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pBanner_cjs_entry$2 = {};
 
-var getSlotTextContentCaQGlFop = {};
+var getSlotTextContentDqBMbiGS = {};
 
-var hasRequiredGetSlotTextContentCaQGlFop;
+var hasRequiredGetSlotTextContentDqBMbiGS;
 
-function requireGetSlotTextContentCaQGlFop () {
-	if (hasRequiredGetSlotTextContentCaQGlFop) return getSlotTextContentCaQGlFop;
-	hasRequiredGetSlotTextContentCaQGlFop = 1;
+function requireGetSlotTextContentDqBMbiGS () {
+	if (hasRequiredGetSlotTextContentDqBMbiGS) return getSlotTextContentDqBMbiGS;
+	hasRequiredGetSlotTextContentDqBMbiGS = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const getSlotTextContent = (el, slotName) => index.getHTMLElement(el, `[slot="${slotName}"]`)?.textContent;
 
-	getSlotTextContentCaQGlFop.getSlotTextContent = getSlotTextContent;
-	return getSlotTextContentCaQGlFop;
+	getSlotTextContentDqBMbiGS.getSlotTextContent = getSlotTextContent;
+	return getSlotTextContentDqBMbiGS;
 }
 
 var createTopLayerControllerDqDftt9Q = {};
@@ -11609,15 +11618,15 @@ function requireCreateTopLayerControllerDqDftt9Q () {
 	return createTopLayerControllerDqDftt9Q;
 }
 
-var fcDismissButtonStylesDT1d6i6G = {};
+var fcDismissButtonStylesCDh3_1Jh = {};
 
-var hasRequiredFcDismissButtonStylesDT1d6i6G;
+var hasRequiredFcDismissButtonStylesCDh3_1Jh;
 
-function requireFcDismissButtonStylesDT1d6i6G () {
-	if (hasRequiredFcDismissButtonStylesDT1d6i6G) return fcDismissButtonStylesDT1d6i6G;
-	hasRequiredFcDismissButtonStylesDT1d6i6G = 1;
+function requireFcDismissButtonStylesCDh3_1Jh () {
+	if (hasRequiredFcDismissButtonStylesCDh3_1Jh) return fcDismissButtonStylesCDh3_1Jh;
+	hasRequiredFcDismissButtonStylesCDh3_1Jh = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
 	var getInlineSVGBackgroundImage = requireGetInlineSVGBackgroundImageC2AJYBEX();
@@ -11725,12 +11734,12 @@ function requireFcDismissButtonStylesDT1d6i6G () {
 	    };
 	};
 
-	fcDismissButtonStylesDT1d6i6G.FCDismissButton = FCDismissButton;
-	fcDismissButtonStylesDT1d6i6G.getFCDismissButtonStyles = getFCDismissButtonStyles;
-	return fcDismissButtonStylesDT1d6i6G;
+	fcDismissButtonStylesCDh3_1Jh.FCDismissButton = FCDismissButton;
+	fcDismissButtonStylesCDh3_1Jh.getFCDismissButtonStyles = getFCDismissButtonStyles;
+	return fcDismissButtonStylesCDh3_1Jh;
 }
 
-var notificationBaseStylesCM3KqCH = {};
+var notificationBaseStylesC82sOkro = {};
 
 var colorWarningFrostedDx5KPed = {};
 
@@ -11853,20 +11862,20 @@ function requireSpacingFluidSmDxpqva9Z () {
 	return spacingFluidSmDxpqva9Z;
 }
 
-var hasRequiredNotificationBaseStylesCM3KqCH;
+var hasRequiredNotificationBaseStylesC82sOkro;
 
-function requireNotificationBaseStylesCM3KqCH () {
-	if (hasRequiredNotificationBaseStylesCM3KqCH) return notificationBaseStylesCM3KqCH;
-	hasRequiredNotificationBaseStylesCM3KqCH = 1;
+function requireNotificationBaseStylesC82sOkro () {
+	if (hasRequiredNotificationBaseStylesC82sOkro) return notificationBaseStylesC82sOkro;
+	hasRequiredNotificationBaseStylesC82sOkro = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var colorWarningFrosted = requireColorWarningFrostedDx5KPed();
 	var colorError = requireColorErrorDycYY56v();
 	var colorSuccess = requireColorSuccessCrVQsYxh();
 	var colorWarning = requireColorWarningCfBtQXlw();
 	var getInlineSVGBackgroundImage = requireGetInlineSVGBackgroundImageC2AJYBEX();
-	var fcDismissButtonStyles = requireFcDismissButtonStylesDT1d6i6G();
+	var fcDismissButtonStyles = requireFcDismissButtonStylesCDh3_1Jh();
 	var spacingStaticMd = requireSpacingStaticMdDSArndBQ();
 	var spacingStatic2Xs = requireSpacingStatic2XsBXpEPF5_();
 	var spacingStaticSm = requireSpacingStaticSmByDQ2OBj();
@@ -11979,9 +11988,9 @@ function requireNotificationBaseStylesCM3KqCH () {
 	    };
 	};
 
-	notificationBaseStylesCM3KqCH.NotificationBase = NotificationBase;
-	notificationBaseStylesCM3KqCH.getFunctionalComponentNotificationBaseStyles = getFunctionalComponentNotificationBaseStyles;
-	return notificationBaseStylesCM3KqCH;
+	notificationBaseStylesC82sOkro.NotificationBase = NotificationBase;
+	notificationBaseStylesC82sOkro.getFunctionalComponentNotificationBaseStyles = getFunctionalComponentNotificationBaseStyles;
+	return notificationBaseStylesC82sOkro;
 }
 
 var shadowLgCGLlslGh = {};
@@ -12029,17 +12038,17 @@ function requirePBanner_cjs_entry () {
 	if (hasRequiredPBanner_cjs_entry) return pBanner_cjs_entry$2;
 	hasRequiredPBanner_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var getSlotTextContent = requireGetSlotTextContentCaQGlFop();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
+	var index = requireIndexCO1jYG4D();
+	var getSlotTextContent = requireGetSlotTextContentDqBMbiGS();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var createTopLayerController = requireCreateTopLayerControllerDqDftt9Q();
-	var fcDismissButtonStyles = requireFcDismissButtonStylesDT1d6i6G();
-	var notificationBaseStyles = requireNotificationBaseStylesCM3KqCH();
+	var fcDismissButtonStyles = requireFcDismissButtonStylesCDh3_1Jh();
+	var notificationBaseStyles = requireNotificationBaseStylesC82sOkro();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var shadowLg = requireShadowLgCGLlslGh();
 	var gridExtendedOffsetBase = requireGridExtendedOffsetBase7vRjJ10S();
-	requireGetNamedSlotER751mnq();
+	requireGetNamedSlotDBF_9hiQ();
 	requireHoverMediaQueryCOekSiqP();
 	requireGetInlineSVGBackgroundImageC2AJYBEX();
 	requireLeadingNormalBs8OKhqj();
@@ -12453,15 +12462,15 @@ function requireAlignLabel8x6VjLXS () {
 	return alignLabel8x6VjLXS;
 }
 
-var loadingMessageStylesD6fdjnH9 = {};
+var loadingMessageStylesCs3un0in = {};
 
-var hasRequiredLoadingMessageStylesD6fdjnH9;
+var hasRequiredLoadingMessageStylesCs3un0in;
 
-function requireLoadingMessageStylesD6fdjnH9 () {
-	if (hasRequiredLoadingMessageStylesD6fdjnH9) return loadingMessageStylesD6fdjnH9;
-	hasRequiredLoadingMessageStylesD6fdjnH9 = 1;
+function requireLoadingMessageStylesCs3un0in () {
+	if (hasRequiredLoadingMessageStylesCs3un0in) return loadingMessageStylesCs3un0in;
+	hasRequiredLoadingMessageStylesCs3un0in = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 
 	const loadingId = 'loading';
@@ -12475,13 +12484,13 @@ function requireLoadingMessageStylesD6fdjnH9 () {
 	    };
 	};
 
-	loadingMessageStylesD6fdjnH9.LoadingMessage = LoadingMessage;
-	loadingMessageStylesD6fdjnH9.getFunctionalComponentLoadingMessageStyles = getFunctionalComponentLoadingMessageStyles;
-	loadingMessageStylesD6fdjnH9.loadingId = loadingId;
-	return loadingMessageStylesD6fdjnH9;
+	loadingMessageStylesCs3un0in.LoadingMessage = LoadingMessage;
+	loadingMessageStylesCs3un0in.getFunctionalComponentLoadingMessageStyles = getFunctionalComponentLoadingMessageStyles;
+	loadingMessageStylesCs3un0in.loadingId = loadingId;
+	return loadingMessageStylesCs3un0in;
 }
 
-var linkButtonPureStylesCuqV7Nw6 = {};
+var linkButtonPureStylesDel32jUU = {};
 
 var preventFoucOfNestedElementsStylesCvuFvvrn = {};
 
@@ -12699,13 +12708,13 @@ function requireRadiusLgDnAYukpB () {
 	return radiusLgDnAYukpB;
 }
 
-var hasRequiredLinkButtonPureStylesCuqV7Nw6;
+var hasRequiredLinkButtonPureStylesDel32jUU;
 
-function requireLinkButtonPureStylesCuqV7Nw6 () {
-	if (hasRequiredLinkButtonPureStylesCuqV7Nw6) return linkButtonPureStylesCuqV7Nw6;
-	hasRequiredLinkButtonPureStylesCuqV7Nw6 = 1;
+function requireLinkButtonPureStylesDel32jUU () {
+	if (hasRequiredLinkButtonPureStylesDel32jUU) return linkButtonPureStylesDel32jUU;
+	hasRequiredLinkButtonPureStylesDel32jUU = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var buttonLinkPureUtils = requireButtonLinkPureUtilsDSYUfucH();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
@@ -12747,7 +12756,7 @@ function requireLinkButtonPureStylesCuqV7Nw6 () {
 	                    transform: 'translate3d(0,0,0)', // creates new stacking context
 	                    ...hostHiddenStyles.hostHiddenStyles,
 	                }),
-	                ...index.buildResponsiveStyles(stretch, (responsiveStretch) => ({
+	                ...index.buildResponsiveBooleanStyles(stretch, (responsiveStretch) => ({
 	                    display: responsiveStretch ? 'block' : 'inline-block',
 	                    width: responsiveStretch ? '100%' : 'auto', // prevents adjusting its size when used as flex or grid child
 	                    ...(!responsiveStretch && { verticalAlign: 'top' }),
@@ -12763,9 +12772,9 @@ function requireLinkButtonPureStylesCuqV7Nw6 () {
 	            color: colorMap.colorMap[color],
 	            textDecoration: underline ? 'underline' : 'none',
 	            font: `${hostHiddenStyles.ref(fontWeightNormal.fontWeightNormal)} ${hostHiddenStyles.ref(typescaleSm.typescaleSm)}/${hostHiddenStyles.ref(leadingNormal.leadingNormal)} ${hostHiddenStyles.ref(leadingNormal.fontPorscheNext)}`,
-	            ...index.mergeDeep(index.buildResponsiveStyles(hideLabel, (hidelabelValue) => ({
+	            ...index.mergeDeep(index.buildResponsiveBooleanStyles(hideLabel, (hidelabelValue) => ({
 	                gap: hidelabelValue ? 0 : hostHiddenStyles.ref(spacingStaticXs.spacingStaticXs),
-	            })), index.buildResponsiveStyles(stretch, (stretchValue) => ({
+	            })), index.buildResponsiveBooleanStyles(stretch, (stretchValue) => ({
 	                justifyContent: stretchValue ? 'space-between' : 'flex-start',
 	                alignItems: stretchValue ? 'center' : 'flex-start',
 	            })), index.buildResponsiveStyles(size, (v) => ({
@@ -12782,7 +12791,7 @@ function requireLinkButtonPureStylesCuqV7Nw6 () {
 	                position: 'absolute', // mobile Safari -> prevent lagging active state
 	                top: offsetVertical,
 	                bottom: offsetVertical,
-	                ...index.buildResponsiveStyles(hideLabel, (hideLabelValue) => ({
+	                ...index.buildResponsiveBooleanStyles(hideLabel, (hideLabelValue) => ({
 	                    right: hideLabelValue ? offsetVertical : offsetHorizontal,
 	                    left: hideLabelValue ? offsetVertical : offsetHorizontal,
 	                    borderRadius: hideLabelValue ? hostHiddenStyles.ref(radiusFull.radiusFull) : hostHiddenStyles.ref(radiusLg.radiusLg),
@@ -12813,7 +12822,7 @@ function requireLinkButtonPureStylesCuqV7Nw6 () {
 	                    flexShrink: '0',
 	                },
 	                label: index.mergeDeep({ zIndex: '1' }, // fix Firefox bug on :hover (#2583) & pure-link with nested anchor & hidden label (#3349)
-	                index.buildResponsiveStyles(hideLabel, getVisibilityJssStyle), index.buildResponsiveStyles(alignLabel, (alignLabelValue) => ({
+	                index.buildResponsiveBooleanStyles(hideLabel, getVisibilityJssStyle), index.buildResponsiveStyles(alignLabel, (alignLabelValue) => ({
 	                    order: alignLabelValue === 'start' ? -1 : 0,
 	                }))),
 	            }
@@ -12825,21 +12834,21 @@ function requireLinkButtonPureStylesCuqV7Nw6 () {
 	    };
 	};
 
-	linkButtonPureStylesCuqV7Nw6.getLinkButtonPureStyles = getLinkButtonPureStyles;
-	linkButtonPureStylesCuqV7Nw6.offsetHorizontal = offsetHorizontal;
-	linkButtonPureStylesCuqV7Nw6.offsetVertical = offsetVertical;
-	return linkButtonPureStylesCuqV7Nw6;
+	linkButtonPureStylesDel32jUU.getLinkButtonPureStyles = getLinkButtonPureStyles;
+	linkButtonPureStylesDel32jUU.offsetHorizontal = offsetHorizontal;
+	linkButtonPureStylesDel32jUU.offsetVertical = offsetVertical;
+	return linkButtonPureStylesDel32jUU;
 }
 
-var a11yBtZXddqx = {};
+var a11yC0kIHWOt = {};
 
-var hasRequiredA11yBtZXddqx;
+var hasRequiredA11yC0kIHWOt;
 
-function requireA11yBtZXddqx () {
-	if (hasRequiredA11yBtZXddqx) return a11yBtZXddqx;
-	hasRequiredA11yBtZXddqx = 1;
+function requireA11yC0kIHWOt () {
+	if (hasRequiredA11yC0kIHWOt) return a11yC0kIHWOt;
+	hasRequiredA11yC0kIHWOt = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const parseAndGetAriaAttributes = (rawAttributes) => {
 	    if (rawAttributes) {
@@ -12860,9 +12869,9 @@ function requireA11yBtZXddqx () {
 	    return result || null;
 	};
 
-	a11yBtZXddqx.parseAndGetAriaAttributes = parseAndGetAriaAttributes;
-	a11yBtZXddqx.setAriaIDREF = setAriaIDREF;
-	return a11yBtZXddqx;
+	a11yC0kIHWOt.parseAndGetAriaAttributes = parseAndGetAriaAttributes;
+	a11yC0kIHWOt.setAriaIDREF = setAriaIDREF;
+	return a11yC0kIHWOt;
 }
 
 var getButtonBaseAriaAttributesDUA69J2t = {};
@@ -12891,19 +12900,19 @@ function requirePButtonPure_cjs_entry () {
 	if (hasRequiredPButtonPure_cjs_entry) return pButtonPure_cjs_entry$2;
 	hasRequiredPButtonPure_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var isDisabledOrLoading = requireIsDisabledOrLoadingDstO6iYY();
 	var buttonType = requireButtonTypeC23H_RRu();
 	var buttonHandling = requireButtonHandlingBcJXZ3Vg();
 	var buttonLinkPureUtils = requireButtonLinkPureUtilsDSYUfucH();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var alignLabel = requireAlignLabel8x6VjLXS();
-	var loadingMessageStyles = requireLoadingMessageStylesD6fdjnH9();
-	var linkButtonPureStyles = requireLinkButtonPureStylesCuqV7Nw6();
+	var loadingMessageStyles = requireLoadingMessageStylesCs3un0in();
+	var linkButtonPureStyles = requireLinkButtonPureStylesDel32jUU();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	var colorContrastLow = requireColorContrastLowB7Tc_TQk();
-	var a11y = requireA11yBtZXddqx();
+	var a11y = requireA11yC0kIHWOt();
 	var getButtonBaseAriaAttributes = requireGetButtonBaseAriaAttributesDUA69J2t();
 	requireGetClosestHTMLElementCWqq05pb();
 	requireSetAttributesR25N9m8L();
@@ -13019,7 +13028,7 @@ function requirePButtonPure_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the button's HTML type — `submit` sends the form, `reset` clears it, `button` performs no default action. */
@@ -13154,9 +13163,9 @@ function requireSlottedPictureImageStylesDfgUJAci () {
 	return slottedPictureImageStylesDfgUJAci;
 }
 
-var linkTileUtilsU2JMgJ6Q = {};
+var linkTileUtilsB3gvFF8Z = {};
 
-var getDirectChildHTMLElementBgsUJuKK = {};
+var getDirectChildHTMLElementBjdpb1eX = {};
 
 var transformSelectorToDirectChildSelectorB_8CS40K = {};
 
@@ -13175,13 +13184,13 @@ function requireTransformSelectorToDirectChildSelectorB_8CS40K () {
 	return transformSelectorToDirectChildSelectorB_8CS40K;
 }
 
-var hasRequiredGetDirectChildHTMLElementBgsUJuKK;
+var hasRequiredGetDirectChildHTMLElementBjdpb1eX;
 
-function requireGetDirectChildHTMLElementBgsUJuKK () {
-	if (hasRequiredGetDirectChildHTMLElementBgsUJuKK) return getDirectChildHTMLElementBgsUJuKK;
-	hasRequiredGetDirectChildHTMLElementBgsUJuKK = 1;
+function requireGetDirectChildHTMLElementBjdpb1eX () {
+	if (hasRequiredGetDirectChildHTMLElementBjdpb1eX) return getDirectChildHTMLElementBjdpb1eX;
+	hasRequiredGetDirectChildHTMLElementBjdpb1eX = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var transformSelectorToDirectChildSelector = requireTransformSelectorToDirectChildSelectorB_8CS40K();
 
 	function getDirectChildHTMLElement(element, selector) {
@@ -13195,18 +13204,18 @@ function requireGetDirectChildHTMLElementBgsUJuKK () {
 	    );
 	}
 
-	getDirectChildHTMLElementBgsUJuKK.getDirectChildHTMLElement = getDirectChildHTMLElement;
-	return getDirectChildHTMLElementBgsUJuKK;
+	getDirectChildHTMLElementBjdpb1eX.getDirectChildHTMLElement = getDirectChildHTMLElement;
+	return getDirectChildHTMLElementBjdpb1eX;
 }
 
-var hasRequiredLinkTileUtilsU2JMgJ6Q;
+var hasRequiredLinkTileUtilsB3gvFF8Z;
 
-function requireLinkTileUtilsU2JMgJ6Q () {
-	if (hasRequiredLinkTileUtilsU2JMgJ6Q) return linkTileUtilsU2JMgJ6Q;
-	hasRequiredLinkTileUtilsU2JMgJ6Q = 1;
+function requireLinkTileUtilsB3gvFF8Z () {
+	if (hasRequiredLinkTileUtilsB3gvFF8Z) return linkTileUtilsB3gvFF8Z;
+	hasRequiredLinkTileUtilsB3gvFF8Z = 1;
 
-	var getDirectChildHTMLElement = requireGetDirectChildHTMLElementBgsUJuKK();
-	var index = requireIndexDXYpCE_Y();
+	var getDirectChildHTMLElement = requireGetDirectChildHTMLElementBjdpb1eX();
+	var index = requireIndexCO1jYG4D();
 
 	/** Holds a gradient fade. */
 	const gradientStopsFadeDark = 'hsla(0,0%,0%,.8) 0%,' +
@@ -13226,12 +13235,12 @@ function requireLinkTileUtilsU2JMgJ6Q () {
 	    'hsla(0,0%,0%,.011) 91.9%,' +
 	    'hsla(0,0%,0%,0) 100%';
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use background: `linear-gradient(to bottom, ${gradientStopsFadeDark});` instead  */
+	/** @deprecated This API will be removed with the next major release. Use background: `linear-gradient(to bottom, ${gradientStopsFadeDark});` instead. */
 	const gradientToBottomStyle = {
 	    background: `linear-gradient(to bottom, ${gradientStopsFadeDark});`,
 	};
 
-	/** @deprecated since v4.0.0, will be removed with next major release. background: `linear-gradient(to top, ${gradientStopsFadeDark});` instead  */
+	/** @deprecated This API will be removed with the next major release. background: `linear-gradient(to top, ${gradientStopsFadeDark});` instead. */
 	const gradientToTopStyle = {
 	    background: `linear-gradient(to top, ${gradientStopsFadeDark});`,
 	};
@@ -13257,13 +13266,16 @@ function requireLinkTileUtilsU2JMgJ6Q () {
 	    gradient: index.AllowedTypes.boolean,
 	    compact: index.AllowedTypes.breakpoint('boolean'),
 	};
+	// both tiles need the parsed value to decide whether only one or both link/button variants have to be rendered
+	const getParsedTileCompact = (compact) => index.parseJSONBoolean(compact);
 
-	linkTileUtilsU2JMgJ6Q.TILE_WEIGHTS = TILE_WEIGHTS;
-	linkTileUtilsU2JMgJ6Q.gradientToBottomStyle = gradientToBottomStyle;
-	linkTileUtilsU2JMgJ6Q.gradientToTopStyle = gradientToTopStyle;
-	linkTileUtilsU2JMgJ6Q.preventAutoPlayOfSlottedVideoOnPrefersReducedMotion = preventAutoPlayOfSlottedVideoOnPrefersReducedMotion;
-	linkTileUtilsU2JMgJ6Q.sharedTilePropTypes = sharedTilePropTypes;
-	return linkTileUtilsU2JMgJ6Q;
+	linkTileUtilsB3gvFF8Z.TILE_WEIGHTS = TILE_WEIGHTS;
+	linkTileUtilsB3gvFF8Z.getParsedTileCompact = getParsedTileCompact;
+	linkTileUtilsB3gvFF8Z.gradientToBottomStyle = gradientToBottomStyle;
+	linkTileUtilsB3gvFF8Z.gradientToTopStyle = gradientToTopStyle;
+	linkTileUtilsB3gvFF8Z.preventAutoPlayOfSlottedVideoOnPrefersReducedMotion = preventAutoPlayOfSlottedVideoOnPrefersReducedMotion;
+	linkTileUtilsB3gvFF8Z.sharedTilePropTypes = sharedTilePropTypes;
+	return linkTileUtilsB3gvFF8Z;
 }
 
 var weightMapCRyOCbCS = {};
@@ -13344,13 +13356,13 @@ function requirePButtonTile_cjs_entry () {
 	if (hasRequiredPButtonTile_cjs_entry) return pButtonTile_cjs_entry$2;
 	hasRequiredPButtonTile_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var slottedPictureImageStyles = requireSlottedPictureImageStylesDfgUJAci();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
 	var isDisabledOrLoading = requireIsDisabledOrLoadingDstO6iYY();
 	var buttonType = requireButtonTypeC23H_RRu();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var linkTileUtils = requireLinkTileUtilsU2JMgJ6Q();
+	var linkTileUtils = requireLinkTileUtilsB3gvFF8Z();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -13365,8 +13377,8 @@ function requirePButtonTile_cjs_entry () {
 	var fontWeightNormal = requireFontWeightNormalBZeqsj8y();
 	var typescaleSm = requireTypescaleSmCfWCHncH();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
-	requireGetNamedSlotER751mnq();
-	requireGetDirectChildHTMLElementBgsUJuKK();
+	requireGetNamedSlotDBF_9hiQ();
+	requireGetDirectChildHTMLElementBjdpb1eX();
 	requireTransformSelectorToDirectChildSelectorB_8CS40K();
 	requireTypescale5XlDsPA7x2t();
 	requireTypescaleXlDyQCg4yv();
@@ -13486,7 +13498,7 @@ function requirePButtonTile_cjs_entry () {
 	        },
 	        footer: {
 	            gridArea: `${isTopAligned ? 2 : 4}/2`,
-	            ...index.buildResponsiveStyles(compact, (compactValue) => compactValue
+	            ...index.buildResponsiveBooleanStyles(compact, (compactValue) => compactValue
 	                ? {
 	                    display: 'grid',
 	                    gridTemplateColumns: 'minmax(0,1fr) auto',
@@ -13503,7 +13515,7 @@ function requirePButtonTile_cjs_entry () {
 	            gridColumn: 2,
 	            gridRow: `1/${hasFooterSlot ? 3 : 2}`,
 	            alignSelf: isTopAligned ? 'flex-start' : 'flex-end',
-	            ...index.buildResponsiveStyles(compact, (compactValue) => ({
+	            ...index.buildResponsiveBooleanStyles(compact, (compactValue) => ({
 	                display: compactValue ? 'inline-block' : 'none',
 	            })),
 	        },
@@ -13511,7 +13523,7 @@ function requirePButtonTile_cjs_entry () {
 	            minHeight: '54px', // prevent content shift
 	            zIndex: 5,
 	            marginTop: hostHiddenStyles.ref(spacingStaticMd.spacingStaticMd),
-	            ...index.buildResponsiveStyles(compact, (compactValue) => ({
+	            ...index.buildResponsiveBooleanStyles(compact, (compactValue) => ({
 	                display: compactValue ? 'none' : 'inline-block',
 	            })),
 	        },
@@ -13573,8 +13585,7 @@ function requirePButtonTile_cjs_entry () {
 	    }
 	    render() {
 	        index.validateProps(this, propTypes);
-	        // TODO: BreakpointCustomizable breaks stencils boolean conversion from string to boolean
-	        const parsedCompact = this.compact === 'true' ? true : this.compact === 'false' ? false : this.compact;
+	        const parsedCompact = linkTileUtils.getParsedTileCompact(this.compact);
 	        index.attachComponentCss(this.host, getComponentCss, isDisabledOrLoading.isDisabledOrLoading(this.disabled, this.loading), this.aspectRatio, this.size, this.weight, this.align, parsedCompact, this.gradient, this.hasFooterSlot, this.disabled);
 	        const PrefixedTagNames = index.getPrefixedTagNames(this.host);
 	        const buttonProps = {
@@ -13587,7 +13598,7 @@ function requirePButtonTile_cjs_entry () {
 	        };
 	        const button = (index.h(PrefixedTagNames.pButton, { ...buttonProps, icon: this.icon, key: "link-or-button", class: "link-or-button" }, this.label));
 	        const buttonCompact = (index.h(PrefixedTagNames.pButton, { ...buttonProps, key: "link-or-button-pure", class: "link-or-button-pure", hideLabel: true, compact: true, icon: this.icon === 'none' ? 'arrow-right' : this.icon }, this.label));
-	        return (index.h("div", { key: '5bb6c77172b2cd93419f56909e4443987fc1236f', class: "root" }, index.h("slot", { key: '4229e36679e5dd69ca8c831d0fd118b553e0c01c', name: "header" }), index.h("div", { key: '6bb705e8aef786cf318fccafd6d71e451ce64bbe', class: "media" }, index.h("slot", { key: '46eda09a7d702c590040aa9d8298e6b458c8dae9', onSlotchange: () => linkTileUtils.preventAutoPlayOfSlottedVideoOnPrefersReducedMotion(this.host) })), index.h("div", { key: '08c3a16c27ca7ec7e916fae240e4ef9097022c73', class: "footer" }, index.h("p", { key: 'b7bb64c6f6f55191c9194c41db7c3c3c8af7ae3a' }, this.description), index.h("slot", { key: 'ccbcd3419b582f8724c53ac9d18f4954190ca521', name: "footer", onSlotchange: this.updateSlotObserver }), typeof parsedCompact === 'boolean' ? (parsedCompact ? buttonCompact : button) : [buttonCompact, button])));
+	        return (index.h("div", { key: '649bf912e96530d6504c9d2bac3201de460e558e', class: "root" }, index.h("slot", { key: 'a6b8a31fd6149d7b767f6825d640ba8e12cc9651', name: "header" }), index.h("div", { key: '9dd8f42ed5a140afa19d44b19559be119fd5504c', class: "media" }, index.h("slot", { key: '1106495b1b511d2ecc7996cf6abc7dd33e7666c6', onSlotchange: () => linkTileUtils.preventAutoPlayOfSlottedVideoOnPrefersReducedMotion(this.host) })), index.h("div", { key: '0e3a4dad9e95b055e44d1aed89323cc806649992', class: "footer" }, index.h("p", { key: 'f43583711525684a09514d40659af5adf5710eeb' }, this.description), index.h("slot", { key: '5ff87b9c9b15c52e21fa8214cdf0c01f30af1474', name: "footer", onSlotchange: this.updateSlotObserver }), typeof parsedCompact === 'boolean' ? (parsedCompact ? buttonCompact : button) : [buttonCompact, button])));
 	    }
 	    static get delegatesFocus() { return true; }
 	    get host() { return index.getElement(this); }
@@ -13607,15 +13618,30 @@ var pButtonTile_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pButton_cjs_entry$2 = {};
 
-var linkButtonStylesCvDyeHNI = {};
+var linkButtonStylesDoYPBg5N = {};
 
-var hasRequiredLinkButtonStylesCvDyeHNI;
+var colorErrorMediumBJIzBY = {};
 
-function requireLinkButtonStylesCvDyeHNI () {
-	if (hasRequiredLinkButtonStylesCvDyeHNI) return linkButtonStylesCvDyeHNI;
-	hasRequiredLinkButtonStylesCvDyeHNI = 1;
+var hasRequiredColorErrorMediumBJIzBY;
 
-	var index = requireIndexDXYpCE_Y();
+function requireColorErrorMediumBJIzBY () {
+	if (hasRequiredColorErrorMediumBJIzBY) return colorErrorMediumBJIzBY;
+	hasRequiredColorErrorMediumBJIzBY = 1;
+
+	// AUTO-GENERATED by scripts/buildCssVariableConstants.ts — do not edit by hand.
+	const colorErrorMedium = '--p-color-error-medium';
+
+	colorErrorMediumBJIzBY.colorErrorMedium = colorErrorMedium;
+	return colorErrorMediumBJIzBY;
+}
+
+var hasRequiredLinkButtonStylesDoYPBg5N;
+
+function requireLinkButtonStylesDoYPBg5N () {
+	if (hasRequiredLinkButtonStylesDoYPBg5N) return linkButtonStylesDoYPBg5N;
+	hasRequiredLinkButtonStylesDoYPBg5N = 1;
+
+	var index = requireIndexCO1jYG4D();
 	var buttonLinkPureUtils = requireButtonLinkPureUtilsDSYUfucH();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
@@ -13627,32 +13653,40 @@ function requireLinkButtonStylesCvDyeHNI () {
 	var radiusFull = requireRadiusFullCYhM6RWu();
 	var radiusLg = requireRadiusLgDnAYukpB();
 	var radiusXl = requireRadiusXlBkApDqqr();
+	var colorErrorMedium = requireColorErrorMediumBJIzBY();
+	var colorError = requireColorErrorDycYY56v();
+	var colorPrimary = requireColorPrimaryCtfZkymE();
+	var colorCanvas = requireColorCanvasCvcJTS2L();
 	var colorFrosted = requireColorFrostedBcGq8wdI();
 	var colorFrostedStrong = requireColorFrostedStrongCRO7iu25();
-	var colorPrimary = requireColorPrimaryCtfZkymE();
 	var colorContrastHigh = requireColorContrastHighWG95shR6();
-	var colorCanvas = requireColorCanvasCvcJTS2L();
 
-	const LINK_BUTTON_VARIANTS = ['primary', 'secondary'];
-
-	const getVariantColors = (variant) => {
+	const getVariantColors = (variant, cssVariableBackground, cssVariableForeground) => {
 	    const colors = {
 	        primary: {
-	            textColor: hostHiddenStyles.ref(colorCanvas.colorCanvas),
-	            backgroundColor: hostHiddenStyles.ref(colorPrimary.colorPrimary),
-	            backgroundColorHover: hostHiddenStyles.ref(colorContrastHigh.colorContrastHigh),
+	            textColor: hostHiddenStyles.ref(cssVariableForeground, hostHiddenStyles.ref(colorCanvas.colorCanvas)),
+	            textColorHover: hostHiddenStyles.ref(cssVariableForeground, hostHiddenStyles.ref(colorCanvas.colorCanvas)),
+	            backgroundColor: hostHiddenStyles.ref(cssVariableBackground, hostHiddenStyles.ref(colorPrimary.colorPrimary)),
+	            backgroundColorHover: hostHiddenStyles.ref(cssVariableBackground, hostHiddenStyles.ref(colorContrastHigh.colorContrastHigh)),
 	        },
 	        secondary: {
-	            textColor: hostHiddenStyles.ref(colorPrimary.colorPrimary),
-	            backgroundColor: hostHiddenStyles.ref(colorFrostedStrong.colorFrostedStrong),
-	            backgroundColorHover: hostHiddenStyles.ref(colorFrosted.colorFrosted),
+	            textColor: hostHiddenStyles.ref(cssVariableForeground, hostHiddenStyles.ref(colorPrimary.colorPrimary)),
+	            textColorHover: hostHiddenStyles.ref(cssVariableForeground, hostHiddenStyles.ref(colorPrimary.colorPrimary)),
+	            backgroundColor: hostHiddenStyles.ref(cssVariableBackground, hostHiddenStyles.ref(colorFrostedStrong.colorFrostedStrong)),
+	            backgroundColorHover: hostHiddenStyles.ref(cssVariableBackground, hostHiddenStyles.ref(colorFrosted.colorFrosted)),
+	        },
+	        destructive: {
+	            textColor: hostHiddenStyles.ref(cssVariableForeground, hostHiddenStyles.ref(colorCanvas.colorCanvas)),
+	            textColorHover: hostHiddenStyles.ref(cssVariableForeground, hostHiddenStyles.ref(colorPrimary.colorPrimary)),
+	            backgroundColor: hostHiddenStyles.ref(cssVariableBackground, hostHiddenStyles.ref(colorError.colorError)),
+	            backgroundColorHover: hostHiddenStyles.ref(cssVariableBackground, hostHiddenStyles.ref(colorErrorMedium.colorErrorMedium)),
 	        },
 	    };
 	    return colors[variant];
 	};
-	const getLinkButtonStyles = (icon, iconSource, variant, hideLabel, isDisabledOrLoading, hasSlottedAnchor, isCompact, cssVariableInternalScaling) => {
-	    const { textColor, backgroundColor, backgroundColorHover } = getVariantColors(variant);
-	    const hasIcon = buttonLinkPureUtils.hasVisibleIcon(icon, iconSource) || hideLabel;
+	const getLinkButtonStyles = (icon, iconSource, variant, hideLabel, isDisabledOrLoading, hasSlottedAnchor, isCompact, cssVariableInternalScaling, cssVariableBackground, cssVariableForeground, cssVarPaddingInline, cssVarPaddingBlock, cssVarGap, cssVarRadius) => {
+	    const { textColor, textColorHover, backgroundColor, backgroundColorHover } = getVariantColors(variant, cssVariableBackground, cssVariableForeground);
+	    const hasIcon = buttonLinkPureUtils.hasVisibleIcon(icon, iconSource) || index.isTruthyForAnyBreakpoint(hideLabel);
 	    const paddingBlock = `calc(28px * (${hostHiddenStyles.ref(cssVariableInternalScaling)} - 0.64285714) + 6px)`;
 	    const paddingInline = `calc(33.6px * (${hostHiddenStyles.ref(cssVariableInternalScaling)} - 0.64285714) + 16px)`;
 	    const gap = `calc(11.2px * (${hostHiddenStyles.ref(cssVariableInternalScaling)} - 0.64285714) + 4px)`;
@@ -13662,11 +13696,11 @@ function requireLinkButtonStylesCvDyeHNI () {
 	            ':host': {
 	                display: 'inline-block',
 	                verticalAlign: 'top',
-	                ...index.mergeDeep(index.buildResponsiveStyles(isCompact, (compactValue) => ({
+	                ...index.mergeDeep(index.buildResponsiveBooleanStyles(isCompact, (compactValue) => ({
 	                    [`${cssVariableInternalScaling}`]: compactValue ? 0.64285714 : 1,
 	                    '--_p-link-button-a': compactValue ? hostHiddenStyles.ref(radiusLg.radiusLg) : hostHiddenStyles.ref(radiusXl.radiusXl),
-	                })), index.buildResponsiveStyles(hideLabel, (hideLabelValue) => ({
-	                    borderRadius: hostHiddenStyles.addImportantToRule(hideLabelValue ? hostHiddenStyles.ref(radiusFull.radiusFull) : hostHiddenStyles.ref('--_p-link-button-a')),
+	                })), index.buildResponsiveBooleanStyles(hideLabel, (hideLabelValue) => ({
+	                    borderRadius: hostHiddenStyles.addImportantToRule(hostHiddenStyles.ref(cssVarRadius, hideLabelValue ? hostHiddenStyles.ref(radiusFull.radiusFull) : hostHiddenStyles.ref('--_p-link-button-a'))),
 	                }))),
 	                ...hostHiddenStyles.addImportantToEachRule({
 	                    ...hostHiddenStyles.hostHiddenStyles,
@@ -13690,9 +13724,9 @@ function requireLinkButtonStylesCvDyeHNI () {
 	            color: textColor,
 	            cursor: 'pointer',
 	            transition: `${hostHiddenStyles.getTransition('background-color')}, ${hostHiddenStyles.getTransition('border-color')}, ${hostHiddenStyles.getTransition('color')}`,
-	            ...index.buildResponsiveStyles(hideLabel, (hideLabelValue) => ({
-	                padding: hideLabelValue ? paddingBlock : `${paddingBlock} ${paddingInline}`,
-	                gap: hideLabelValue ? 0 : gap,
+	            ...index.buildResponsiveBooleanStyles(hideLabel, (hideLabelValue) => ({
+	                padding: `${hostHiddenStyles.ref(cssVarPaddingBlock, paddingBlock)} ${hostHiddenStyles.ref(cssVarPaddingInline, hideLabelValue ? paddingBlock : paddingInline)}`,
+	                gap: hostHiddenStyles.ref(cssVarGap, hideLabelValue ? 0 : gap),
 	            })),
 	            ...hostHiddenStyles.forcedColorsMediaQuery({
 	                forcedColorAdjust: 'none',
@@ -13710,6 +13744,7 @@ function requireLinkButtonStylesCvDyeHNI () {
 	            ...(!isDisabledOrLoading &&
 	                hoverMediaQuery.hoverMediaQuery({
 	                    '&:hover': {
+	                        color: textColorHover,
 	                        backgroundColor: backgroundColorHover,
 	                        ...hostHiddenStyles.forcedColorsMediaQuery({
 	                            background: 'Canvas',
@@ -13717,13 +13752,13 @@ function requireLinkButtonStylesCvDyeHNI () {
 	                    },
 	                })),
 	        },
-	        label: index.buildResponsiveStyles(hideLabel, hostHiddenStyles.getHiddenTextJssStyle),
+	        label: index.buildResponsiveBooleanStyles(hideLabel, hostHiddenStyles.getHiddenTextJssStyle),
 	        ...(hasIcon && {
 	            icon: {
 	                font: `${hostHiddenStyles.ref(typescaleSm.typescaleSm)} ${hostHiddenStyles.ref(leadingNormal.fontPorscheNext)}`, // needed for correct width/height definition based on ex-unit
 	                width: hostHiddenStyles.ref(leadingNormal.leadingNormal), // ensure space is already reserved until icon component is loaded (ssr)
 	                height: hostHiddenStyles.ref(leadingNormal.leadingNormal), // ensure space is already reserved until icon component is loaded (ssr)
-	                ...index.buildResponsiveStyles(hideLabel, (hideLabelValue) => ({
+	                ...index.buildResponsiveBooleanStyles(hideLabel, (hideLabelValue) => ({
 	                    marginInlineStart: hideLabelValue ? 0 : iconMarginInlineStart, // compensate white space of svg icon and optimize visual alignment
 	                })),
 	            },
@@ -13731,9 +13766,8 @@ function requireLinkButtonStylesCvDyeHNI () {
 	    };
 	};
 
-	linkButtonStylesCvDyeHNI.LINK_BUTTON_VARIANTS = LINK_BUTTON_VARIANTS;
-	linkButtonStylesCvDyeHNI.getLinkButtonStyles = getLinkButtonStyles;
-	return linkButtonStylesCvDyeHNI;
+	linkButtonStylesDoYPBg5N.getLinkButtonStyles = getLinkButtonStyles;
+	return linkButtonStylesDoYPBg5N;
 }
 
 var hasRequiredPButton_cjs_entry;
@@ -13742,16 +13776,16 @@ function requirePButton_cjs_entry () {
 	if (hasRequiredPButton_cjs_entry) return pButton_cjs_entry$2;
 	hasRequiredPButton_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var isDisabledOrLoading = requireIsDisabledOrLoadingDstO6iYY();
 	var buttonType = requireButtonTypeC23H_RRu();
 	var buttonHandling = requireButtonHandlingBcJXZ3Vg();
 	var buttonLinkPureUtils = requireButtonLinkPureUtilsDSYUfucH();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var linkButtonStyles = requireLinkButtonStylesCvDyeHNI();
-	var loadingMessageStyles = requireLoadingMessageStylesD6fdjnH9();
+	var loadingMessageStyles = requireLoadingMessageStylesCs3un0in();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	var a11y = requireA11yBtZXddqx();
+	var linkButtonStyles = requireLinkButtonStylesDoYPBg5N();
+	var a11y = requireA11yC0kIHWOt();
 	var getButtonBaseAriaAttributes = requireGetButtonBaseAriaAttributesDUA69J2t();
 	requireGetClosestHTMLElementCWqq05pb();
 	requireSetAttributesR25N9m8L();
@@ -13764,16 +13798,82 @@ function requirePButton_cjs_entry () {
 	requireRadiusFullCYhM6RWu();
 	requireRadiusLgDnAYukpB();
 	requireRadiusXlBkApDqqr();
+	requireColorErrorMediumBJIzBY();
+	requireColorErrorDycYY56v();
+	requireColorPrimaryCtfZkymE();
+	requireColorCanvasCvcJTS2L();
 	requireColorFrostedBcGq8wdI();
 	requireColorFrostedStrongCRO7iu25();
-	requireColorPrimaryCtfZkymE();
 	requireColorContrastHighWG95shR6();
-	requireColorCanvasCvcJTS2L();
+
+	/**
+	 * Adds or removes a custom state on an element via the `CustomStateSet` of its `ElementInternals`,
+	 * which makes the state targetable in CSS via the `:state()` pseudo-class, e.g. `p-button:state(loading)`.
+	 *
+	 * This is experimental and a progressive enhancement:
+	 * - Custom states can't be expressed during SSR, they are only applied once the component hydrates.
+	 * - Browsers without `ElementInternals` (`internals` is `undefined` due to our Stencil patch) or without
+	 *   `CustomStateSet` support simply don't get the state, the component keeps working as before.
+	 * - Chromium < 125, Safari < 17.4 and Firefox < 126 only support the legacy dashed ident syntax (`--foo`)
+	 *   and throw for plain idents, therefore we fall back to the dashed ident.
+	 */
+	const setCustomState = (internals, state, active) => {
+	    const states = internals?.states;
+	    if (!states) {
+	        return;
+	    }
+	    try {
+	        if (active) {
+	            states.add(state);
+	        }
+	        else {
+	            states.delete(state);
+	        }
+	    }
+	    catch {
+	        // legacy dashed ident syntax as fallback for older browsers
+	        try {
+	            if (active) {
+	                states.add(`--${state}`);
+	            }
+	            else {
+	                states.delete(`--${state}`);
+	            }
+	        }
+	        catch {
+	            // custom states are not supported at all, nothing to do
+	        }
+	    }
+	};
 
 	const cssVariableInternalButtonScaling = '--_p-button-a';
+	/**
+	 * @css-variable {"name": "--p-button-bg", "description": "Overrides the background color of the button in every state, including hover. You are responsible for ensuring sufficient contrast and brand compliance.", "defaultValue": ""}
+	 */
+	const cssVarBackground = '--p-button-bg';
+	/**
+	 *  @css-variable {"name": "--p-button-fg", "description": "Overrides the foreground color (label, icon and loading spinner) of the button in every state, including hover. You are responsible for ensuring sufficient contrast and brand compliance.", "defaultValue": ""}
+	 */
+	const cssVarForeground = '--p-button-fg';
+	/**
+	 * @css-variable {"name": "--p-button-px", "description": "Horizontal padding of the button.", "defaultValue": ""}
+	 */
+	const cssVarPaddingInline = '--p-button-px';
+	/**
+	 * @css-variable {"name": "--p-button-py", "description": "Vertical padding of the button.", "defaultValue": ""}
+	 */
+	const cssVarPaddingBlock = '--p-button-py';
+	/**
+	 * @css-variable {"name": "--p-button-gap", "description": "Gap between the button's content (label and icon).", "defaultValue": ""}
+	 */
+	const cssVarGap = '--p-button-gap';
+	/**
+	 * @css-variable {"name": "--p-button-radius", "description": "Radius of the button", "defaultValue": ""}
+	 */
+	const cssVarRadius = '--p-button-radius';
 	const getComponentCss = (icon, iconSource, variant, hideLabel, isDisabled, isLoading, isCompact) => {
 	    const disabledOrLoading = isDisabledOrLoading.isDisabledOrLoading(isDisabled, isLoading);
-	    return index.getCss(index.mergeDeep(linkButtonStyles.getLinkButtonStyles(icon, iconSource, variant, hideLabel, disabledOrLoading, false, isCompact, cssVariableInternalButtonScaling), {
+	    return index.getCss(index.mergeDeep(linkButtonStyles.getLinkButtonStyles(icon, iconSource, variant, hideLabel, disabledOrLoading, false, isCompact, cssVariableInternalButtonScaling, cssVarBackground, cssVarForeground, cssVarPaddingInline, cssVarPaddingBlock, cssVarGap, cssVarRadius), {
 	        root: {
 	            ...(disabledOrLoading && {
 	                cursor: 'not-allowed',
@@ -13788,13 +13888,11 @@ function requirePButton_cjs_entry () {
 	        },
 	        ...(isLoading && {
 	            spinner: {
+	                '--p-spinner-color': 'currentcolor',
 	                position: 'absolute',
 	                top: '50%',
 	                left: '50%',
 	                transform: 'translate(-50%, -50%)',
-	                ...(variant === 'primary' && {
-	                    '--p-spinner-color': 'currentcolor',
-	                }),
 	            },
 	        }),
 	        label: {
@@ -13820,6 +13918,7 @@ function requirePButton_cjs_entry () {
 	    }));
 	};
 
+	const BUTTON_VARIANTS = ['primary', 'secondary', 'destructive'];
 	const getButtonAriaAttributes = (isDisabled, isLoading, aria) => {
 	    return {
 	        ...a11y.parseAndGetAriaAttributes(aria),
@@ -13831,7 +13930,7 @@ function requirePButton_cjs_entry () {
 	    type: index.AllowedTypes.oneOf(buttonType.BUTTON_TYPES),
 	    name: index.AllowedTypes.string,
 	    value: index.AllowedTypes.string,
-	    variant: index.AllowedTypes.oneOf(linkButtonStyles.LINK_BUTTON_VARIANTS),
+	    variant: index.AllowedTypes.oneOf(BUTTON_VARIANTS),
 	    disabled: index.AllowedTypes.boolean,
 	    loading: index.AllowedTypes.boolean,
 	    icon: index.AllowedTypes.string,
@@ -13848,7 +13947,7 @@ function requirePButton_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the button's HTML type — `submit` sends the form, `reset` clears it, `button` performs no default action. */
@@ -13857,7 +13956,7 @@ function requirePButton_cjs_entry () {
 	        this.disabled = false;
 	        /** Disables the button and replaces its content with a loading spinner to indicate an ongoing operation. */
 	        this.loading = false;
-	        /** Sets the visual style variant of the button (`primary` or `secondary`). */
+	        /** Sets the visual style variant of the button (`primary`, `secondary` or `destructive`). Use `destructive` for actions with irreversible consequences, e.g. deleting data. */
 	        this.variant = 'primary';
 	        /** Sets the icon displayed inside the button. Use `none` to show no icon. */
 	        this.icon = 'none';
@@ -13902,6 +14001,9 @@ function requirePButton_cjs_entry () {
 	            this.initialLoading = true;
 	        }
 	    }
+	    componentWillRender() {
+	        this.syncCustomStates();
+	    }
 	    componentShouldUpdate(newVal, oldVal) {
 	        return hasPropValueChanged.hasPropValueChanged(newVal, oldVal);
 	    }
@@ -13910,11 +14012,22 @@ function requirePButton_cjs_entry () {
 	            buttonHandling.improveButtonHandlingForCustomElement(this.host, () => this.type, () => isDisabledOrLoading.isDisabledOrLoading(this.disabled, this.loading), () => this.name, () => this.value);
 	        }
 	    }
+	    /**
+	     * Exposes the loading state as CSS custom state, which can be targeted with the `:state()` pseudo-class,
+	     * e.g. `p-button:state(loading) { --p-button-bg: deeppink; }`.
+	     * This is experimental and a progressive enhancement: it silently does nothing in browsers without `CustomStateSet`
+	     * support and it can't be expressed during SSR, since custom states are only applied once the component hydrates.
+	     * The disabled state doesn't need a custom state, since the button is form-associated and therefore matched by the
+	     * native `:disabled` pseudo-class.
+	     */
+	    syncCustomStates() {
+	        setCustomState(this.internals, 'loading', this.loading);
+	    }
 	    render() {
 	        index.validateProps(this, propTypes);
 	        index.attachComponentCss(this.host, getComponentCss, this.icon, this.iconSource, this.variant, this.hideLabel, this.disabled, this.loading, this.compact);
 	        const PrefixedTagNames = index.getPrefixedTagNames(this.host);
-	        return (index.h(index.Host, { key: '8937fd5b8d282828ecbe6275507152338a368d18' }, index.h("button", { key: 'bbc07d375c5aa329bc58d8f10d2b22d2cf8c6430', ...getButtonAriaAttributes(this.disabled, this.loading, this.aria), class: "root", type: this.type, name: this.name, value: this.value, "aria-describedby": this.loading ? loadingMessageStyles.loadingId : undefined }, this.loading && index.h(PrefixedTagNames.pSpinner, { key: '9f1d7aab33329f507e1d15ba37c28ba5bb89c51c', class: "spinner", "aria-hidden": "true" }), buttonLinkPureUtils.hasVisibleIcon(this.icon, this.iconSource) && (index.h(PrefixedTagNames.pIcon, { key: '34bde49faa27f2fa5142eb7f27930ec52381838a', class: "icon", name: this.iconSource ? undefined : this.icon, source: this.iconSource, color: "inherit", "aria-hidden": "true" })), index.h("span", { key: 'e6178aa22d12e59fb5b251179734114354fb8565', class: "label" }, index.h("slot", { key: 'b88d5046bda490dfc74549d041fac8a7ccf716a3' }))), index.h(loadingMessageStyles.LoadingMessage, { key: '025f22f820a3515356ad17cdc1732dbb5c764fb9', loading: this.loading, initialLoading: this.initialLoading })));
+	        return (index.h(index.Host, { key: '75fa1d484cc2d3a60888d47548faafe8ddbae878' }, index.h("button", { key: '3b78f8855483c71dd988a60522eab5a37e9db668', ...getButtonAriaAttributes(this.disabled, this.loading, this.aria), class: "root", type: this.type, name: this.name, value: this.value, "aria-describedby": this.loading ? loadingMessageStyles.loadingId : undefined }, this.loading && index.h(PrefixedTagNames.pSpinner, { key: 'e908da04d148f15c2a87729baadbac1c72e4c25b', class: "spinner", "aria-hidden": "true" }), buttonLinkPureUtils.hasVisibleIcon(this.icon, this.iconSource) && (index.h(PrefixedTagNames.pIcon, { key: 'f7a6e95adcb04832dc735872e84b99e16c089a67', class: "icon", name: this.iconSource ? undefined : this.icon, source: this.iconSource, color: "inherit", "aria-hidden": "true" })), index.h("span", { key: '1febfbe6f113357ce20dcef52f1abee3e9089172', class: "label" }, index.h("slot", { key: '4d7fbddc108b4765f62ce32c7c2caac9b5dfc16d' }))), index.h(loadingMessageStyles.LoadingMessage, { key: '0e91a8e80c301ba333260b34c4ae4150c516d0fd', loading: this.loading, initialLoading: this.initialLoading })));
 	    }
 	    static get delegatesFocus() { return true; }
 	    static get formAssociated() { return true; }
@@ -13955,42 +14068,42 @@ function requireSpacingStaticXsHM83BRvM () {
 	return spacingStaticXsHM83BRvM;
 }
 
-var gridGapCswl5jSQ = {};
+var gridGapDrXbN1wr = {};
 
-var hasRequiredGridGapCswl5jSQ;
+var hasRequiredGridGapDrXbN1wr;
 
-function requireGridGapCswl5jSQ () {
-	if (hasRequiredGridGapCswl5jSQ) return gridGapCswl5jSQ;
-	hasRequiredGridGapCswl5jSQ = 1;
+function requireGridGapDrXbN1wr () {
+	if (hasRequiredGridGapDrXbN1wr) return gridGapDrXbN1wr;
+	hasRequiredGridGapDrXbN1wr = 1;
 
 	/** Holds the **medium fluid** spacing. */
 	const spacingFluidMd = 'clamp(16px, 1.25vw + 12px, 36px)';
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use spacingFluidMd instead. */
+	/** @deprecated Use {@link spacingFluidMd} instead. This API will be removed with the next major release. */
 	const spacingFluidMedium = spacingFluidMd;
 
 	const gridGap = spacingFluidMedium;
 
-	gridGapCswl5jSQ.gridGap = gridGap;
-	return gridGapCswl5jSQ;
+	gridGapDrXbN1wr.gridGap = gridGap;
+	return gridGapDrXbN1wr;
 }
 
-var getMediaQueryMaxCWKoNkPJ = {};
+var getMediaQueryMaxNLpwtZbr = {};
 
-var hasRequiredGetMediaQueryMaxCWKoNkPJ;
+var hasRequiredGetMediaQueryMaxNLpwtZbr;
 
-function requireGetMediaQueryMaxCWKoNkPJ () {
-	if (hasRequiredGetMediaQueryMaxCWKoNkPJ) return getMediaQueryMaxCWKoNkPJ;
-	hasRequiredGetMediaQueryMaxCWKoNkPJ = 1;
+function requireGetMediaQueryMaxNLpwtZbr () {
+	if (hasRequiredGetMediaQueryMaxNLpwtZbr) return getMediaQueryMaxNLpwtZbr;
+	hasRequiredGetMediaQueryMaxNLpwtZbr = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	function getMediaQueryMax(max) {
 	    return `@media(max-width:${index.breakpoint[max] - 1}px)`;
 	}
 
-	getMediaQueryMaxCWKoNkPJ.getMediaQueryMax = getMediaQueryMax;
-	return getMediaQueryMaxCWKoNkPJ;
+	getMediaQueryMaxNLpwtZbr.getMediaQueryMax = getMediaQueryMax;
+	return getMediaQueryMaxNLpwtZbr;
 }
 
 var radiusSmCC0YvhYq = {};
@@ -14014,12 +14127,12 @@ function requirePCanvas_cjs_entry () {
 	if (hasRequiredPCanvas_cjs_entry) return pCanvas_cjs_entry$2;
 	hasRequiredPCanvas_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
+	var index = requireIndexCO1jYG4D();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
 	var spacingStaticXs = requireSpacingStaticXsHM83BRvM();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
-	var gridGap = requireGridGapCswl5jSQ();
+	var gridGap = requireGridGapDrXbN1wr();
 	var spacingStaticSm = requireSpacingStaticSmByDQ2OBj();
 	var colorContrastLower = requireColorContrastLower_EStZ29E();
 	var radius3Xl = requireRadius3XlBMeML5k5();
@@ -14030,9 +14143,9 @@ function requirePCanvas_cjs_entry () {
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	var colorSurface = requireColorSurfaceDHToV0CL();
 	var colorCanvas = requireColorCanvasCvcJTS2L();
-	var getMediaQueryMax = requireGetMediaQueryMaxCWKoNkPJ();
+	var getMediaQueryMax = requireGetMediaQueryMaxNLpwtZbr();
 	var radiusSm = requireRadiusSmCC0YvhYq();
-	requireGetNamedSlotER751mnq();
+	requireGetNamedSlotDBF_9hiQ();
 
 	/**
 	 * @css-variable {"name": "--p-canvas-sidebar-start-width", "description": "Width of the sidebar start.", "defaultValue": "320px"}
@@ -14398,40 +14511,40 @@ var pCanvas_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pCarousel_cjs_entry$2 = {};
 
-var hasDescriptionCeR_sZ4Y = {};
+var hasDescriptionJlHp6YuO = {};
 
-var hasRequiredHasDescriptionCeR_sZ4Y;
+var hasRequiredHasDescriptionJlHp6YuO;
 
-function requireHasDescriptionCeR_sZ4Y () {
-	if (hasRequiredHasDescriptionCeR_sZ4Y) return hasDescriptionCeR_sZ4Y;
-	hasRequiredHasDescriptionCeR_sZ4Y = 1;
+function requireHasDescriptionJlHp6YuO () {
+	if (hasRequiredHasDescriptionJlHp6YuO) return hasDescriptionJlHp6YuO;
+	hasRequiredHasDescriptionJlHp6YuO = 1;
 
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
 
 	const hasDescription = (element, description) => {
 	    return !!description || hasNamedSlot.hasNamedSlot(element, 'description');
 	};
 
-	hasDescriptionCeR_sZ4Y.hasDescription = hasDescription;
-	return hasDescriptionCeR_sZ4Y;
+	hasDescriptionJlHp6YuO.hasDescription = hasDescription;
+	return hasDescriptionJlHp6YuO;
 }
 
-var motionDurationModerateBHfJ8O37 = {};
+var motionDurationModerateDMJwb_A2 = {};
 
-var hasRequiredMotionDurationModerateBHfJ8O37;
+var hasRequiredMotionDurationModerateDMJwb_A2;
 
-function requireMotionDurationModerateBHfJ8O37 () {
-	if (hasRequiredMotionDurationModerateBHfJ8O37) return motionDurationModerateBHfJ8O37;
-	hasRequiredMotionDurationModerateBHfJ8O37 = 1;
+function requireMotionDurationModerateDMJwb_A2 () {
+	if (hasRequiredMotionDurationModerateDMJwb_A2) return motionDurationModerateDMJwb_A2;
+	hasRequiredMotionDurationModerateDMJwb_A2 = 1;
 
 	/** Holds a **moderate** motion/transition duration value. */
 	const durationMd = '.4s';
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use durationMd instead. */
+	/** @deprecated Use {@link durationMd} instead. This API will be removed with the next major release. */
 	const motionDurationModerate = durationMd;
 
-	motionDurationModerateBHfJ8O37.motionDurationModerate = motionDurationModerate;
-	return motionDurationModerateBHfJ8O37;
+	motionDurationModerateDMJwb_A2.motionDurationModerate = motionDurationModerate;
+	return motionDurationModerateDMJwb_A2;
 }
 
 var hasRequiredPCarousel_cjs_entry;
@@ -14441,15 +14554,15 @@ function requirePCarousel_cjs_entry () {
 	hasRequiredPCarousel_cjs_entry = 1;
 	(function (exports) {
 
-		var index = requireIndexDXYpCE_Y();
-		var a11y = requireA11yBtZXddqx();
-		var hasNamedSlot = requireHasNamedSlotDHrM1th();
-		var hasDescription = requireHasDescriptionCeR_sZ4Y();
+		var index = requireIndexCO1jYG4D();
+		var a11y = requireA11yC0kIHWOt();
+		var hasNamedSlot = requireHasNamedSlotCpOkED0y();
+		var hasDescription = requireHasDescriptionJlHp6YuO();
 		var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 		var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 		var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 		var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
-		var motionDurationModerate = requireMotionDurationModerateBHfJ8O37();
+		var motionDurationModerate = requireMotionDurationModerateDMJwb_A2();
 		var colorPrimary = requireColorPrimaryCtfZkymE();
 		var colorContrastMedium = requireColorContrastMediumBaO5ALUk();
 		var radiusFull = requireRadiusFullCYhM6RWu();
@@ -14457,7 +14570,7 @@ function requirePCarousel_cjs_entry () {
 		var spacingStaticSm = requireSpacingStaticSmByDQ2OBj();
 		var spacingStaticXs = requireSpacingStaticXsCCGFNED();
 		var gridExtendedOffsetBase = requireGridExtendedOffsetBase7vRjJ10S();
-		var gridGap = requireGridGapCswl5jSQ();
+		var gridGap = requireGridGapDrXbN1wr();
 		var spacingStaticMd = requireSpacingStaticMdDSArndBQ();
 		var fontWeightNormal = requireFontWeightNormalBZeqsj8y();
 		var typescaleSm = requireTypescaleSmCfWCHncH();
@@ -14465,7 +14578,7 @@ function requirePCarousel_cjs_entry () {
 		var spacingFluidSm = requireSpacingFluidSmDxpqva9Z();
 		var spacingFluidMd = requireSpacingFluidMdC7TFhccF();
 		var typescaleXl = requireTypescaleXlDyQCg4yv();
-		requireGetNamedSlotER751mnq();
+		requireGetNamedSlotDBF_9hiQ();
 
 		const columnMap = {
 		    narrow: 4,
@@ -14517,7 +14630,7 @@ function requirePCarousel_cjs_entry () {
 		/** Holds an **in-out** `transition-timing-function`. */
 		const easeInOut = 'cubic-bezier(.25,.1,.25,1)';
 
-		/** @deprecated since v4.0.0, will be removed with next major release. Use easeInOut instead. */
+		/** @deprecated Use {@link easeInOut} instead. This API will be removed with the next major release. */
 		const motionEasingBase = easeInOut;
 
 		const hasHeading = (element, heading) => {
@@ -18505,7 +18618,7 @@ function requirePCarousel_cjs_entry () {
 		        },
 		        ...(hasPagination && {
 		            'pagination-container': {
-		                ...index.buildResponsiveStyles(hasPagination, (hasPaginationValue) => ({
+		                ...index.buildResponsiveBooleanStyles(hasPagination, (hasPaginationValue) => ({
 		                    display: hasPaginationValue ? 'flex' : 'none',
 		                })),
 		                position: 'relative',
@@ -18783,6 +18896,10 @@ function requirePCarousel_cjs_entry () {
 		        this.slidesPerPage = 1;
 		        /** Shows pagination dot indicators below the carousel. Supports responsive breakpoint values. */
 		        this.pagination = false;
+		        // TODO: this prop seeds the initial slide and is the controlled value at the same time. React splits
+		        //  those into defaultValue and value, so a consumer cannot reliably drive it. To be split into
+		        //  defaultActiveSlideIndex + activeSlideIndex in v5, see
+		        //  https://github.com/porsche-design-system/porsche-design-system/issues/4689
 		        /** Sets the zero-based index of the currently visible slide. Update this to navigate programmatically. */
 		        this.activeSlideIndex = 0;
 		        /** When enabled, each slide is individually focusable and the carousel navigates one slide at a time instead of one page. */
@@ -18842,7 +18959,7 @@ function requirePCarousel_cjs_entry () {
 		        return index.parseJSON(this.slidesPerPage);
 		    }
 		    get parsedPagination() {
-		        return index.parseJSON(this.pagination);
+		        return index.parseJSONBoolean(this.pagination);
 		    }
 		    get splideSlides() {
 		        return this.splide.Components.Elements.slides;
@@ -18853,8 +18970,25 @@ function requirePCarousel_cjs_entry () {
 		    activeSlideHandler(newValue) {
 		        this.splide.go(newValue); // change event is emitted via splide.on('move')
 		    }
+		    slidesPerPageHandler() {
+		        if (this.splide) {
+		            // splideJS reads its breakpoints only when constructed, so a new instance is needed to apply the new value
+		            const { index } = this.splide;
+		            this.splide.destroy();
+		            this.initSplide(index); // splideJS clamps the start index if it exceeds the new amount of pages
+		        }
+		        this.updateAmountOfPages();
+		    }
 		    connectedCallback() {
-		        index.observeChildren(this.host, this.updateSlidesAndPagination);
+		        index.observeChildren(this.host, () => {
+		            const prevAmountOfPages = this.amountOfPages;
+		            this.updateSlidesAndPagination();
+		            // a changed amountOfPages already re-renders through its own state change but when it stays the
+		            // same nothing does, and the slots keep the old count which leaves added slides unprojected
+		            if (this.amountOfPages === prevAmountOfPages) {
+		                index.forceUpdate(this.host);
+		            }
+		        }, undefined, { subtree: false, childList: true, attributes: false });
 		        this.observeBreakpointChange();
 		        if (this.splide) {
 		            this.observeSlides(); // on reconnect, adjust aria attributes on slides
@@ -18872,28 +19006,7 @@ function requirePCarousel_cjs_entry () {
 		    }
 		    componentDidLoad() {
 		        this.observeSlides(); // initial, adjust aria attributes on slides
-		        this.splide = new splide_cjsExports.Splide(this.container, {
-		            start: this.activeSlideIndex,
-		            arrows: false,
-		            easing: motionEasingBase,
-		            focus: this.focusOnCenterSlide ? 'center' : undefined,
-		            trimSpace: this.trimSpace,
-		            pagination: false,
-		            rewind: this.rewind,
-		            rewindByDrag: true, // only works when rewind: true
-		            drag: this.hasNavigation,
-		            perMove: 1,
-		            mediaQuery: 'min',
-		            speed: Number.parseFloat(carouselTransitionDuration) * 1000,
-		            gap: gridGap.gridGap,
-		            live: false,
-		            // TODO: this uses matchMedia internally, since we also use it, there is some redundancy
-		            breakpoints: getSplideBreakpoints(this.parsedSlidesPerPage),
-		            // https://splidejs.com/guides/i18n/#default-texts
-		            i18n: index.parseJSONAttribute(this.intl || {}), // can only be applied initially atm
-		            direction: getLangDirection(this.host),
-		        });
-		        this.registerSplideHandlers(this.splide);
+		        this.initSplide(this.activeSlideIndex);
 		    }
 		    componentDidUpdate() {
 		        this.splide.options = { drag: this.hasNavigation };
@@ -18923,11 +19036,35 @@ function requirePCarousel_cjs_entry () {
 		            // 'aria-controls': 'splide-track', // TODO: cross shadow dom? use native button tag instead of p-button-pure?
 		        };
 		        const headingId = 'heading';
-		        return (index.h(index.Host, { key: '1ede72a7af7cf4ed90d0b7d6e0759a73346df657' }, index.h("div", { key: '70fea5908be7aa24c2e39ea9248f3c6e446efd8b', class: "header" }, hasHeadingPropOrSlot &&
-		            (this.heading ? (index.h("h2", { class: "heading", id: headingId }, this.heading)) : (index.h("div", { class: "heading", id: headingId }, index.h("slot", { name: "heading" })))), hasDescriptionPropOrSlot && (this.description ? index.h("p", null, this.description) : index.h("slot", { name: "description" })), hasControlsSlot && index.h("slot", { key: 'ea2a3718c577799f0fdc730824029084da988e62', name: "controls" }), index.h("div", { key: '64d8c5c83039a38da74e7623811389299f925fd2', class: "nav" }, this.skipLinkTarget && (index.h(PrefixedTagNames.pLinkPure, { key: '641501ae12c8ccb1e0b7024221a2cf0fcfb595a1', href: this.skipLinkTarget, icon: "arrow-last", class: "btn skip-link", alignLabel: "start", hideLabel: true }, "Skip carousel entries")), this.hasNavigation && (index.h(PrefixedTagNames.pButtonPure, { key: '5e43932240b01fd56fef6fe44d9602617c335e31', ...btnProps, icon: "arrow-left", ref: (ref) => (this.btnPrev = ref), onClick: () => slidePrev(this.splide, this.amountOfPages, this.focusOnCenterSlide) })), this.hasNavigation && (index.h(PrefixedTagNames.pButtonPure, { key: 'ce113f4f4416b223a17fedd40a78f9c622b79de7', ...btnProps, icon: "arrow-right", ref: (ref) => (this.btnNext = ref), onClick: () => slideNext(this.splide, this.amountOfPages, this.focusOnCenterSlide), onKeyDown: this.onNextKeyDown })))), index.h("div", { key: 'db216b2faa2a9a12983eab306559fcd5add4fc7d', id: "splide", class: "splide", ...a11y.parseAndGetAriaAttributes({
+		        return (index.h(index.Host, { key: 'e688907dc329fd056679dbd84dfe97e941df1f70' }, index.h("div", { key: 'b3733f5bf790768171647a7f797057be074c2269', class: "header" }, hasHeadingPropOrSlot &&
+		            (this.heading ? (index.h("h2", { class: "heading", id: headingId }, this.heading)) : (index.h("div", { class: "heading", id: headingId }, index.h("slot", { name: "heading" })))), hasDescriptionPropOrSlot && (this.description ? index.h("p", null, this.description) : index.h("slot", { name: "description" })), hasControlsSlot && index.h("slot", { key: 'b3f660303728a39bdb1f37f2d134c7c4f2804d97', name: "controls" }), index.h("div", { key: '76f5144e4079c4ba0c5b979e75daf364180b75dd', class: "nav" }, this.skipLinkTarget && (index.h(PrefixedTagNames.pLinkPure, { key: '736f641013d6cfc08f3432681e3e6a7b25143516', href: this.skipLinkTarget, icon: "arrow-last", class: "btn skip-link", alignLabel: "start", hideLabel: true }, "Skip carousel entries")), this.hasNavigation && (index.h(PrefixedTagNames.pButtonPure, { key: '3a2b033c6b5b9de090f33ad334b28d562144ac41', ...btnProps, icon: "arrow-left", ref: (ref) => (this.btnPrev = ref), onClick: () => slidePrev(this.splide, this.amountOfPages, this.focusOnCenterSlide) })), this.hasNavigation && (index.h(PrefixedTagNames.pButtonPure, { key: '857bc165a4bed7955183954d78a87e8b6031b548', ...btnProps, icon: "arrow-right", ref: (ref) => (this.btnNext = ref), onClick: () => slideNext(this.splide, this.amountOfPages, this.focusOnCenterSlide), onKeyDown: this.onNextKeyDown })))), index.h("div", { key: 'aabd0a1d4336df540dc4412522c659b2e1da048f', id: "splide", class: "splide", ...a11y.parseAndGetAriaAttributes({
 		                'aria-labelledby': hasHeadingPropOrSlot && !this.aria ? headingId : undefined,
 		                ...a11y.parseAndGetAriaAttributes(this.aria),
-		            }), ref: (ref) => (this.container = ref), onMouseDown: (e) => e.preventDefault(), onFocusin: this.onSplideFocusIn }, index.h("div", { key: '1aa4e959d96cad31d2e7289f2bfafdf09357e033', class: "splide__track" }, index.h("div", { key: 'ac30eb4c88199b3d93a94871b36e63805243031a', class: "splide__list" }, this.slides.map((_, i) => (index.h("div", { key: i, class: "splide__slide", tabIndex: 0 }, index.h("slot", { name: `slide-${i}` }))))))), this.parsedPagination && this.hasNavigation && (index.h("div", { key: 'd60ff5a0c1e2834d26edb8cdae924bee1a987533', class: "pagination-container", "aria-hidden": "true" }, index.h("div", { key: '93678091cc4b9b5db09b15d0cdaa6ba09f3518b8', class: "pagination", ref: (ref) => (this.paginationEl = ref) }))), index.h("div", { key: 'b89446de8822bcdcc15431b5f10670266dce565d', class: "slide-status", "aria-live": "polite", "aria-atomic": "true", ref: (ref) => (this.slideStatusEl = ref) })));
+		            }), ref: (ref) => (this.container = ref), onMouseDown: (e) => e.preventDefault(), onFocusin: this.onSplideFocusIn }, index.h("div", { key: '8b48db1a921f25f5b6683f54c463058abe336c56', class: "splide__track" }, index.h("div", { key: '76dec53dede230a75d1ee6bbbf30b7a333175e59', class: "splide__list" }, this.slides.map((_, i) => (index.h("div", { key: i, class: "splide__slide", tabIndex: 0 }, index.h("slot", { name: `slide-${i}` }))))))), this.parsedPagination && this.hasNavigation && (index.h("div", { key: '5aa4992033e01d910ca0faa8eed86e3870948925', class: "pagination-container", "aria-hidden": "true" }, index.h("div", { key: '8e7757f699fe9a14af30387b2f809e8d43916470', class: "pagination", ref: (ref) => (this.paginationEl = ref) }))), index.h("div", { key: '7bcd9b8572797c1dec70301b967dbb53b723b586', class: "slide-status", "aria-live": "polite", "aria-atomic": "true", ref: (ref) => (this.slideStatusEl = ref) })));
+		    }
+		    initSplide(startIndex) {
+		        this.splide = new splide_cjsExports.Splide(this.container, {
+		            start: startIndex,
+		            arrows: false,
+		            easing: motionEasingBase,
+		            focus: this.focusOnCenterSlide ? 'center' : undefined,
+		            trimSpace: this.trimSpace,
+		            pagination: false,
+		            rewind: this.rewind,
+		            rewindByDrag: true, // only works when rewind: true
+		            drag: this.hasNavigation,
+		            perMove: 1,
+		            mediaQuery: 'min',
+		            speed: Number.parseFloat(carouselTransitionDuration) * 1000,
+		            gap: gridGap.gridGap,
+		            live: false,
+		            // TODO: this uses matchMedia internally, since we also use it, there is some redundancy
+		            breakpoints: getSplideBreakpoints(this.parsedSlidesPerPage),
+		            // https://splidejs.com/guides/i18n/#default-texts
+		            i18n: index.parseJSONAttribute(this.intl || {}), // can only be applied initially atm
+		            direction: getLangDirection(this.host),
+		        });
+		        this.registerSplideHandlers(this.splide);
 		    }
 		    registerSplideHandlers(splide) {
 		        splide.on('mounted', () => {
@@ -18970,6 +19107,9 @@ function requirePCarousel_cjs_entry () {
 		    static get watchers() { return {
 		        "activeSlideIndex": [{
 		                "activeSlideHandler": 0
+		            }],
+		        "slidesPerPage": [{
+		                "slidesPerPageHandler": 0
 		            }]
 		    }; }
 		};
@@ -18989,29 +19129,25 @@ var pCarousel_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pCheckbox_cjs_entry$2 = {};
 
-var stateMessageStylesOnjaIITZ = {};
+var stateMessageStylesD8IESrZi = {};
 
-var colorSuccessMediumB3F_V0oA = {};
+var colorSuccessMediumCkSIDUck = {};
 
-var hasRequiredColorSuccessMediumB3F_V0oA;
+var hasRequiredColorSuccessMediumCkSIDUck;
 
-function requireColorSuccessMediumB3F_V0oA () {
-	if (hasRequiredColorSuccessMediumB3F_V0oA) return colorSuccessMediumB3F_V0oA;
-	hasRequiredColorSuccessMediumB3F_V0oA = 1;
+function requireColorSuccessMediumCkSIDUck () {
+	if (hasRequiredColorSuccessMediumCkSIDUck) return colorSuccessMediumCkSIDUck;
+	hasRequiredColorSuccessMediumCkSIDUck = 1;
 
 	// AUTO-GENERATED by scripts/buildCssVariableConstants.ts — do not edit by hand.
 	const colorErrorFrostedSoft = '--p-color-error-frosted-soft';
 
 	// AUTO-GENERATED by scripts/buildCssVariableConstants.ts — do not edit by hand.
-	const colorErrorMedium = '--p-color-error-medium';
-
-	// AUTO-GENERATED by scripts/buildCssVariableConstants.ts — do not edit by hand.
 	const colorSuccessMedium = '--p-color-success-medium';
 
-	colorSuccessMediumB3F_V0oA.colorErrorFrostedSoft = colorErrorFrostedSoft;
-	colorSuccessMediumB3F_V0oA.colorErrorMedium = colorErrorMedium;
-	colorSuccessMediumB3F_V0oA.colorSuccessMedium = colorSuccessMedium;
-	return colorSuccessMediumB3F_V0oA;
+	colorSuccessMediumCkSIDUck.colorErrorFrostedSoft = colorErrorFrostedSoft;
+	colorSuccessMediumCkSIDUck.colorSuccessMedium = colorSuccessMedium;
+	return colorSuccessMediumCkSIDUck;
 }
 
 var colorSuccessFrostedSoftDhQVV2Gq = {};
@@ -19029,21 +19165,22 @@ function requireColorSuccessFrostedSoftDhQVV2Gq () {
 	return colorSuccessFrostedSoftDhQVV2Gq;
 }
 
-var hasRequiredStateMessageStylesOnjaIITZ;
+var hasRequiredStateMessageStylesD8IESrZi;
 
-function requireStateMessageStylesOnjaIITZ () {
-	if (hasRequiredStateMessageStylesOnjaIITZ) return stateMessageStylesOnjaIITZ;
-	hasRequiredStateMessageStylesOnjaIITZ = 1;
+function requireStateMessageStylesD8IESrZi () {
+	if (hasRequiredStateMessageStylesD8IESrZi) return stateMessageStylesD8IESrZi;
+	hasRequiredStateMessageStylesD8IESrZi = 1;
 
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
-	var index = requireIndexDXYpCE_Y();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
+	var index = requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var colorError = requireColorErrorDycYY56v();
 	var colorSuccess = requireColorSuccessCrVQsYxh();
 	var colorPrimary = requireColorPrimaryCtfZkymE();
 	var colorContrastLower = requireColorContrastLower_EStZ29E();
 	var colorContrastHigh = requireColorContrastHighWG95shR6();
-	var colorSuccessMedium = requireColorSuccessMediumB3F_V0oA();
+	var colorErrorMedium = requireColorErrorMediumBJIzBY();
+	var colorSuccessMedium = requireColorSuccessMediumCkSIDUck();
 	var colorFrosted = requireColorFrostedBcGq8wdI();
 	var colorSuccessFrostedSoft = requireColorSuccessFrostedSoftDhQVV2Gq();
 	var fontWeightNormal = requireFontWeightNormalBZeqsj8y();
@@ -19081,7 +19218,7 @@ function requireStateMessageStylesOnjaIITZ () {
 	};
 	const colorBackgroundHoverMap = {
 	    success: hostHiddenStyles.ref(colorSuccessMedium.colorSuccessMedium),
-	    error: hostHiddenStyles.ref(colorSuccessMedium.colorErrorMedium),
+	    error: hostHiddenStyles.ref(colorErrorMedium.colorErrorMedium),
 	    none: hostHiddenStyles.ref(colorContrastHigh.colorContrastHigh),
 	};
 	const colorBorderMap = {
@@ -19134,16 +19271,16 @@ function requireStateMessageStylesOnjaIITZ () {
 	    };
 	};
 
-	stateMessageStylesOnjaIITZ.FORM_STATES = FORM_STATES;
-	stateMessageStylesOnjaIITZ.Required = Required;
-	stateMessageStylesOnjaIITZ.StateMessage = StateMessage;
-	stateMessageStylesOnjaIITZ.getFunctionalComponentRequiredStyles = getFunctionalComponentRequiredStyles;
-	stateMessageStylesOnjaIITZ.getFunctionalComponentStateMessageStyles = getFunctionalComponentStateMessageStyles;
-	stateMessageStylesOnjaIITZ.getThemedFormStateColors = getThemedFormStateColors;
-	stateMessageStylesOnjaIITZ.hasLabel = hasLabel;
-	stateMessageStylesOnjaIITZ.hasMessage = hasMessage;
-	stateMessageStylesOnjaIITZ.messageId = messageId;
-	return stateMessageStylesOnjaIITZ;
+	stateMessageStylesD8IESrZi.FORM_STATES = FORM_STATES;
+	stateMessageStylesD8IESrZi.Required = Required;
+	stateMessageStylesD8IESrZi.StateMessage = StateMessage;
+	stateMessageStylesD8IESrZi.getFunctionalComponentRequiredStyles = getFunctionalComponentRequiredStyles;
+	stateMessageStylesD8IESrZi.getFunctionalComponentStateMessageStyles = getFunctionalComponentStateMessageStyles;
+	stateMessageStylesD8IESrZi.getThemedFormStateColors = getThemedFormStateColors;
+	stateMessageStylesD8IESrZi.hasLabel = hasLabel;
+	stateMessageStylesD8IESrZi.hasMessage = hasMessage;
+	stateMessageStylesD8IESrZi.messageId = messageId;
+	return stateMessageStylesD8IESrZi;
 }
 
 var syncFormStateDCKGKEj = {};
@@ -19197,37 +19334,37 @@ function requireSyncFormStateDCKGKEj () {
 	return syncFormStateDCKGKEj;
 }
 
-var labelStylesBcSduAkC = {};
+var labelStylesBVlOD9GZ = {};
 
-var isParentOfKindCPkV7HiB = {};
+var isParentOfKindUbMDQHp = {};
 
-var hasRequiredIsParentOfKindCPkV7HiB;
+var hasRequiredIsParentOfKindUbMDQHp;
 
-function requireIsParentOfKindCPkV7HiB () {
-	if (hasRequiredIsParentOfKindCPkV7HiB) return isParentOfKindCPkV7HiB;
-	hasRequiredIsParentOfKindCPkV7HiB = 1;
+function requireIsParentOfKindUbMDQHp () {
+	if (hasRequiredIsParentOfKindUbMDQHp) return isParentOfKindUbMDQHp;
+	hasRequiredIsParentOfKindUbMDQHp = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const isParentOfKind = (element, tagName) => {
 	    const { parentElement } = element;
 	    return parentElement && index.getTagNameWithoutPrefix(parentElement) === tagName;
 	};
 
-	isParentOfKindCPkV7HiB.isParentOfKind = isParentOfKind;
-	return isParentOfKindCPkV7HiB;
+	isParentOfKindUbMDQHp.isParentOfKind = isParentOfKind;
+	return isParentOfKindUbMDQHp;
 }
 
-var hasRequiredLabelStylesBcSduAkC;
+var hasRequiredLabelStylesBVlOD9GZ;
 
-function requireLabelStylesBcSduAkC () {
-	if (hasRequiredLabelStylesBcSduAkC) return labelStylesBcSduAkC;
-	hasRequiredLabelStylesBcSduAkC = 1;
+function requireLabelStylesBVlOD9GZ () {
+	if (hasRequiredLabelStylesBVlOD9GZ) return labelStylesBVlOD9GZ;
+	hasRequiredLabelStylesBVlOD9GZ = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var hasDescription = requireHasDescriptionCeR_sZ4Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var isParentOfKind = requireIsParentOfKindCPkV7HiB();
+	var index = requireIndexCO1jYG4D();
+	var hasDescription = requireHasDescriptionJlHp6YuO();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var isParentOfKind = requireIsParentOfKindUbMDQHp();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var spacingStaticXs = requireSpacingStaticXsCCGFNED();
 	var colorContrastHigh = requireColorContrastHighWG95shR6();
@@ -19293,7 +19430,7 @@ function requireLabelStylesBcSduAkC () {
 	    const isDisabledOrLoading = isDisabled || isLoading;
 	    return {
 	        'label-wrapper': {
-	            ...index.buildResponsiveStyles(hideLabel, (isHidden) => ({
+	            ...index.buildResponsiveBooleanStyles(hideLabel, (isHidden) => ({
 	                ...(!isHidden && { minWidth: 'fit-content' }), // ensures label contents don't shrink to zero in grid containers
 	                ...hostHiddenStyles.getHiddenTextJssStyle(isHidden, additionalIsShownJssStyle),
 	            })),
@@ -19319,7 +19456,7 @@ function requireLabelStylesBcSduAkC () {
 	                cursor: 'unset',
 	                fontSize: hostHiddenStyles.ref(typescaleXs.typescaleXs),
 	                color: hostHiddenStyles.ref(colorContrastHigh.colorContrastHigh),
-	                ...index.buildResponsiveStyles(hideLabel, (isHidden) => hostHiddenStyles.getHiddenTextJssStyle(isHidden, { marginTop: `calc(-1 * ${hostHiddenStyles.ref(spacingStaticXs.spacingStaticXs)})` })),
+	                ...index.buildResponsiveBooleanStyles(hideLabel, (isHidden) => hostHiddenStyles.getHiddenTextJssStyle(isHidden, { marginTop: `calc(-1 * ${hostHiddenStyles.ref(spacingStaticXs.spacingStaticXs)})` })),
 	                marginTop: `calc(-1 * ${hostHiddenStyles.ref(spacingStaticXs.spacingStaticXs)})`,
 	            },
 	            '& > slot[name="label"]::slotted(*)': {
@@ -19334,15 +19471,15 @@ function requireLabelStylesBcSduAkC () {
 	    };
 	};
 
-	labelStylesBcSduAkC.Label = Label;
-	labelStylesBcSduAkC.descriptionId = descriptionId;
-	labelStylesBcSduAkC.getFunctionalComponentLabelAfterStyles = getFunctionalComponentLabelAfterStyles;
-	labelStylesBcSduAkC.getFunctionalComponentLabelStyles = getFunctionalComponentLabelStyles;
-	labelStylesBcSduAkC.labelId = labelId;
-	return labelStylesBcSduAkC;
+	labelStylesBVlOD9GZ.Label = Label;
+	labelStylesBVlOD9GZ.descriptionId = descriptionId;
+	labelStylesBVlOD9GZ.getFunctionalComponentLabelAfterStyles = getFunctionalComponentLabelAfterStyles;
+	labelStylesBVlOD9GZ.getFunctionalComponentLabelStyles = getFunctionalComponentLabelStyles;
+	labelStylesBVlOD9GZ.labelId = labelId;
+	return labelStylesBVlOD9GZ;
 }
 
-var checkboxCheckedBaseStylesBX2dhcDy = {};
+var checkboxCheckedBaseStylesTfp2Xr56 = {};
 
 var radiusMdRjbJWdka = {};
 
@@ -19359,16 +19496,16 @@ function requireRadiusMdRjbJWdka () {
 	return radiusMdRjbJWdka;
 }
 
-var hasRequiredCheckboxCheckedBaseStylesBX2dhcDy;
+var hasRequiredCheckboxCheckedBaseStylesTfp2Xr56;
 
-function requireCheckboxCheckedBaseStylesBX2dhcDy () {
-	if (hasRequiredCheckboxCheckedBaseStylesBX2dhcDy) return checkboxCheckedBaseStylesBX2dhcDy;
-	hasRequiredCheckboxCheckedBaseStylesBX2dhcDy = 1;
+function requireCheckboxCheckedBaseStylesTfp2Xr56 () {
+	if (hasRequiredCheckboxCheckedBaseStylesTfp2Xr56) return checkboxCheckedBaseStylesTfp2Xr56;
+	hasRequiredCheckboxCheckedBaseStylesTfp2Xr56 = 1;
 
 	var isDisabledOrLoading = requireIsDisabledOrLoadingDstO6iYY();
-	requireIndexDXYpCE_Y();
+	requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
 	var radiusMd = requireRadiusMdRjbJWdka();
 	var radiusLg = requireRadiusLgDnAYukpB();
@@ -19464,10 +19601,10 @@ function requireCheckboxCheckedBaseStylesBX2dhcDy () {
 	    };
 	};
 
-	checkboxCheckedBaseStylesBX2dhcDy.cssVarInternalCheckboxScaling = cssVarInternalCheckboxScaling;
-	checkboxCheckedBaseStylesBX2dhcDy.getCheckboxBaseStyles = getCheckboxBaseStyles;
-	checkboxCheckedBaseStylesBX2dhcDy.getCheckboxCheckedBaseStyles = getCheckboxCheckedBaseStyles;
-	return checkboxCheckedBaseStylesBX2dhcDy;
+	checkboxCheckedBaseStylesTfp2Xr56.cssVarInternalCheckboxScaling = cssVarInternalCheckboxScaling;
+	checkboxCheckedBaseStylesTfp2Xr56.getCheckboxBaseStyles = getCheckboxBaseStyles;
+	checkboxCheckedBaseStylesTfp2Xr56.getCheckboxCheckedBaseStyles = getCheckboxCheckedBaseStyles;
+	return checkboxCheckedBaseStylesTfp2Xr56;
 }
 
 var hasRequiredPCheckbox_cjs_entry;
@@ -19476,34 +19613,35 @@ function requirePCheckbox_cjs_entry () {
 	if (hasRequiredPCheckbox_cjs_entry) return pCheckbox_cjs_entry$2;
 	hasRequiredPCheckbox_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var isDisabledOrLoading = requireIsDisabledOrLoadingDstO6iYY();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var labelStyles = requireLabelStylesBcSduAkC();
-	var loadingMessageStyles = requireLoadingMessageStylesD6fdjnH9();
+	var labelStyles = requireLabelStylesBVlOD9GZ();
+	var loadingMessageStyles = requireLoadingMessageStylesCs3un0in();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
-	var checkboxCheckedBaseStyles = requireCheckboxCheckedBaseStylesBX2dhcDy();
+	var checkboxCheckedBaseStyles = requireCheckboxCheckedBaseStylesTfp2Xr56();
 	var getInlineSVGBackgroundImage = requireGetInlineSVGBackgroundImageC2AJYBEX();
 	var colorPrimary = requireColorPrimaryCtfZkymE();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	var spacingStaticXs = requireSpacingStaticXsCCGFNED();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
-	requireHasDescriptionCeR_sZ4Y();
-	requireIsParentOfKindCPkV7HiB();
+	requireHasDescriptionJlHp6YuO();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
 	requireHoverMediaQueryCOekSiqP();
 	requireRadiusMdRjbJWdka();
@@ -19622,7 +19760,7 @@ function requirePCheckbox_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the name submitted with the form data to identify this checkbox's value on the server. */
@@ -19792,9 +19930,9 @@ function requirePCrest_cjs_entry () {
 	if (hasRequiredPCrest_cjs_entry) return pCrest_cjs_entry$2;
 	hasRequiredPCrest_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var getCDNBaseURL = requireGetCDNBaseURLD9OUIXf1();
-	var a11y = requireA11yBtZXddqx();
+	var a11y = requireA11yC0kIHWOt();
 	var linkAriaAttribute = requireLinkAriaAttributeBh83uKB6();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
@@ -19901,23 +20039,23 @@ var pCrest_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pDisplay_cjs_entry$2 = {};
 
-var hasSpecificDirectChildTag8KTCydFG = {};
+var hasSpecificDirectChildTag0ONDGmMY = {};
 
-var hasRequiredHasSpecificDirectChildTag8KTCydFG;
+var hasRequiredHasSpecificDirectChildTag0ONDGmMY;
 
-function requireHasSpecificDirectChildTag8KTCydFG () {
-	if (hasRequiredHasSpecificDirectChildTag8KTCydFG) return hasSpecificDirectChildTag8KTCydFG;
-	hasRequiredHasSpecificDirectChildTag8KTCydFG = 1;
+function requireHasSpecificDirectChildTag0ONDGmMY () {
+	if (hasRequiredHasSpecificDirectChildTag0ONDGmMY) return hasSpecificDirectChildTag0ONDGmMY;
+	hasRequiredHasSpecificDirectChildTag0ONDGmMY = 1;
 
-	var getDirectChildHTMLElement = requireGetDirectChildHTMLElementBgsUJuKK();
+	var getDirectChildHTMLElement = requireGetDirectChildHTMLElementBjdpb1eX();
 
 	const hasSpecificDirectChildTag = (host, tag) => {
 	    const el = getDirectChildHTMLElement.getDirectChildHTMLElement(host, ':only-child');
 	    return !!el?.matches(tag);
 	};
 
-	hasSpecificDirectChildTag8KTCydFG.hasSpecificDirectChildTag = hasSpecificDirectChildTag;
-	return hasSpecificDirectChildTag8KTCydFG;
+	hasSpecificDirectChildTag0ONDGmMY.hasSpecificDirectChildTag = hasSpecificDirectChildTag;
+	return hasSpecificDirectChildTag0ONDGmMY;
 }
 
 var hasRequiredPDisplay_cjs_entry;
@@ -19926,11 +20064,11 @@ function requirePDisplay_cjs_entry () {
 	if (hasRequiredPDisplay_cjs_entry) return pDisplay_cjs_entry$2;
 	hasRequiredPDisplay_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var colorMap = requireColorMapD2SM08A2();
-	var hasSpecificDirectChildTag = requireHasSpecificDirectChildTag8KTCydFG();
+	var hasSpecificDirectChildTag = requireHasSpecificDirectChildTag0ONDGmMY();
 	var fontWeightNormal = requireFontWeightNormalBZeqsj8y();
 	var typescale5Xl = requireTypescale5XlDsPA7x2t();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
@@ -19942,7 +20080,7 @@ function requirePDisplay_cjs_entry () {
 	requireColorContrastMediumBaO5ALUk();
 	requireColorContrastHighWG95shR6();
 	requireColorPrimaryCtfZkymE();
-	requireGetDirectChildHTMLElementBgsUJuKK();
+	requireGetDirectChildHTMLElementBjdpb1eX();
 	requireTransformSelectorToDirectChildSelectorB_8CS40K();
 
 	const warnIfDeprecatedComponentIsUsed = (host, message) => {
@@ -20059,7 +20197,7 @@ function requirePDivider_cjs_entry () {
 	if (hasRequiredPDivider_cjs_entry) return pDivider_cjs_entry$2;
 	hasRequiredPDivider_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var colorContrastHigh = requireColorContrastHighWG95shR6();
@@ -20176,32 +20314,32 @@ function requireSpacingFluidXsDWq38X7x () {
 	return spacingFluidXsDWq38X7x;
 }
 
-var isElementOfKindBA7wyW7 = {};
+var isElementOfKindLOZ8BKL3 = {};
 
-var hasRequiredIsElementOfKindBA7wyW7;
+var hasRequiredIsElementOfKindLOZ8BKL3;
 
-function requireIsElementOfKindBA7wyW7 () {
-	if (hasRequiredIsElementOfKindBA7wyW7) return isElementOfKindBA7wyW7;
-	hasRequiredIsElementOfKindBA7wyW7 = 1;
+function requireIsElementOfKindLOZ8BKL3 () {
+	if (hasRequiredIsElementOfKindLOZ8BKL3) return isElementOfKindLOZ8BKL3;
+	hasRequiredIsElementOfKindLOZ8BKL3 = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const isElementOfKind = (element, tagName) => index.getTagNameWithoutPrefix(element) === tagName;
 
-	isElementOfKindBA7wyW7.isElementOfKind = isElementOfKind;
-	return isElementOfKindBA7wyW7;
+	isElementOfKindLOZ8BKL3.isElementOfKind = isElementOfKind;
+	return isElementOfKindLOZ8BKL3;
 }
 
-var throwIfParentIsNotOfKindDNrNkF_r = {};
+var throwIfParentIsNotOfKindBGCnACm = {};
 
-var hasRequiredThrowIfParentIsNotOfKindDNrNkF_r;
+var hasRequiredThrowIfParentIsNotOfKindBGCnACm;
 
-function requireThrowIfParentIsNotOfKindDNrNkF_r () {
-	if (hasRequiredThrowIfParentIsNotOfKindDNrNkF_r) return throwIfParentIsNotOfKindDNrNkF_r;
-	hasRequiredThrowIfParentIsNotOfKindDNrNkF_r = 1;
+function requireThrowIfParentIsNotOfKindBGCnACm () {
+	if (hasRequiredThrowIfParentIsNotOfKindBGCnACm) return throwIfParentIsNotOfKindBGCnACm;
+	hasRequiredThrowIfParentIsNotOfKindBGCnACm = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var isParentOfKind = requireIsParentOfKindCPkV7HiB();
+	var index = requireIndexCO1jYG4D();
+	var isParentOfKind = requireIsParentOfKindUbMDQHp();
 
 	const throwIfParentIsNotOfKind = (element, tagNameOrNames) => {
 	    if (element.parentElement) {
@@ -20217,8 +20355,8 @@ function requireThrowIfParentIsNotOfKindDNrNkF_r () {
 	    }
 	};
 
-	throwIfParentIsNotOfKindDNrNkF_r.throwIfParentIsNotOfKind = throwIfParentIsNotOfKind;
-	return throwIfParentIsNotOfKindDNrNkF_r;
+	throwIfParentIsNotOfKindBGCnACm.throwIfParentIsNotOfKind = throwIfParentIsNotOfKind;
+	return throwIfParentIsNotOfKindBGCnACm;
 }
 
 var hasRequiredPDrilldown_3_cjs_entry;
@@ -20227,13 +20365,13 @@ function requirePDrilldown_3_cjs_entry () {
 	if (hasRequiredPDrilldown_3_cjs_entry) return pDrilldown_3_cjs_entry$2;
 	hasRequiredPDrilldown_3_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var setScrollLock = requireSetScrollLockDAlAb_bW();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
-	var getMediaQueryMax = requireGetMediaQueryMaxCWKoNkPJ();
+	var getMediaQueryMax = requireGetMediaQueryMaxNLpwtZbr();
 	var spacingStaticSm = requireSpacingStaticSmByDQ2OBj();
 	var spacingFluidSm = requireSpacingFluidSmDxpqva9Z();
 	var spacingFluidMd = requireSpacingFluidMdC7TFhccF();
@@ -20243,10 +20381,10 @@ function requirePDrilldown_3_cjs_entry () {
 	var colorSurface = requireColorSurfaceDHToV0CL();
 	var colorCanvas = requireColorCanvasCvcJTS2L();
 	var colorPrimary = requireColorPrimaryCtfZkymE();
-	var isElementOfKind = requireIsElementOfKindBA7wyW7();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
-	var getNamedSlot = requireGetNamedSlotER751mnq();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
+	var isElementOfKind = requireIsElementOfKindLOZ8BKL3();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
+	var getNamedSlot = requireGetNamedSlotDBF_9hiQ();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
 	var spacingStaticMd = requireSpacingStaticMdDSArndBQ();
 	var fontWeightSemibold = requireFontWeightSemiboldGQr4oNNg();
 	var typescaleSm = requireTypescaleSmCfWCHncH();
@@ -20256,7 +20394,7 @@ function requirePDrilldown_3_cjs_entry () {
 	var fontWeightNormal = requireFontWeightNormalBZeqsj8y();
 	var typescaleMd = requireTypescaleMdFmduVeT6();
 	var radiusSm = requireRadiusSmCC0YvhYq();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsParentOfKindUbMDQHp();
 
 	const getHTMLElementOfKind = (element, tagName) => {
 	    const children = Array.from(element.querySelectorAll(tagName));
@@ -21147,16 +21285,16 @@ var pDrilldown_3_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pFieldset_cjs_entry$2 = {};
 
-var fieldsetUtilsBx94sq1L = {};
+var fieldsetUtils0ZQbURKt = {};
 
-var hasRequiredFieldsetUtilsBx94sq1L;
+var hasRequiredFieldsetUtils0ZQbURKt;
 
-function requireFieldsetUtilsBx94sq1L () {
-	if (hasRequiredFieldsetUtilsBx94sq1L) return fieldsetUtilsBx94sq1L;
-	hasRequiredFieldsetUtilsBx94sq1L = 1;
+function requireFieldsetUtils0ZQbURKt () {
+	if (hasRequiredFieldsetUtils0ZQbURKt) return fieldsetUtils0ZQbURKt;
+	hasRequiredFieldsetUtils0ZQbURKt = 1;
 
-	var a11y = requireA11yBtZXddqx();
-	requireIndexDXYpCE_Y();
+	var a11y = requireA11yC0kIHWOt();
+	requireIndexCO1jYG4D();
 
 	const FIELDSET_LABEL_SIZES = ['small', 'medium'];
 	const FIELDSET_ARIA_ATTRIBUTES = ['role'];
@@ -21169,10 +21307,10 @@ function requireFieldsetUtilsBx94sq1L () {
 	    };
 	};
 
-	fieldsetUtilsBx94sq1L.FIELDSET_ARIA_ATTRIBUTES = FIELDSET_ARIA_ATTRIBUTES;
-	fieldsetUtilsBx94sq1L.FIELDSET_LABEL_SIZES = FIELDSET_LABEL_SIZES;
-	fieldsetUtilsBx94sq1L.getFieldsetAriaAttributes = getFieldsetAriaAttributes;
-	return fieldsetUtilsBx94sq1L;
+	fieldsetUtils0ZQbURKt.FIELDSET_ARIA_ATTRIBUTES = FIELDSET_ARIA_ATTRIBUTES;
+	fieldsetUtils0ZQbURKt.FIELDSET_LABEL_SIZES = FIELDSET_LABEL_SIZES;
+	fieldsetUtils0ZQbURKt.getFieldsetAriaAttributes = getFieldsetAriaAttributes;
+	return fieldsetUtils0ZQbURKt;
 }
 
 var hasRequiredPFieldset_cjs_entry;
@@ -21181,8 +21319,8 @@ function requirePFieldset_cjs_entry () {
 	if (hasRequiredPFieldset_cjs_entry) return pFieldset_cjs_entry$2;
 	hasRequiredPFieldset_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
@@ -21193,18 +21331,19 @@ function requirePFieldset_cjs_entry () {
 	var typescaleMd = requireTypescaleMdFmduVeT6();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	var colorPrimary = requireColorPrimaryCtfZkymE();
-	var fieldsetUtils = requireFieldsetUtilsBx94sq1L();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	var fieldsetUtils = requireFieldsetUtils0ZQbURKt();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireSpacingStaticXsCCGFNED();
-	requireA11yBtZXddqx();
+	requireA11yC0kIHWOt();
 
 	const getComponentCss = (state, labelSize, hasLabel) => {
 	    return index.getCss({
@@ -21293,8 +21432,8 @@ function requirePFlag_cjs_entry () {
 	if (hasRequiredPFlag_cjs_entry) return pFlag_cjs_entry$2;
 	hasRequiredPFlag_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var sizeMap = requireSizeMapBChKLat3();
@@ -21411,16 +21550,16 @@ var pFlag_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pFlyout_cjs_entry$2 = {};
 
-var dialogBaseStylesB8MxEZCN = {};
+var dialogBaseStylesDo19TzVV = {};
 
-var hasRequiredDialogBaseStylesB8MxEZCN;
+var hasRequiredDialogBaseStylesDo19TzVV;
 
-function requireDialogBaseStylesB8MxEZCN () {
-	if (hasRequiredDialogBaseStylesB8MxEZCN) return dialogBaseStylesB8MxEZCN;
-	hasRequiredDialogBaseStylesB8MxEZCN = 1;
+function requireDialogBaseStylesDo19TzVV () {
+	if (hasRequiredDialogBaseStylesDo19TzVV) return dialogBaseStylesDo19TzVV;
+	hasRequiredDialogBaseStylesDo19TzVV = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var fcDismissButtonStyles = requireFcDismissButtonStylesDT1d6i6G();
+	var index = requireIndexCO1jYG4D();
+	var fcDismissButtonStyles = requireFcDismissButtonStylesCDh3_1Jh();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var createTopLayerController = requireCreateTopLayerControllerDqDftt9Q();
 	var spacingFluidSm = requireSpacingFluidSmDxpqva9Z();
@@ -21432,7 +21571,7 @@ function requireDialogBaseStylesB8MxEZCN () {
 	var radius2Xl = requireRadius2XlCy_MgMg();
 	var colorFrosted = requireColorFrostedBcGq8wdI();
 	var radius3Xl = requireRadius3XlBMeML5k5();
-	var gridGap = requireGridGapCswl5jSQ();
+	var gridGap = requireGridGapDrXbN1wr();
 	var colorSurface = requireColorSurfaceDHToV0CL();
 	var colorCanvas = requireColorCanvasCvcJTS2L();
 	var spacingStatic2Xs = requireSpacingStatic2XsBXpEPF5_();
@@ -21706,30 +21845,30 @@ function requireDialogBaseStylesB8MxEZCN () {
 	    };
 	};
 
-	dialogBaseStylesB8MxEZCN.BACKDROPS = BACKDROPS;
-	dialogBaseStylesB8MxEZCN.DialogBase = DialogBase;
-	dialogBaseStylesB8MxEZCN.dialogBorderRadius = dialogBorderRadius;
-	dialogBaseStylesB8MxEZCN.dialogGridJssStyle = dialogGridJssStyle;
-	dialogBaseStylesB8MxEZCN.dialogHostJssStyle = dialogHostJssStyle;
-	dialogBaseStylesB8MxEZCN.dialogPaddingBottom = dialogPaddingBottom;
-	dialogBaseStylesB8MxEZCN.dialogPaddingInline = dialogPaddingInline;
-	dialogBaseStylesB8MxEZCN.dialogPaddingTop = dialogPaddingTop;
-	dialogBaseStylesB8MxEZCN.getDialogColorJssStyle = getDialogColorJssStyle;
-	dialogBaseStylesB8MxEZCN.getDialogDismissButtonJssStyle = getDialogDismissButtonJssStyle;
-	dialogBaseStylesB8MxEZCN.getDialogTransitionJssStyle = getDialogTransitionJssStyle;
-	dialogBaseStylesB8MxEZCN.getFunctionalComponentDialogBaseStyles = getFunctionalComponentDialogBaseStyles;
-	dialogBaseStylesB8MxEZCN.getScrollerJssStyle = getScrollerJssStyle;
-	dialogBaseStylesB8MxEZCN.getSlotFooterJssStyle = getSlotFooterJssStyle;
-	dialogBaseStylesB8MxEZCN.getSlotHeaderJssStyle = getSlotHeaderJssStyle;
-	dialogBaseStylesB8MxEZCN.getSlotJssStyle = getSlotJssStyle;
-	dialogBaseStylesB8MxEZCN.getSlotMainJssStyle = getSlotMainJssStyle;
-	dialogBaseStylesB8MxEZCN.getSlotSubFooterJssStyle = getSlotSubFooterJssStyle;
-	dialogBaseStylesB8MxEZCN.isDialogBackdropTarget = isDialogBackdropTarget;
-	dialogBaseStylesB8MxEZCN.onCancelDialog = onCancelDialog;
-	dialogBaseStylesB8MxEZCN.onClickDialog = onClickDialog;
-	dialogBaseStylesB8MxEZCN.onTransitionEnd = onTransitionEnd;
-	dialogBaseStylesB8MxEZCN.showDialog = showDialog;
-	return dialogBaseStylesB8MxEZCN;
+	dialogBaseStylesDo19TzVV.BACKDROPS = BACKDROPS;
+	dialogBaseStylesDo19TzVV.DialogBase = DialogBase;
+	dialogBaseStylesDo19TzVV.dialogBorderRadius = dialogBorderRadius;
+	dialogBaseStylesDo19TzVV.dialogGridJssStyle = dialogGridJssStyle;
+	dialogBaseStylesDo19TzVV.dialogHostJssStyle = dialogHostJssStyle;
+	dialogBaseStylesDo19TzVV.dialogPaddingBottom = dialogPaddingBottom;
+	dialogBaseStylesDo19TzVV.dialogPaddingInline = dialogPaddingInline;
+	dialogBaseStylesDo19TzVV.dialogPaddingTop = dialogPaddingTop;
+	dialogBaseStylesDo19TzVV.getDialogColorJssStyle = getDialogColorJssStyle;
+	dialogBaseStylesDo19TzVV.getDialogDismissButtonJssStyle = getDialogDismissButtonJssStyle;
+	dialogBaseStylesDo19TzVV.getDialogTransitionJssStyle = getDialogTransitionJssStyle;
+	dialogBaseStylesDo19TzVV.getFunctionalComponentDialogBaseStyles = getFunctionalComponentDialogBaseStyles;
+	dialogBaseStylesDo19TzVV.getScrollerJssStyle = getScrollerJssStyle;
+	dialogBaseStylesDo19TzVV.getSlotFooterJssStyle = getSlotFooterJssStyle;
+	dialogBaseStylesDo19TzVV.getSlotHeaderJssStyle = getSlotHeaderJssStyle;
+	dialogBaseStylesDo19TzVV.getSlotJssStyle = getSlotJssStyle;
+	dialogBaseStylesDo19TzVV.getSlotMainJssStyle = getSlotMainJssStyle;
+	dialogBaseStylesDo19TzVV.getSlotSubFooterJssStyle = getSlotSubFooterJssStyle;
+	dialogBaseStylesDo19TzVV.isDialogBackdropTarget = isDialogBackdropTarget;
+	dialogBaseStylesDo19TzVV.onCancelDialog = onCancelDialog;
+	dialogBaseStylesDo19TzVV.onClickDialog = onClickDialog;
+	dialogBaseStylesDo19TzVV.onTransitionEnd = onTransitionEnd;
+	dialogBaseStylesDo19TzVV.showDialog = showDialog;
+	return dialogBaseStylesDo19TzVV;
 }
 
 var observerDJoCEaDI = {};
@@ -21794,18 +21933,18 @@ function requirePFlyout_cjs_entry () {
 	if (hasRequiredPFlyout_cjs_entry) return pFlyout_cjs_entry$2;
 	hasRequiredPFlyout_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
-	var getSlotTextContent = requireGetSlotTextContentCaQGlFop();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
-	var dialogBaseStyles = requireDialogBaseStylesB8MxEZCN();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
+	var getSlotTextContent = requireGetSlotTextContentDqBMbiGS();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
+	var dialogBaseStyles = requireDialogBaseStylesDo19TzVV();
 	var observer = requireObserverDJoCEaDI();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var setScrollLock = requireSetScrollLockDAlAb_bW();
 	var createTopLayerController = requireCreateTopLayerControllerDqDftt9Q();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	requireGetNamedSlotER751mnq();
-	requireFcDismissButtonStylesDT1d6i6G();
+	requireGetNamedSlotDBF_9hiQ();
+	requireFcDismissButtonStylesCDh3_1Jh();
 	requireHoverMediaQueryCOekSiqP();
 	requireGetInlineSVGBackgroundImageC2AJYBEX();
 	requireLeadingNormalBs8OKhqj();
@@ -21823,7 +21962,7 @@ function requirePFlyout_cjs_entry () {
 	requireSpacingFluidLgDfXeg2bP();
 	requireRadius2XlCy_MgMg();
 	requireRadius3XlBMeML5k5();
-	requireGridGapCswl5jSQ();
+	requireGridGapDrXbN1wr();
 	requireSpacingStatic2XsBXpEPF5_();
 	requireSpacingStaticMdDSArndBQ();
 
@@ -21898,7 +22037,7 @@ function requirePFlyout_cjs_entry () {
 	        flyout: {
 	            ...dialogBaseStyles.dialogGridJssStyle(),
 	            ...dialogBaseStyles.getDialogColorJssStyle(),
-	            ...index.buildResponsiveStyles(fullscreen, (fullscreenValue) => fullscreenValue
+	            ...index.buildResponsiveBooleanStyles(fullscreen, (fullscreenValue) => fullscreenValue
 	                ? {
 	                    // fullscreen spans the whole viewport width, so corners are squared and corner clipping is disabled
 	                    width: '100dvw',
@@ -22134,13 +22273,13 @@ function requirePHeading_cjs_entry () {
 	if (hasRequiredPHeading_cjs_entry) return pHeading_cjs_entry$2;
 	hasRequiredPHeading_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var colorMap = requireColorMapD2SM08A2();
 	var sizeMap = requireSizeMapBChKLat3();
 	var weightMap = requireWeightMapCRyOCbCS();
-	var hasSpecificDirectChildTag = requireHasSpecificDirectChildTag8KTCydFG();
+	var hasSpecificDirectChildTag = requireHasSpecificDirectChildTag0ONDGmMY();
 	var typescaleXl = requireTypescaleXlDyQCg4yv();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	requireColorWarningCfBtQXlw();
@@ -22158,7 +22297,7 @@ function requirePHeading_cjs_entry () {
 	requireTypescale2XsCMXT9_AX();
 	requireFontWeightSemiboldGQr4oNNg();
 	requireFontWeightNormalBZeqsj8y();
-	requireGetDirectChildHTMLElementBgsUJuKK();
+	requireGetDirectChildHTMLElementBjdpb1eX();
 	requireTransformSelectorToDirectChildSelectorB_8CS40K();
 
 	const HEADING_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
@@ -22305,8 +22444,8 @@ function requirePIcon_cjs_entry () {
 	if (hasRequiredPIcon_cjs_entry) return pIcon_cjs_entry$2;
 	hasRequiredPIcon_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var colorMap = requireColorMapD2SM08A2();
@@ -22328,7 +22467,7 @@ function requirePIcon_cjs_entry () {
 	requireTypescaleXsDg2owqik();
 	requireTypescale2XsCMXT9_AX();
 
-	const ICONS_MANIFEST = { "360": "360.0600731.svg", "4-wheel-drive": "4-wheel-drive.9c218bf.svg", "accessibility": "accessibility.087d747.svg", "active-cabin-ventilation": "active-cabin-ventilation.b081399.svg", "add": "add.fac861a.svg", "adjust": "adjust.ca46bd4.svg", "aggregation": "aggregation.96f06e5.svg", "ai-3d-object": "ai-3d-object.7a85dd7.svg", "ai-code": "ai-code.9afafb7.svg", "ai-edit": "ai-edit.75a4765.svg", "ai-image": "ai-image.c786d48.svg", "ai-scale": "ai-scale.846fde0.svg", "ai-sound": "ai-sound.727ea7a.svg", "ai-spark": "ai-spark.a134e18.svg", "ai-spark-filled": "ai-spark-filled.2d5d971.svg", "ai-text": "ai-text.fc84e09.svg", "ai-video": "ai-video.759a7f2.svg", "arrow-compact-down": "arrow-compact-down.9b37afe.svg", "arrow-compact-left": "arrow-compact-left.7169de6.svg", "arrow-compact-right": "arrow-compact-right.cc2d1d2.svg", "arrow-compact-up": "arrow-compact-up.36724bb.svg", "arrow-double-down": "arrow-double-down.61ae4d7.svg", "arrow-double-left": "arrow-double-left.1b576eb.svg", "arrow-double-right": "arrow-double-right.dcfabff.svg", "arrow-double-up": "arrow-double-up.fb73db5.svg", "arrow-down": "arrow-down.49c6983.svg", "arrow-down-left": "arrow-down-left.83597e3.svg", "arrow-down-right": "arrow-down-right.f6ec21e.svg", "arrow-first": "arrow-first.beb7d9f.svg", "arrow-head-down": "arrow-head-down.1e3cbb8.svg", "arrow-head-left": "arrow-head-left.cf1395d.svg", "arrow-head-right": "arrow-head-right.304b330.svg", "arrow-head-up": "arrow-head-up.6d3fd23.svg", "arrow-last": "arrow-last.cc24903.svg", "arrow-left": "arrow-left.e03c25b.svg", "arrow-right": "arrow-right.872716b.svg", "arrow-up": "arrow-up.9d294d1.svg", "arrow-up-left": "arrow-up-left.9e7da2c.svg", "arrow-up-right": "arrow-up-right.776feb2.svg", "arrows": "arrows.de040f9.svg", "attachment": "attachment.8f3dd0a.svg", "augmented-reality": "augmented-reality.8b6ce95.svg", "battery-empty": "battery-empty.38b4b15.svg", "battery-empty-co2": "battery-empty-co2.c4cabef.svg", "battery-empty-fuel": "battery-empty-fuel.e833e13.svg", "battery-full": "battery-full.03de75d.svg", "battery-half": "battery-half.11f1ef8.svg", "battery-one-quarter": "battery-one-quarter.91235a0.svg", "battery-three-quarters": "battery-three-quarters.dcf768f.svg", "bell": "bell.1eab3a2.svg", "bookmark": "bookmark.9d6982f.svg", "bookmark-filled": "bookmark-filled.327ac78.svg", "brain": "brain.838387a.svg", "broadcast": "broadcast.0ad5a15.svg", "cabriolet": "cabriolet.ab33aab.svg", "calculator": "calculator.a323a2d.svg", "calendar": "calendar.70a6a12.svg", "camera": "camera.e5e95b9.svg", "car": "car.35229c9.svg", "car-battery": "car-battery.895510f.svg", "card": "card.f284448.svg", "charging-active": "charging-active.c3aa214.svg", "charging-network": "charging-network.a40072f.svg", "charging-state": "charging-state.f56d8df.svg", "charging-station": "charging-station.5ff1ed4.svg", "chart": "chart.c8c32d2.svg", "chat": "chat.7945544.svg", "check": "check.8ba06be.svg", "city": "city.5ae672c.svg", "climate": "climate.a9d5818.svg", "climate-control": "climate-control.ce31939.svg", "clock": "clock.c88a1ef.svg", "close": "close.eec3c5d.svg", "closed-caption": "closed-caption.ceaf6cb.svg", "cloud": "cloud.2c3959e.svg", "co2-class": "co2-class.fc49211.svg", "co2-emission": "co2-emission.c42e7f8.svg", "color-picker": "color-picker.598f402.svg", "compare": "compare.6578829.svg", "compass": "compass.f90f319.svg", "configurate": "configurate.5311c8d.svg", "connect-services": "connect-services.52dd9a4.svg", "copy": "copy.0fcd086.svg", "country-road": "country-road.d2bbc5a.svg", "coupe": "coupe.7549e3e.svg", "cubic-capacity": "cubic-capacity.7b0b8c8.svg", "customer-support": "customer-support.6d630e3.svg", "cut": "cut.851e5c2.svg", "delete": "delete.5a8c8ca.svg", "disable": "disable.5918c32.svg", "dislike": "dislike.51614b0.svg", "dislike-filled": "dislike-filled.e1a8c4d.svg", "document": "document.df36b6c.svg", "door": "door.61c32d6.svg", "download": "download.c06f455.svg", "drag": "drag.9e893fd.svg", "duration": "duration.94e5252.svg", "ear": "ear.27a802f.svg", "edit": "edit.330f321.svg", "email": "email.f2530de.svg", "error": "error.b8ae9ad.svg", "error-filled": "error-filled.a4d06ed.svg", "exclamation": "exclamation.46cd17b.svg", "exclamation-filled": "exclamation-filled.9d09ed1.svg", "external": "external.fb677b9.svg", "fast-backward": "fast-backward.aaca8b9.svg", "fast-forward": "fast-forward.4bc43ff.svg", "file-csv": "file-csv.4140e24.svg", "file-excel": "file-excel.56d577d.svg", "filter": "filter.610f808.svg", "fingerprint": "fingerprint.6a85170.svg", "flag": "flag.7af5baf.svg", "flash": "flash.88a2ada.svg", "fuel-station": "fuel-station.f7bdf51.svg", "garage": "garage.5014e8d.svg", "genuine-parts": "genuine-parts.6bfddde.svg", "geo-localization": "geo-localization.516d603.svg", "gift": "gift.7beb1eb.svg", "globe": "globe.56cc8fc.svg", "grid": "grid.06bc31a.svg", "grip": "grip.5ec4289.svg", "group": "group.051436a.svg", "hand": "hand.4e85714.svg", "heart": "heart.9a5962e.svg", "heart-filled": "heart-filled.dd7decf.svg", "highway": "highway.bf0eb24.svg", "highway-filled": "highway-filled.38e93fb.svg", "history": "history.f09645c.svg", "home": "home.7b1d1da.svg", "horn": "horn.bf47b1a.svg", "image": "image.b2614f0.svg", "increase": "increase.700012f.svg", "information": "information.da41162.svg", "information-filled": "information-filled.8f08911.svg", "key": "key.ee5d89b.svg", "laptop": "laptop.c422480.svg", "leaf": "leaf.92ca6a6.svg", "leather": "leather.1d2769a.svg", "light": "light.f0eb8e4.svg", "like": "like.a7468cd.svg", "like-filled": "like-filled.a0126c1.svg", "limousine": "limousine.87799d5.svg", "linked": "linked.8f30cb5.svg", "list": "list.411dd00.svg", "locate": "locate.6554f9e.svg", "lock": "lock.243281a.svg", "lock-open": "lock-open.95803d2.svg", "logo-apple-carplay": "logo-apple-carplay.c872af9.svg", "logo-apple-music": "logo-apple-music.1395f37.svg", "logo-apple-podcast": "logo-apple-podcast.09be038.svg", "logo-baidu": "logo-baidu.9e89c7d.svg", "logo-delicious": "logo-delicious.e83f574.svg", "logo-digg": "logo-digg.f096670.svg", "logo-facebook": "logo-facebook.74abe88.svg", "logo-foursquare": "logo-foursquare.d638fd8.svg", "logo-gmail": "logo-gmail.5f96ee2.svg", "logo-google": "logo-google.1dee423.svg", "logo-hatena": "logo-hatena.da509f0.svg", "logo-instagram": "logo-instagram.b916daa.svg", "logo-kaixin": "logo-kaixin.b1211a2.svg", "logo-kakaotalk": "logo-kakaotalk.38f5396.svg", "logo-kununu": "logo-kununu.79344ff.svg", "logo-linkedin": "logo-linkedin.b72559f.svg", "logo-naver": "logo-naver.75588fe.svg", "logo-pinterest": "logo-pinterest.e8f6963.svg", "logo-qq": "logo-qq.6d9b6d9.svg", "logo-qq-share": "logo-qq-share.ee864d9.svg", "logo-reddit": "logo-reddit.da13e44.svg", "logo-skyrock": "logo-skyrock.eb2f28d.svg", "logo-snapchat": "logo-snapchat.ef706a2.svg", "logo-sohu": "logo-sohu.a30c66b.svg", "logo-spotify": "logo-spotify.2ec4b2d.svg", "logo-tecent": "logo-tecent.d119e85.svg", "logo-telegram": "logo-telegram.d151481.svg", "logo-tiktok": "logo-tiktok.2f3a465.svg", "logo-tumblr": "logo-tumblr.c689f44.svg", "logo-twitter": "logo-twitter.5f2490a.svg", "logo-viber": "logo-viber.198bd43.svg", "logo-vk": "logo-vk.37b94e0.svg", "logo-wechat": "logo-wechat.83b2b98.svg", "logo-weibo": "logo-weibo.c8dacee.svg", "logo-whatsapp": "logo-whatsapp.add9a6d.svg", "logo-x": "logo-x.5f2490a.svg", "logo-xing": "logo-xing.3a8df0f.svg", "logo-yahoo": "logo-yahoo.8cbd0ba.svg", "logo-youku": "logo-youku.fe988d0.svg", "logo-youtube": "logo-youtube.da3798f.svg", "logout": "logout.7ec7451.svg", "map": "map.c16f618.svg", "menu-dots-horizontal": "menu-dots-horizontal.788f7fa.svg", "menu-dots-vertical": "menu-dots-vertical.4970a65.svg", "menu-lines": "menu-lines.e332216.svg", "microphone": "microphone.8ecdce6.svg", "minus": "minus.f6d964c.svg", "mobile": "mobile.7f35446.svg", "moon": "moon.5b73246.svg", "new-chat": "new-chat.6ba4fae.svg", "news": "news.5b604b0.svg", "north-arrow": "north-arrow.2da1dbe.svg", "oil-can": "oil-can.cb58fc7.svg", "online-search": "online-search.90e9ab1.svg", "parking-brake": "parking-brake.45704bd.svg", "parking-light": "parking-light.c49a231.svg", "paste": "paste.dd60261.svg", "pause": "pause.65f20ae.svg", "phone": "phone.f4f774b.svg", "pin": "pin.3417cec.svg", "pin-filled": "pin-filled.7b8e9ba.svg", "pivot": "pivot.3ae18b8.svg", "play": "play.03ae554.svg", "play-filled": "play-filled.0fb6689.svg", "plug": "plug.c159935.svg", "plus": "plus.319993e.svg", "preheating": "preheating.e2a796f.svg", "price-tag": "price-tag.f0d3917.svg", "printer": "printer.f59b0ee.svg", "purchase": "purchase.9cd6d65.svg", "push-pin": "push-pin.89e4ead.svg", "push-pin-off": "push-pin-off.ba99213.svg", "qr": "qr.87a49a3.svg", "qr-off": "qr-off.64e21b9.svg", "question": "question.3402a63.svg", "question-filled": "question-filled.cf25dd5.svg", "racing-flag": "racing-flag.b7ddcc8.svg", "radar": "radar.de5a6c1.svg", "radio": "radio.2b48e53.svg", "refresh": "refresh.41fd868.svg", "replay": "replay.55a99f2.svg", "reset": "reset.e53d52f.svg", "return": "return.46d30de.svg", "road": "road.bd3d4bc.svg", "roof-closed": "roof-closed.018d021.svg", "roof-open": "roof-open.51c8ee6.svg", "route": "route.f4fbbb4.svg", "rss": "rss.0e77baf.svg", "save": "save.6171ff5.svg", "screen": "screen.420be15.svg", "search": "search.3f0f1ce.svg", "seat": "seat.a3ebc40.svg", "send": "send.b32099c.svg", "service-technician": "service-technician.8749028.svg", "share": "share.a0b30da.svg", "shopping-bag": "shopping-bag.3f91a9b.svg", "shopping-bag-filled": "shopping-bag-filled.abf6c98.svg", "shopping-cart": "shopping-cart.370e224.svg", "shopping-cart-filled": "shopping-cart-filled.e0c3a65.svg", "shopping-cart-off": "shopping-cart-off.d0bc0ea.svg", "sidebar": "sidebar.8e43896.svg", "sidelights": "sidelights.65c9dd9.svg", "skip-backward": "skip-backward.05fe8cd.svg", "skip-forward": "skip-forward.45a7bc0.svg", "snowflake": "snowflake.83907b3.svg", "sort": "sort.92b50bd.svg", "stack": "stack.804af93.svg", "star": "star.4c5bb15.svg", "star-filled": "star-filled.84ef2f6.svg", "steering-wheel": "steering-wheel.4dea19e.svg", "stop": "stop.173b6ac.svg", "stopwatch": "stopwatch.0e048a4.svg", "subtract": "subtract.57eed1d.svg", "success": "success.b16d4c1.svg", "success-filled": "success-filled.1832d98.svg", "sun": "sun.4301cbd.svg", "suv": "suv.33ac4aa.svg", "switch": "switch.66f74c4.svg", "tablet": "tablet.07341ac.svg", "tachometer": "tachometer.3a2fc3c.svg", "theme": "theme.08f6508.svg", "tire": "tire.e5c9372.svg", "trigger-finger": "trigger-finger.65aa6e2.svg", "truck": "truck.2c26c04.svg", "turismo": "turismo.a066b9f.svg", "unlinked": "unlinked.e9afe39.svg", "upload": "upload.d1f5a2a.svg", "user": "user.c18dabe.svg", "user-filled": "user-filled.2ea646d.svg", "user-group": "user-group.79cdf86.svg", "user-manual": "user-manual.470e243.svg", "video": "video.7590689.svg", "view": "view.5b4d7f6.svg", "view-off": "view-off.a4ede54.svg", "volume-off": "volume-off.bcd49e7.svg", "volume-up": "volume-up.2084f60.svg", "warning": "warning.59927e6.svg", "warning-filled": "warning-filled.1f6fe21.svg", "weather": "weather.9c96bd7.svg", "weight": "weight.b57a60d.svg", "wifi": "wifi.e2a8d9c.svg", "work": "work.9dd71a4.svg", "wrench": "wrench.09a2a67.svg", "wrenches": "wrenches.d2ed45d.svg", "zoom-in": "zoom-in.ff299b8.svg", "zoom-out": "zoom-out.ebb6246.svg" };
+	const ICONS_MANIFEST = { "360": "360.0600731.svg", "4-wheel-drive": "4-wheel-drive.9c218bf.svg", "accessibility": "accessibility.087d747.svg", "active-cabin-ventilation": "active-cabin-ventilation.b081399.svg", "add": "add.fac861a.svg", "adjust": "adjust.ca46bd4.svg", "aggregation": "aggregation.96f06e5.svg", "ai-3d-object": "ai-3d-object.7a85dd7.svg", "ai-chat": "ai-chat.54d305d.svg", "ai-code": "ai-code.9afafb7.svg", "ai-edit": "ai-edit.75a4765.svg", "ai-image": "ai-image.c786d48.svg", "ai-scale": "ai-scale.846fde0.svg", "ai-sound": "ai-sound.727ea7a.svg", "ai-spark": "ai-spark.a134e18.svg", "ai-spark-filled": "ai-spark-filled.2d5d971.svg", "ai-text": "ai-text.fc84e09.svg", "ai-video": "ai-video.759a7f2.svg", "arrow-compact-down": "arrow-compact-down.9b37afe.svg", "arrow-compact-left": "arrow-compact-left.7169de6.svg", "arrow-compact-right": "arrow-compact-right.cc2d1d2.svg", "arrow-compact-up": "arrow-compact-up.36724bb.svg", "arrow-double-down": "arrow-double-down.61ae4d7.svg", "arrow-double-left": "arrow-double-left.1b576eb.svg", "arrow-double-right": "arrow-double-right.dcfabff.svg", "arrow-double-up": "arrow-double-up.fb73db5.svg", "arrow-down": "arrow-down.49c6983.svg", "arrow-down-left": "arrow-down-left.83597e3.svg", "arrow-down-right": "arrow-down-right.f6ec21e.svg", "arrow-first": "arrow-first.beb7d9f.svg", "arrow-head-down": "arrow-head-down.1e3cbb8.svg", "arrow-head-left": "arrow-head-left.cf1395d.svg", "arrow-head-right": "arrow-head-right.304b330.svg", "arrow-head-up": "arrow-head-up.6d3fd23.svg", "arrow-last": "arrow-last.cc24903.svg", "arrow-left": "arrow-left.e03c25b.svg", "arrow-right": "arrow-right.872716b.svg", "arrow-up": "arrow-up.9d294d1.svg", "arrow-up-left": "arrow-up-left.9e7da2c.svg", "arrow-up-right": "arrow-up-right.776feb2.svg", "arrows": "arrows.de040f9.svg", "attachment": "attachment.8f3dd0a.svg", "augmented-reality": "augmented-reality.8b6ce95.svg", "battery-empty": "battery-empty.38b4b15.svg", "battery-empty-co2": "battery-empty-co2.c4cabef.svg", "battery-empty-fuel": "battery-empty-fuel.e833e13.svg", "battery-full": "battery-full.03de75d.svg", "battery-half": "battery-half.11f1ef8.svg", "battery-one-quarter": "battery-one-quarter.91235a0.svg", "battery-three-quarters": "battery-three-quarters.dcf768f.svg", "bell": "bell.1eab3a2.svg", "bookmark": "bookmark.9d6982f.svg", "bookmark-filled": "bookmark-filled.327ac78.svg", "brain": "brain.838387a.svg", "broadcast": "broadcast.0ad5a15.svg", "cabriolet": "cabriolet.ab33aab.svg", "calculator": "calculator.a323a2d.svg", "calendar": "calendar.70a6a12.svg", "camera": "camera.e5e95b9.svg", "car": "car.35229c9.svg", "car-battery": "car-battery.895510f.svg", "card": "card.f284448.svg", "charging-active": "charging-active.c3aa214.svg", "charging-network": "charging-network.a40072f.svg", "charging-state": "charging-state.f56d8df.svg", "charging-station": "charging-station.5ff1ed4.svg", "chart": "chart.c8c32d2.svg", "chat": "chat.7945544.svg", "check": "check.8ba06be.svg", "city": "city.5ae672c.svg", "climate": "climate.a9d5818.svg", "climate-control": "climate-control.ce31939.svg", "clock": "clock.c88a1ef.svg", "close": "close.eec3c5d.svg", "closed-caption": "closed-caption.ceaf6cb.svg", "cloud": "cloud.2c3959e.svg", "co2-class": "co2-class.fc49211.svg", "co2-emission": "co2-emission.c42e7f8.svg", "color-picker": "color-picker.598f402.svg", "compare": "compare.6578829.svg", "compass": "compass.f90f319.svg", "configurate": "configurate.5311c8d.svg", "connect-services": "connect-services.52dd9a4.svg", "copy": "copy.0fcd086.svg", "country-road": "country-road.d2bbc5a.svg", "coupe": "coupe.7549e3e.svg", "cubic-capacity": "cubic-capacity.7b0b8c8.svg", "customer-support": "customer-support.6d630e3.svg", "cut": "cut.851e5c2.svg", "delete": "delete.5a8c8ca.svg", "disable": "disable.5918c32.svg", "dislike": "dislike.51614b0.svg", "dislike-filled": "dislike-filled.e1a8c4d.svg", "document": "document.df36b6c.svg", "door": "door.61c32d6.svg", "download": "download.c06f455.svg", "drag": "drag.9e893fd.svg", "duration": "duration.94e5252.svg", "ear": "ear.27a802f.svg", "edit": "edit.330f321.svg", "email": "email.f2530de.svg", "error": "error.b8ae9ad.svg", "error-filled": "error-filled.a4d06ed.svg", "exclamation": "exclamation.46cd17b.svg", "exclamation-filled": "exclamation-filled.9d09ed1.svg", "external": "external.fb677b9.svg", "fast-backward": "fast-backward.aaca8b9.svg", "fast-forward": "fast-forward.4bc43ff.svg", "file-csv": "file-csv.4140e24.svg", "file-excel": "file-excel.56d577d.svg", "filter": "filter.610f808.svg", "fingerprint": "fingerprint.6a85170.svg", "flag": "flag.7af5baf.svg", "flash": "flash.88a2ada.svg", "fuel-station": "fuel-station.f7bdf51.svg", "garage": "garage.5014e8d.svg", "genuine-parts": "genuine-parts.6bfddde.svg", "geo-localization": "geo-localization.516d603.svg", "gift": "gift.7beb1eb.svg", "globe": "globe.56cc8fc.svg", "grid": "grid.06bc31a.svg", "grip": "grip.5ec4289.svg", "group": "group.051436a.svg", "hand": "hand.4e85714.svg", "heart": "heart.9a5962e.svg", "heart-filled": "heart-filled.dd7decf.svg", "highway": "highway.bf0eb24.svg", "highway-filled": "highway-filled.38e93fb.svg", "history": "history.f09645c.svg", "home": "home.7b1d1da.svg", "horn": "horn.bf47b1a.svg", "image": "image.b2614f0.svg", "increase": "increase.700012f.svg", "information": "information.da41162.svg", "information-filled": "information-filled.8f08911.svg", "key": "key.ee5d89b.svg", "laptop": "laptop.c422480.svg", "leaf": "leaf.92ca6a6.svg", "leather": "leather.1d2769a.svg", "light": "light.f0eb8e4.svg", "like": "like.a7468cd.svg", "like-filled": "like-filled.a0126c1.svg", "limousine": "limousine.87799d5.svg", "linked": "linked.8f30cb5.svg", "list": "list.411dd00.svg", "locate": "locate.6554f9e.svg", "lock": "lock.243281a.svg", "lock-open": "lock-open.95803d2.svg", "logo-apple-carplay": "logo-apple-carplay.c872af9.svg", "logo-apple-music": "logo-apple-music.1395f37.svg", "logo-apple-podcast": "logo-apple-podcast.09be038.svg", "logo-baidu": "logo-baidu.9e89c7d.svg", "logo-delicious": "logo-delicious.e83f574.svg", "logo-digg": "logo-digg.f096670.svg", "logo-facebook": "logo-facebook.74abe88.svg", "logo-foursquare": "logo-foursquare.d638fd8.svg", "logo-gmail": "logo-gmail.5f96ee2.svg", "logo-google": "logo-google.1dee423.svg", "logo-hatena": "logo-hatena.da509f0.svg", "logo-instagram": "logo-instagram.b916daa.svg", "logo-kaixin": "logo-kaixin.b1211a2.svg", "logo-kakaotalk": "logo-kakaotalk.38f5396.svg", "logo-kununu": "logo-kununu.79344ff.svg", "logo-linkedin": "logo-linkedin.b72559f.svg", "logo-naver": "logo-naver.75588fe.svg", "logo-pinterest": "logo-pinterest.e8f6963.svg", "logo-qq": "logo-qq.6d9b6d9.svg", "logo-qq-share": "logo-qq-share.ee864d9.svg", "logo-reddit": "logo-reddit.da13e44.svg", "logo-skyrock": "logo-skyrock.eb2f28d.svg", "logo-snapchat": "logo-snapchat.ef706a2.svg", "logo-sohu": "logo-sohu.a30c66b.svg", "logo-spotify": "logo-spotify.2ec4b2d.svg", "logo-tecent": "logo-tecent.d119e85.svg", "logo-telegram": "logo-telegram.d151481.svg", "logo-tiktok": "logo-tiktok.2f3a465.svg", "logo-tumblr": "logo-tumblr.c689f44.svg", "logo-twitter": "logo-twitter.5f2490a.svg", "logo-viber": "logo-viber.198bd43.svg", "logo-vk": "logo-vk.37b94e0.svg", "logo-wechat": "logo-wechat.83b2b98.svg", "logo-weibo": "logo-weibo.c8dacee.svg", "logo-whatsapp": "logo-whatsapp.add9a6d.svg", "logo-x": "logo-x.5f2490a.svg", "logo-xing": "logo-xing.3a8df0f.svg", "logo-yahoo": "logo-yahoo.8cbd0ba.svg", "logo-youku": "logo-youku.fe988d0.svg", "logo-youtube": "logo-youtube.da3798f.svg", "logout": "logout.7ec7451.svg", "map": "map.c16f618.svg", "menu-dots-horizontal": "menu-dots-horizontal.788f7fa.svg", "menu-dots-vertical": "menu-dots-vertical.4970a65.svg", "menu-lines": "menu-lines.e332216.svg", "microphone": "microphone.8ecdce6.svg", "minus": "minus.f6d964c.svg", "mobile": "mobile.7f35446.svg", "moon": "moon.5b73246.svg", "new-chat": "new-chat.6ba4fae.svg", "news": "news.5b604b0.svg", "north-arrow": "north-arrow.2da1dbe.svg", "oil-can": "oil-can.cb58fc7.svg", "online-search": "online-search.90e9ab1.svg", "parking-brake": "parking-brake.45704bd.svg", "parking-light": "parking-light.c49a231.svg", "paste": "paste.dd60261.svg", "pause": "pause.65f20ae.svg", "phone": "phone.f4f774b.svg", "pin": "pin.3417cec.svg", "pin-filled": "pin-filled.7b8e9ba.svg", "pivot": "pivot.3ae18b8.svg", "play": "play.03ae554.svg", "play-filled": "play-filled.0fb6689.svg", "plug": "plug.c159935.svg", "plus": "plus.319993e.svg", "preheating": "preheating.e2a796f.svg", "price-tag": "price-tag.f0d3917.svg", "printer": "printer.f59b0ee.svg", "purchase": "purchase.9cd6d65.svg", "push-pin": "push-pin.89e4ead.svg", "push-pin-off": "push-pin-off.ba99213.svg", "qr": "qr.87a49a3.svg", "qr-off": "qr-off.64e21b9.svg", "question": "question.3402a63.svg", "question-filled": "question-filled.cf25dd5.svg", "racing-flag": "racing-flag.b7ddcc8.svg", "radar": "radar.de5a6c1.svg", "radio": "radio.2b48e53.svg", "refresh": "refresh.41fd868.svg", "replay": "replay.55a99f2.svg", "reset": "reset.e53d52f.svg", "return": "return.46d30de.svg", "road": "road.bd3d4bc.svg", "roof-closed": "roof-closed.018d021.svg", "roof-open": "roof-open.51c8ee6.svg", "route": "route.f4fbbb4.svg", "rss": "rss.0e77baf.svg", "save": "save.6171ff5.svg", "screen": "screen.420be15.svg", "search": "search.3f0f1ce.svg", "seat": "seat.a3ebc40.svg", "send": "send.b32099c.svg", "service-technician": "service-technician.8749028.svg", "share": "share.a0b30da.svg", "shopping-bag": "shopping-bag.3f91a9b.svg", "shopping-bag-filled": "shopping-bag-filled.abf6c98.svg", "shopping-cart": "shopping-cart.370e224.svg", "shopping-cart-filled": "shopping-cart-filled.e0c3a65.svg", "shopping-cart-off": "shopping-cart-off.d0bc0ea.svg", "sidebar": "sidebar.8e43896.svg", "sidelights": "sidelights.65c9dd9.svg", "skip-backward": "skip-backward.05fe8cd.svg", "skip-forward": "skip-forward.45a7bc0.svg", "snowflake": "snowflake.83907b3.svg", "sort": "sort.92b50bd.svg", "stack": "stack.804af93.svg", "star": "star.4c5bb15.svg", "star-filled": "star-filled.84ef2f6.svg", "steering-wheel": "steering-wheel.4dea19e.svg", "stop": "stop.173b6ac.svg", "stopwatch": "stopwatch.0e048a4.svg", "subtract": "subtract.57eed1d.svg", "success": "success.b16d4c1.svg", "success-filled": "success-filled.1832d98.svg", "sun": "sun.4301cbd.svg", "suv": "suv.33ac4aa.svg", "switch": "switch.66f74c4.svg", "tablet": "tablet.07341ac.svg", "tachometer": "tachometer.3a2fc3c.svg", "theme": "theme.08f6508.svg", "tire": "tire.e5c9372.svg", "trigger-finger": "trigger-finger.65aa6e2.svg", "truck": "truck.2c26c04.svg", "turismo": "turismo.a066b9f.svg", "unlinked": "unlinked.e9afe39.svg", "upload": "upload.d1f5a2a.svg", "user": "user.c18dabe.svg", "user-filled": "user-filled.2ea646d.svg", "user-group": "user-group.79cdf86.svg", "user-manual": "user-manual.470e243.svg", "video": "video.7590689.svg", "view": "view.5b4d7f6.svg", "view-off": "view-off.a4ede54.svg", "volume-off": "volume-off.bcd49e7.svg", "volume-up": "volume-up.2084f60.svg", "warning": "warning.59927e6.svg", "warning-filled": "warning-filled.1f6fe21.svg", "weather": "weather.9c96bd7.svg", "weight": "weight.b57a60d.svg", "wifi": "wifi.e2a8d9c.svg", "work": "work.9dd71a4.svg", "wrench": "wrench.09a2a67.svg", "wrenches": "wrenches.d2ed45d.svg", "zoom-in": "zoom-in.ff299b8.svg", "zoom-out": "zoom-out.ebb6246.svg" };
 
 	const ICON_ARIA_ATTRIBUTES = ['aria-label'];
 	/** @deprecated */
@@ -22505,14 +22644,14 @@ function requirePInlineNotification_cjs_entry () {
 	if (hasRequiredPInlineNotification_cjs_entry) return pInlineNotification_cjs_entry$2;
 	hasRequiredPInlineNotification_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var getSlotTextContent = requireGetSlotTextContentCaQGlFop();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
-	var fcDismissButtonStyles = requireFcDismissButtonStylesDT1d6i6G();
-	var notificationBaseStyles = requireNotificationBaseStylesCM3KqCH();
+	var index = requireIndexCO1jYG4D();
+	var getSlotTextContent = requireGetSlotTextContentDqBMbiGS();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
+	var fcDismissButtonStyles = requireFcDismissButtonStylesCDh3_1Jh();
+	var notificationBaseStyles = requireNotificationBaseStylesC82sOkro();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
-	requireGetNamedSlotER751mnq();
+	requireGetNamedSlotDBF_9hiQ();
 	requireHoverMediaQueryCOekSiqP();
 	requireGetInlineSVGBackgroundImageC2AJYBEX();
 	requireLeadingNormalBs8OKhqj();
@@ -22630,21 +22769,21 @@ var pInlineNotification_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pInputDate_cjs_entry$2 = {};
 
-var inputBaseStylesCBt7bxGB = {};
+var inputBaseStylesCCXpBRu4 = {};
 
-var hasRequiredInputBaseStylesCBt7bxGB;
+var hasRequiredInputBaseStylesCCXpBRu4;
 
-function requireInputBaseStylesCBt7bxGB () {
-	if (hasRequiredInputBaseStylesCBt7bxGB) return inputBaseStylesCBt7bxGB;
-	hasRequiredInputBaseStylesCBt7bxGB = 1;
+function requireInputBaseStylesCCXpBRu4 () {
+	if (hasRequiredInputBaseStylesCCXpBRu4) return inputBaseStylesCCXpBRu4;
+	hasRequiredInputBaseStylesCCXpBRu4 = 1;
 
-	var isElementOfKind = requireIsElementOfKindBA7wyW7();
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
-	var hasDescription = requireHasDescriptionCeR_sZ4Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var labelStyles = requireLabelStylesBcSduAkC();
-	var loadingMessageStyles = requireLoadingMessageStylesD6fdjnH9();
+	var isElementOfKind = requireIsElementOfKindLOZ8BKL3();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
+	var hasDescription = requireHasDescriptionJlHp6YuO();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var labelStyles = requireLabelStylesBVlOD9GZ();
+	var loadingMessageStyles = requireLoadingMessageStylesCs3un0in();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -22850,12 +22989,12 @@ function requireInputBaseStylesCBt7bxGB () {
 	    };
 	};
 
-	inputBaseStylesCBt7bxGB.InputBase = InputBase;
-	inputBaseStylesCBt7bxGB.cssVarButtonPureMargin = cssVarButtonPureMargin;
-	inputBaseStylesCBt7bxGB.cssVarButtonPurePadding = cssVarButtonPurePadding;
-	inputBaseStylesCBt7bxGB.getFunctionalComponentInputBaseStyles = getFunctionalComponentInputBaseStyles;
-	inputBaseStylesCBt7bxGB.implicitSubmit = implicitSubmit;
-	return inputBaseStylesCBt7bxGB;
+	inputBaseStylesCCXpBRu4.InputBase = InputBase;
+	inputBaseStylesCCXpBRu4.cssVarButtonPureMargin = cssVarButtonPureMargin;
+	inputBaseStylesCCXpBRu4.cssVarButtonPurePadding = cssVarButtonPurePadding;
+	inputBaseStylesCCXpBRu4.getFunctionalComponentInputBaseStyles = getFunctionalComponentInputBaseStyles;
+	inputBaseStylesCCXpBRu4.implicitSubmit = implicitSubmit;
+	return inputBaseStylesCCXpBRu4;
 }
 
 var inputUtilsB9wRWzEe = {};
@@ -22896,34 +23035,35 @@ function requirePInputDate_cjs_entry () {
 	if (hasRequiredPInputDate_cjs_entry) return pInputDate_cjs_entry$2;
 	hasRequiredPInputDate_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var inputUtils = requireInputUtilsB9wRWzEe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -22981,7 +23121,7 @@ function requirePInputDate_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -23111,33 +23251,34 @@ function requirePInputEmail_cjs_entry () {
 	if (hasRequiredPInputEmail_cjs_entry) return pInputEmail_cjs_entry$2;
 	hasRequiredPInputEmail_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireHostHiddenStyles3VpQlUl7();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -23195,7 +23336,7 @@ function requirePInputEmail_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -23329,34 +23470,35 @@ function requirePInputMonth_cjs_entry () {
 	if (hasRequiredPInputMonth_cjs_entry) return pInputMonth_cjs_entry$2;
 	hasRequiredPInputMonth_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var inputUtils = requireInputUtilsB9wRWzEe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -23416,7 +23558,7 @@ function requirePInputMonth_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -23546,33 +23688,34 @@ function requirePInputNumber_cjs_entry () {
 	if (hasRequiredPInputNumber_cjs_entry) return pInputNumber_cjs_entry$2;
 	hasRequiredPInputNumber_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -23634,7 +23777,7 @@ function requirePInputNumber_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -23775,33 +23918,34 @@ function requirePInputPassword_cjs_entry () {
 	if (hasRequiredPInputPassword_cjs_entry) return pInputPassword_cjs_entry$2;
 	hasRequiredPInputPassword_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -23857,7 +24001,7 @@ function requirePInputPassword_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -23992,33 +24136,34 @@ function requirePInputSearch_cjs_entry () {
 	if (hasRequiredPInputSearch_cjs_entry) return pInputSearch_cjs_entry$2;
 	hasRequiredPInputSearch_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -24089,7 +24234,7 @@ function requirePInputSearch_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -24233,33 +24378,34 @@ function requirePInputTel_cjs_entry () {
 	if (hasRequiredPInputTel_cjs_entry) return pInputTel_cjs_entry$2;
 	hasRequiredPInputTel_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireHostHiddenStyles3VpQlUl7();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -24316,7 +24462,7 @@ function requirePInputTel_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -24498,34 +24644,35 @@ function requirePInputText_cjs_entry () {
 	if (hasRequiredPInputText_cjs_entry) return pInputText_cjs_entry$2;
 	hasRequiredPInputText_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var formStyles = requireFormStylesKMWlhwXz();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -24582,7 +24729,7 @@ function requirePInputText_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -24715,34 +24862,35 @@ function requirePInputTime_cjs_entry () {
 	if (hasRequiredPInputTime_cjs_entry) return pInputTime_cjs_entry$2;
 	hasRequiredPInputTime_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var inputUtils = requireInputUtilsB9wRWzEe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -24800,7 +24948,7 @@ function requirePInputTime_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -24930,33 +25078,34 @@ function requirePInputUrl_cjs_entry () {
 	if (hasRequiredPInputUrl_cjs_entry) return pInputUrl_cjs_entry$2;
 	hasRequiredPInputUrl_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireHostHiddenStyles3VpQlUl7();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -25013,7 +25162,7 @@ function requirePInputUrl_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -25145,34 +25294,35 @@ function requirePInputWeek_cjs_entry () {
 	if (hasRequiredPInputWeek_cjs_entry) return pInputWeek_cjs_entry$2;
 	hasRequiredPInputWeek_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var inputBaseStyles = requireInputBaseStylesCBt7bxGB();
+	var index = requireIndexCO1jYG4D();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var inputBaseStyles = requireInputBaseStylesCCXpBRu4();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var inputUtils = requireInputUtilsB9wRWzEe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorPrimaryCtfZkymE();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
 	requireLeadingNormalBs8OKhqj();
 	requireSpacingStaticXsCCGFNED();
-	requireIsElementOfKindBA7wyW7();
-	requireA11yBtZXddqx();
-	requireHasDescriptionCeR_sZ4Y();
-	requireLabelStylesBcSduAkC();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsElementOfKindLOZ8BKL3();
+	requireA11yC0kIHWOt();
+	requireHasDescriptionJlHp6YuO();
+	requireLabelStylesBVlOD9GZ();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
-	requireLoadingMessageStylesD6fdjnH9();
+	requireLoadingMessageStylesCs3un0in();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorContrastMediumBaO5ALUk();
@@ -25232,7 +25382,7 @@ function requirePInputWeek_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the input field. */
@@ -25356,9 +25506,9 @@ var pInputWeek_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pLinkPure_cjs_entry$2 = {};
 
-var throwIfInvalidLinkUsageOot49jPX = {};
+var throwIfInvalidLinkUsageDLIesvkj = {};
 
-var getOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj = {};
+var getOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR = {};
 
 var getDirectChildHTMLElementsBqOf_NL = {};
 
@@ -25387,14 +25537,14 @@ function requireGetDirectChildHTMLElementsBqOf_NL () {
 	return getDirectChildHTMLElementsBqOf_NL;
 }
 
-var hasRequiredGetOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj;
+var hasRequiredGetOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR;
 
-function requireGetOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj () {
-	if (hasRequiredGetOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj) return getOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj;
-	hasRequiredGetOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj = 1;
+function requireGetOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR () {
+	if (hasRequiredGetOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR) return getOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR;
+	hasRequiredGetOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR = 1;
 
 	var getDirectChildHTMLElements = requireGetDirectChildHTMLElementsBqOf_NL();
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	function getOnlyChildOfKindHTMLElementOrThrow(element, selector) {
 	    // we need to support named slots for label/description or message, hence we can't verify element.children.length
@@ -25405,18 +25555,18 @@ function requireGetOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj () {
 	    return directChildren[0];
 	}
 
-	getOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj.getOnlyChildOfKindHTMLElementOrThrow = getOnlyChildOfKindHTMLElementOrThrow;
-	return getOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj;
+	getOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR.getOnlyChildOfKindHTMLElementOrThrow = getOnlyChildOfKindHTMLElementOrThrow;
+	return getOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR;
 }
 
-var hasRequiredThrowIfInvalidLinkUsageOot49jPX;
+var hasRequiredThrowIfInvalidLinkUsageDLIesvkj;
 
-function requireThrowIfInvalidLinkUsageOot49jPX () {
-	if (hasRequiredThrowIfInvalidLinkUsageOot49jPX) return throwIfInvalidLinkUsageOot49jPX;
-	hasRequiredThrowIfInvalidLinkUsageOot49jPX = 1;
+function requireThrowIfInvalidLinkUsageDLIesvkj () {
+	if (hasRequiredThrowIfInvalidLinkUsageDLIesvkj) return throwIfInvalidLinkUsageDLIesvkj;
+	hasRequiredThrowIfInvalidLinkUsageDLIesvkj = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var getOnlyChildOfKindHTMLElementOrThrow = requireGetOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj();
+	var index = requireIndexCO1jYG4D();
+	var getOnlyChildOfKindHTMLElementOrThrow = requireGetOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR();
 
 	const isSsrHydration = (host) => host.hasAttribute('data-ssr');
 
@@ -25437,9 +25587,9 @@ function requireThrowIfInvalidLinkUsageOot49jPX () {
 	    }
 	};
 
-	throwIfInvalidLinkUsageOot49jPX.isSsrHydration = isSsrHydration;
-	throwIfInvalidLinkUsageOot49jPX.throwIfInvalidLinkUsage = throwIfInvalidLinkUsage;
-	return throwIfInvalidLinkUsageOot49jPX;
+	throwIfInvalidLinkUsageDLIesvkj.isSsrHydration = isSsrHydration;
+	throwIfInvalidLinkUsageDLIesvkj.throwIfInvalidLinkUsage = throwIfInvalidLinkUsage;
+	return throwIfInvalidLinkUsageDLIesvkj;
 }
 
 var hasRequiredPLinkPure_cjs_entry;
@@ -25448,18 +25598,18 @@ function requirePLinkPure_cjs_entry () {
 	if (hasRequiredPLinkPure_cjs_entry) return pLinkPure_cjs_entry$2;
 	hasRequiredPLinkPure_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var linkAriaAttribute = requireLinkAriaAttributeBh83uKB6();
 	var buttonLinkPureUtils = requireButtonLinkPureUtilsDSYUfucH();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var throwIfInvalidLinkUsage = requireThrowIfInvalidLinkUsageOot49jPX();
+	var throwIfInvalidLinkUsage = requireThrowIfInvalidLinkUsageDLIesvkj();
 	var alignLabel = requireAlignLabel8x6VjLXS();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	var linkButtonPureStyles = requireLinkButtonPureStylesCuqV7Nw6();
+	var linkButtonPureStyles = requireLinkButtonPureStylesDel32jUU();
 	var radiusFull = requireRadiusFullCYhM6RWu();
 	var radiusLg = requireRadiusLgDnAYukpB();
-	requireGetOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj();
+	requireGetOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR();
 	requireGetDirectChildHTMLElementsBqOf_NL();
 	requireTransformSelectorToDirectChildSelectorB_8CS40K();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
@@ -25498,7 +25648,7 @@ function requirePLinkPure_cjs_entry () {
 	                    content: '""',
 	                    position: 'fixed',
 	                    insetBlock: linkButtonPureStyles.offsetVertical,
-	                    ...index.buildResponsiveStyles(hideLabel, (hideLabelValue) => ({
+	                    ...index.buildResponsiveBooleanStyles(hideLabel, (hideLabelValue) => ({
 	                        insetInline: hideLabelValue ? linkButtonPureStyles.offsetVertical : linkButtonPureStyles.offsetHorizontal,
 	                        borderRadius: hideLabelValue ? hostHiddenStyles.ref(radiusFull.radiusFull) : hostHiddenStyles.ref(radiusLg.radiusLg),
 	                    })),
@@ -25613,11 +25763,11 @@ function requirePLinkTileProduct_cjs_entry () {
 	if (hasRequiredPLinkTileProduct_cjs_entry) return pLinkTileProduct_cjs_entry$2;
 	hasRequiredPLinkTileProduct_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var slottedPictureImageStyles = requireSlottedPictureImageStylesDfgUJAci();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var getOnlyChildOfKindHTMLElementOrThrow = requireGetOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj();
-	var getNamedSlot = requireGetNamedSlotER751mnq();
+	var getOnlyChildOfKindHTMLElementOrThrow = requireGetOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR();
+	var getNamedSlot = requireGetNamedSlotDBF_9hiQ();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -25883,12 +26033,12 @@ function requirePLinkTile_cjs_entry () {
 	if (hasRequiredPLinkTile_cjs_entry) return pLinkTile_cjs_entry$2;
 	hasRequiredPLinkTile_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var slottedPictureImageStyles = requireSlottedPictureImageStylesDfgUJAci();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
 	var linkAriaAttribute = requireLinkAriaAttributeBh83uKB6();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var linkTileUtils = requireLinkTileUtilsU2JMgJ6Q();
+	var linkTileUtils = requireLinkTileUtilsB3gvFF8Z();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -25903,8 +26053,8 @@ function requirePLinkTile_cjs_entry () {
 	var fontWeightNormal = requireFontWeightNormalBZeqsj8y();
 	var typescaleSm = requireTypescaleSmCfWCHncH();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
-	requireGetNamedSlotER751mnq();
-	requireGetDirectChildHTMLElementBgsUJuKK();
+	requireGetNamedSlotDBF_9hiQ();
+	requireGetDirectChildHTMLElementBjdpb1eX();
 	requireTransformSelectorToDirectChildSelectorB_8CS40K();
 	requireTypescale5XlDsPA7x2t();
 	requireTypescaleXlDyQCg4yv();
@@ -26023,7 +26173,7 @@ function requirePLinkTile_cjs_entry () {
 	        },
 	        footer: {
 	            gridArea: `${isTopAligned ? 2 : 4}/2`,
-	            ...index.buildResponsiveStyles(compact, (compactValue) => compactValue
+	            ...index.buildResponsiveBooleanStyles(compact, (compactValue) => compactValue
 	                ? {
 	                    display: 'grid',
 	                    gridTemplateColumns: 'minmax(0,1fr) auto',
@@ -26040,7 +26190,7 @@ function requirePLinkTile_cjs_entry () {
 	            gridColumn: 2,
 	            gridRow: `1/${hasFooterSlot ? 3 : 2}`,
 	            alignSelf: isTopAligned ? 'flex-start' : 'flex-end',
-	            ...index.buildResponsiveStyles(compact, (compactValue) => ({
+	            ...index.buildResponsiveBooleanStyles(compact, (compactValue) => ({
 	                display: compactValue ? 'inline-block' : 'none',
 	            })),
 	        },
@@ -26048,7 +26198,7 @@ function requirePLinkTile_cjs_entry () {
 	            minHeight: '54px', // prevent content shift
 	            zIndex: 5,
 	            marginTop: hostHiddenStyles.ref(spacingStaticMd.spacingStaticMd),
-	            ...index.buildResponsiveStyles(compact, (compactValue) => ({
+	            ...index.buildResponsiveBooleanStyles(compact, (compactValue) => ({
 	                display: compactValue ? 'none' : 'inline-block',
 	            })),
 	        },
@@ -26098,8 +26248,7 @@ function requirePLinkTile_cjs_entry () {
 	    }
 	    render() {
 	        index.validateProps(this, propTypes);
-	        // TODO: BreakpointCustomizable breaks stencils boolean conversion from string to boolean
-	        const parsedCompact = this.compact === 'true' ? true : this.compact === 'false' ? false : this.compact;
+	        const parsedCompact = linkTileUtils.getParsedTileCompact(this.compact);
 	        index.attachComponentCss(this.host, getComponentCss, this.aspectRatio, this.size, this.weight, this.align, parsedCompact, this.gradient, this.hasFooterSlot);
 	        const PrefixedTagNames = index.getPrefixedTagNames(this.host);
 	        const linkProps = {
@@ -26114,7 +26263,7 @@ function requirePLinkTile_cjs_entry () {
 	        };
 	        const link = (index.h(PrefixedTagNames.pLink, { ...sharedLinkProps, ...linkProps, key: "link-or-button", class: "link-or-button" }, this.label));
 	        const linkCompact = (index.h(PrefixedTagNames.pLink, { ...sharedLinkProps, ...linkProps, hideLabel: true, icon: "arrow-right", key: "link-or-button-pure", compact: true, class: "link-or-button-pure" }, this.label));
-	        return (index.h("div", { key: 'be56961f766329e6e15e0077a446b4b050c51571', class: "root" }, index.h("a", { key: '97d0f78f9724f3265a2b9e2e88f38b72d30edfab', ...sharedLinkProps, tabIndex: -1, "aria-hidden": "true" }), index.h("slot", { key: '7579a1fcc06009951e20bfd057f3aea82f6f5d16', name: "header" }), index.h("div", { key: 'b693a8ebd66d4057a2e00c30bfaafa51edd56bcf', class: "media" }, index.h("slot", { key: '918abf3737fafee5ce34b83f5a2a515e80c5562d', onSlotchange: () => linkTileUtils.preventAutoPlayOfSlottedVideoOnPrefersReducedMotion(this.host) })), index.h("div", { key: '5feccbb72715fe4ed45f8afcf4431c6a9caf44bc', class: "footer" }, index.h("p", { key: 'c4b67dd87adeeebfd3f82cc78f4da7dbf9c2f6c6' }, this.description), index.h("slot", { key: '1932a0017ed1b482d43631c1c7dd32a4eeecaa7c', name: "footer", onSlotchange: this.updateSlotObserver }), typeof parsedCompact === 'boolean' ? (parsedCompact ? linkCompact : link) : [linkCompact, link])));
+	        return (index.h("div", { key: 'b5e2546449cad9ffe2117dc0a3f8af054f14a055', class: "root" }, index.h("a", { key: '7e2a93c0f10b639cdfd70c5364b0d94d8a66e454', ...sharedLinkProps, tabIndex: -1, "aria-hidden": "true" }), index.h("slot", { key: 'fedaa4d65c99a0de6ed260a259fb13029c775d56', name: "header" }), index.h("div", { key: 'cb0598979f4e47d4cc275f778a8e775ada8de692', class: "media" }, index.h("slot", { key: 'ea3a2aacdeb8c3aa92bbb55b6729d7c38b790976', onSlotchange: () => linkTileUtils.preventAutoPlayOfSlottedVideoOnPrefersReducedMotion(this.host) })), index.h("div", { key: '9f6ed8754e57c76bf6cff1a30e0d3b940d444627', class: "footer" }, index.h("p", { key: 'fbf206dd1cb561114b49c9b66ed2cd5492e1b953' }, this.description), index.h("slot", { key: '9b48e8556236f4fa0161cd433b60230d8cea9238', name: "footer", onSlotchange: this.updateSlotObserver }), typeof parsedCompact === 'boolean' ? (parsedCompact ? linkCompact : link) : [linkCompact, link])));
 	    }
 	    static get delegatesFocus() { return true; }
 	    get host() { return index.getElement(this); }
@@ -26140,18 +26289,18 @@ function requirePLink_cjs_entry () {
 	if (hasRequiredPLink_cjs_entry) return pLink_cjs_entry$2;
 	hasRequiredPLink_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var linkAriaAttribute = requireLinkAriaAttributeBh83uKB6();
 	var buttonLinkPureUtils = requireButtonLinkPureUtilsDSYUfucH();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var throwIfInvalidLinkUsage = requireThrowIfInvalidLinkUsageOot49jPX();
-	var linkButtonStyles = requireLinkButtonStylesCvDyeHNI();
+	var throwIfInvalidLinkUsage = requireThrowIfInvalidLinkUsageDLIesvkj();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
+	var linkButtonStyles = requireLinkButtonStylesDoYPBg5N();
 	var radiusLg = requireRadiusLgDnAYukpB();
 	var radiusXl = requireRadiusXlBkApDqqr();
 	var radiusFull = requireRadiusFullCYhM6RWu();
-	requireGetOnlyChildOfKindHTMLElementOrThrowD7K1Xhgj();
+	requireGetOnlyChildOfKindHTMLElementOrThrowCQZJt2ZR();
 	requireGetDirectChildHTMLElementsBqOf_NL();
 	requireTransformSelectorToDirectChildSelectorB_8CS40K();
 	requirePreventFoucOfNestedElementsStylesCvuFvvrn();
@@ -26160,15 +26309,41 @@ function requirePLink_cjs_entry () {
 	requireTypescaleSmCfWCHncH();
 	requireFontWeightNormalBZeqsj8y();
 	requireBlurFrostedBCTpVUwD();
+	requireColorErrorMediumBJIzBY();
+	requireColorErrorDycYY56v();
+	requireColorPrimaryCtfZkymE();
+	requireColorCanvasCvcJTS2L();
 	requireColorFrostedBcGq8wdI();
 	requireColorFrostedStrongCRO7iu25();
-	requireColorPrimaryCtfZkymE();
 	requireColorContrastHighWG95shR6();
-	requireColorCanvasCvcJTS2L();
 
 	const cssVariableInternalLinkScaling = '--_p-link-a';
+	/**
+	 * @css-variable {"name": "--p-link-bg", "description": "Overrides the background color of the link in every state, including hover. You are responsible for ensuring sufficient contrast and brand compliance.", "defaultValue": ""}
+	 */
+	const cssVarBackground = '--p-link-bg';
+	/**
+	 *  @css-variable {"name": "--p-link-fg", "description": "Overrides the foreground color (label and icon) of the link in every state, including hover. You are responsible for ensuring sufficient contrast and brand compliance.", "defaultValue": ""}
+	 */
+	const cssVarForeground = '--p-link-fg';
+	/**
+	 * @css-variable {"name": "--p-link-px", "description": "Horizontal padding of the link.", "defaultValue": ""}
+	 */
+	const cssVarPaddingInline = '--p-link-px';
+	/**
+	 * @css-variable {"name": "--p-link-py", "description": "Vertical padding of the link.", "defaultValue": ""}
+	 */
+	const cssVarPaddingBlock = '--p-link-py';
+	/**
+	 * @css-variable {"name": "--p-link-gap", "description": "Gap between the link's content (label and icon).", "defaultValue": ""}
+	 */
+	const cssVarGap = '--p-link-gap';
+	/**
+	 * @css-variable {"name": "--p-link-radius", "description": "Radius of the link", "defaultValue": ""}
+	 */
+	const cssVarRadius = '--p-link-radius';
 	const getComponentCss = (icon, iconSource, variant, hideLabel, hasSlottedAnchor, isCompact) => {
-	    return index.getCss(index.mergeDeep(linkButtonStyles.getLinkButtonStyles(icon, iconSource, variant, hideLabel, false, hasSlottedAnchor, isCompact, cssVariableInternalLinkScaling), {
+	    return index.getCss(index.mergeDeep(linkButtonStyles.getLinkButtonStyles(icon, iconSource, variant, hideLabel, false, hasSlottedAnchor, isCompact, cssVariableInternalLinkScaling, cssVarBackground, cssVarForeground, cssVarPaddingInline, cssVarPaddingBlock, cssVarGap, cssVarRadius), {
 	        label: {
 	            clip: hostHiddenStyles.addImportantToRule('unset'), // to overrule breakpoint customizable hide-label style
 	        },
@@ -26182,11 +26357,11 @@ function requirePLink_cjs_entry () {
 	                    content: '""',
 	                    position: 'fixed',
 	                    inset: 0,
-	                    ...index.mergeDeep(index.buildResponsiveStyles(isCompact, (compactValue) => ({
-	                        borderRadius: compactValue ? hostHiddenStyles.ref(radiusLg.radiusLg) : hostHiddenStyles.ref(radiusXl.radiusXl),
-	                    })), index.buildResponsiveStyles(hideLabel, (hideLabelValue) => ({
+	                    ...index.mergeDeep(index.buildResponsiveBooleanStyles(isCompact, (compactValue) => ({
+	                        borderRadius: hostHiddenStyles.ref(cssVarRadius, compactValue ? hostHiddenStyles.ref(radiusLg.radiusLg) : hostHiddenStyles.ref(radiusXl.radiusXl)),
+	                    })), index.buildResponsiveBooleanStyles(hideLabel, (hideLabelValue) => ({
 	                        ...(hideLabelValue && {
-	                            borderRadius: hostHiddenStyles.ref(radiusFull.radiusFull),
+	                            borderRadius: hostHiddenStyles.ref(cssVarRadius, hostHiddenStyles.ref(radiusFull.radiusFull)),
 	                        }),
 	                    }))),
 	                },
@@ -26196,8 +26371,10 @@ function requirePLink_cjs_entry () {
 	    }));
 	};
 
+	const LINK_VARIANTS = ['primary', 'secondary'];
+
 	const propTypes = {
-	    variant: index.AllowedTypes.oneOf(linkButtonStyles.LINK_BUTTON_VARIANTS),
+	    variant: index.AllowedTypes.oneOf(LINK_VARIANTS),
 	    icon: index.AllowedTypes.string,
 	    iconSource: index.AllowedTypes.string,
 	    href: index.AllowedTypes.string,
@@ -26237,13 +26414,13 @@ function requirePLink_cjs_entry () {
 	        index.attachComponentCss(this.host, getComponentCss, this.icon, this.iconSource, this.variant, this.hideLabel, !this.href, this.compact);
 	        const TagType = this.href === undefined ? 'span' : 'a';
 	        const PrefixedTagNames = index.getPrefixedTagNames(this.host);
-	        return (index.h(TagType, { key: '7b83ca6befec78f1ded17e1f01688efaed354b06', class: "root", ...(TagType === 'a' && {
+	        return (index.h(TagType, { key: '915ba3ab9b604e851eacff0a739ffcdfa510d5bd', class: "root", ...(TagType === 'a' && {
 	                href: this.href,
 	                target: this.target,
 	                download: this.download,
 	                rel: this.rel,
 	                ...a11y.parseAndGetAriaAttributes(this.aria),
-	            }) }, buttonLinkPureUtils.hasVisibleIcon(this.icon, this.iconSource) && (index.h(PrefixedTagNames.pIcon, { key: 'a9070370666ce09cb3144932964c49acc6d13288', class: "icon", size: "inherit", name: this.iconSource ? undefined : this.icon, source: this.iconSource, color: "inherit", "aria-hidden": "true" })), index.h("span", { key: 'a84793716d8bb6c1869d95b65658a2ec28e08d7a', class: "label" }, index.h("slot", { key: '884bd5c6139c020822827c27323d2c55de1a9698' }))));
+	            }) }, buttonLinkPureUtils.hasVisibleIcon(this.icon, this.iconSource) && (index.h(PrefixedTagNames.pIcon, { key: 'f98cb386c8e094089bf8455b5380faf96965075f', class: "icon", size: "inherit", name: this.iconSource ? undefined : this.icon, source: this.iconSource, color: "inherit", "aria-hidden": "true" })), index.h("span", { key: 'e605a6675072d858a00e8c10d9cc8f6b141b8de5', class: "label" }, index.h("slot", { key: '3de400dc8b1c5060836765d0d9cf56f0a6544af9' }))));
 	    }
 	    static get delegatesFocus() { return true; }
 	    get host() { return index.getElement(this); }
@@ -26263,15 +26440,15 @@ var pLink_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pModal_cjs_entry$2 = {};
 
-var warnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB = {};
+var warnIfAriaAndHeadingPropsAreUndefinedCMTPanqf = {};
 
-var hasRequiredWarnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB;
+var hasRequiredWarnIfAriaAndHeadingPropsAreUndefinedCMTPanqf;
 
-function requireWarnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB () {
-	if (hasRequiredWarnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB) return warnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB;
-	hasRequiredWarnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB = 1;
+function requireWarnIfAriaAndHeadingPropsAreUndefinedCMTPanqf () {
+	if (hasRequiredWarnIfAriaAndHeadingPropsAreUndefinedCMTPanqf) return warnIfAriaAndHeadingPropsAreUndefinedCMTPanqf;
+	hasRequiredWarnIfAriaAndHeadingPropsAreUndefinedCMTPanqf = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const warnIfAriaAndHeadingPropsAreUndefined = (host, hasHeading, aria) => {
 	    if (!hasHeading && !aria) {
@@ -26279,8 +26456,8 @@ function requireWarnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB () {
 	    }
 	};
 
-	warnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB.warnIfAriaAndHeadingPropsAreUndefined = warnIfAriaAndHeadingPropsAreUndefined;
-	return warnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB;
+	warnIfAriaAndHeadingPropsAreUndefinedCMTPanqf.warnIfAriaAndHeadingPropsAreUndefined = warnIfAriaAndHeadingPropsAreUndefined;
+	return warnIfAriaAndHeadingPropsAreUndefinedCMTPanqf;
 }
 
 var hasRequiredPModal_cjs_entry;
@@ -26289,20 +26466,20 @@ function requirePModal_cjs_entry () {
 	if (hasRequiredPModal_cjs_entry) return pModal_cjs_entry$2;
 	hasRequiredPModal_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
-	var getSlotTextContent = requireGetSlotTextContentCaQGlFop();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
-	var dialogBaseStyles = requireDialogBaseStylesB8MxEZCN();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
+	var getSlotTextContent = requireGetSlotTextContentDqBMbiGS();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
+	var dialogBaseStyles = requireDialogBaseStylesDo19TzVV();
 	var observer = requireObserverDJoCEaDI();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var warnIfAriaAndHeadingPropsAreUndefined = requireWarnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB();
+	var warnIfAriaAndHeadingPropsAreUndefined = requireWarnIfAriaAndHeadingPropsAreUndefinedCMTPanqf();
 	var setScrollLock = requireSetScrollLockDAlAb_bW();
 	var createTopLayerController = requireCreateTopLayerControllerDqDftt9Q();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var gridExtendedOffsetBase = requireGridExtendedOffsetBase7vRjJ10S();
-	requireGetNamedSlotER751mnq();
-	requireFcDismissButtonStylesDT1d6i6G();
+	requireGetNamedSlotDBF_9hiQ();
+	requireFcDismissButtonStylesCDh3_1Jh();
 	requireHoverMediaQueryCOekSiqP();
 	requireGetInlineSVGBackgroundImageC2AJYBEX();
 	requireLeadingNormalBs8OKhqj();
@@ -26320,7 +26497,7 @@ function requirePModal_cjs_entry () {
 	requireSpacingFluidLgDfXeg2bP();
 	requireRadius2XlCy_MgMg();
 	requireRadius3XlBMeML5k5();
-	requireGridGapCswl5jSQ();
+	requireGridGapDrXbN1wr();
 	requireSpacingStatic2XsBXpEPF5_();
 	requireSpacingStaticMdDSArndBQ();
 
@@ -26377,7 +26554,7 @@ function requirePModal_cjs_entry () {
 	            ...dialogBaseStyles.dialogGridJssStyle(),
 	            ...dialogBaseStyles.getDialogColorJssStyle(),
 	            ...dialogBaseStyles.getDialogTransitionJssStyle(isOpen, '^'),
-	            ...index.buildResponsiveStyles(fullscreen, (fullscreenValue) => fullscreenValue
+	            ...index.buildResponsiveBooleanStyles(fullscreen, (fullscreenValue) => fullscreenValue
 	                ? {
 	                    width: 'auto',
 	                    minWidth: 'auto',
@@ -26542,7 +26719,7 @@ function requirePModelSignature_cjs_entry () {
 	if (hasRequiredPModelSignature_cjs_entry) return pModelSignature_cjs_entry$2;
 	hasRequiredPModelSignature_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var getCDNBaseURL = requireGetCDNBaseURLD9OUIXf1();
 	var colorContrastHigh = requireColorContrastHighWG95shR6();
@@ -28486,18 +28663,18 @@ function requireIsClickOutsideBGUHjTj4 () {
 	return isClickOutsideBGUHjTj4;
 }
 
-var filterStatusAnnouncerStyles7uDw1NwP = {};
+var filterStatusAnnouncerStylesB7s3NOHF = {};
 
-var hasRequiredFilterStatusAnnouncerStyles7uDw1NwP;
+var hasRequiredFilterStatusAnnouncerStylesB7s3NOHF;
 
-function requireFilterStatusAnnouncerStyles7uDw1NwP () {
-	if (hasRequiredFilterStatusAnnouncerStyles7uDw1NwP) return filterStatusAnnouncerStyles7uDw1NwP;
-	hasRequiredFilterStatusAnnouncerStyles7uDw1NwP = 1;
+function requireFilterStatusAnnouncerStylesB7s3NOHF () {
+	if (hasRequiredFilterStatusAnnouncerStylesB7s3NOHF) return filterStatusAnnouncerStylesB7s3NOHF;
+	hasRequiredFilterStatusAnnouncerStylesB7s3NOHF = 1;
 
-	var a11y = requireA11yBtZXddqx();
-	var index = requireIndexDXYpCE_Y();
+	var a11y = requireA11yC0kIHWOt();
+	var index = requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
 	var colorPrimary = requireColorPrimaryCtfZkymE();
 	var fontWeightNormal = requireFontWeightNormalBZeqsj8y();
@@ -28985,47 +29162,47 @@ function requireFilterStatusAnnouncerStyles7uDw1NwP () {
 	    'filter-status': hostHiddenStyles.getHiddenTextJssStyle(),
 	});
 
-	filterStatusAnnouncerStyles7uDw1NwP.FILTER_STATUS_ANNOUNCE_TIMEOUT = FILTER_STATUS_ANNOUNCE_TIMEOUT;
-	filterStatusAnnouncerStyles7uDw1NwP.FilterStatusAnnouncer = FilterStatusAnnouncer;
-	filterStatusAnnouncerStyles7uDw1NwP.NoResultsOption = NoResultsOption;
-	filterStatusAnnouncerStyles7uDw1NwP.SELECT_DROPDOWN_DIRECTIONS = SELECT_DROPDOWN_DIRECTIONS;
-	filterStatusAnnouncerStyles7uDw1NwP.SELECT_SEARCH_TIMEOUT = SELECT_SEARCH_TIMEOUT;
-	filterStatusAnnouncerStyles7uDw1NwP.debounce = debounce;
-	filterStatusAnnouncerStyles7uDw1NwP.getButtonJssStyle = getButtonJssStyle;
-	filterStatusAnnouncerStyles7uDw1NwP.getButtonLabelJssStyle = getButtonLabelJssStyle;
-	filterStatusAnnouncerStyles7uDw1NwP.getComboboxAriaAttributes = getComboboxAriaAttributes;
-	filterStatusAnnouncerStyles7uDw1NwP.getFilterJssStyle = getFilterJssStyle;
-	filterStatusAnnouncerStyles7uDw1NwP.getFilterStatusMessage = getFilterStatusMessage;
-	filterStatusAnnouncerStyles7uDw1NwP.getFunctionalComponentFilterStatusAnnouncerStyles = getFunctionalComponentFilterStatusAnnouncerStyles;
-	filterStatusAnnouncerStyles7uDw1NwP.getFunctionalComponentNoResultsOptionStyles = getFunctionalComponentNoResultsOptionStyles;
-	filterStatusAnnouncerStyles7uDw1NwP.getIconJssStyle = getIconJssStyle;
-	filterStatusAnnouncerStyles7uDw1NwP.getLastSelectedOption = getLastSelectedOption;
-	filterStatusAnnouncerStyles7uDw1NwP.getListboxAriaAttributes = getListboxAriaAttributes;
-	filterStatusAnnouncerStyles7uDw1NwP.getMatchingSelectOptionIndex = getMatchingSelectOptionIndex;
-	filterStatusAnnouncerStyles7uDw1NwP.getNextOptionToHighlight = getNextOptionToHighlight;
-	filterStatusAnnouncerStyles7uDw1NwP.getOptionAriaAttributes = getOptionAriaAttributes;
-	filterStatusAnnouncerStyles7uDw1NwP.getOptionJssStyle = getOptionJssStyle;
-	filterStatusAnnouncerStyles7uDw1NwP.getOptionsJssStyle = getOptionsJssStyle;
-	filterStatusAnnouncerStyles7uDw1NwP.getPopoverJssStyle = getPopoverJssStyle;
-	filterStatusAnnouncerStyles7uDw1NwP.getPopoverKeyframesStyles = getPopoverKeyframesStyles;
-	filterStatusAnnouncerStyles7uDw1NwP.getSelectedSlotJssStyle = getSelectedSlotJssStyle;
-	filterStatusAnnouncerStyles7uDw1NwP.isUsableOption = isUsableOption;
-	filterStatusAnnouncerStyles7uDw1NwP.optionListUpdatePosition = optionListUpdatePosition;
-	filterStatusAnnouncerStyles7uDw1NwP.setHighlightedSelectOption = setHighlightedSelectOption;
-	filterStatusAnnouncerStyles7uDw1NwP.updateFilterResults = updateFilterResults;
-	filterStatusAnnouncerStyles7uDw1NwP.updateHighlightedOption = updateHighlightedOption;
-	return filterStatusAnnouncerStyles7uDw1NwP;
+	filterStatusAnnouncerStylesB7s3NOHF.FILTER_STATUS_ANNOUNCE_TIMEOUT = FILTER_STATUS_ANNOUNCE_TIMEOUT;
+	filterStatusAnnouncerStylesB7s3NOHF.FilterStatusAnnouncer = FilterStatusAnnouncer;
+	filterStatusAnnouncerStylesB7s3NOHF.NoResultsOption = NoResultsOption;
+	filterStatusAnnouncerStylesB7s3NOHF.SELECT_DROPDOWN_DIRECTIONS = SELECT_DROPDOWN_DIRECTIONS;
+	filterStatusAnnouncerStylesB7s3NOHF.SELECT_SEARCH_TIMEOUT = SELECT_SEARCH_TIMEOUT;
+	filterStatusAnnouncerStylesB7s3NOHF.debounce = debounce;
+	filterStatusAnnouncerStylesB7s3NOHF.getButtonJssStyle = getButtonJssStyle;
+	filterStatusAnnouncerStylesB7s3NOHF.getButtonLabelJssStyle = getButtonLabelJssStyle;
+	filterStatusAnnouncerStylesB7s3NOHF.getComboboxAriaAttributes = getComboboxAriaAttributes;
+	filterStatusAnnouncerStylesB7s3NOHF.getFilterJssStyle = getFilterJssStyle;
+	filterStatusAnnouncerStylesB7s3NOHF.getFilterStatusMessage = getFilterStatusMessage;
+	filterStatusAnnouncerStylesB7s3NOHF.getFunctionalComponentFilterStatusAnnouncerStyles = getFunctionalComponentFilterStatusAnnouncerStyles;
+	filterStatusAnnouncerStylesB7s3NOHF.getFunctionalComponentNoResultsOptionStyles = getFunctionalComponentNoResultsOptionStyles;
+	filterStatusAnnouncerStylesB7s3NOHF.getIconJssStyle = getIconJssStyle;
+	filterStatusAnnouncerStylesB7s3NOHF.getLastSelectedOption = getLastSelectedOption;
+	filterStatusAnnouncerStylesB7s3NOHF.getListboxAriaAttributes = getListboxAriaAttributes;
+	filterStatusAnnouncerStylesB7s3NOHF.getMatchingSelectOptionIndex = getMatchingSelectOptionIndex;
+	filterStatusAnnouncerStylesB7s3NOHF.getNextOptionToHighlight = getNextOptionToHighlight;
+	filterStatusAnnouncerStylesB7s3NOHF.getOptionAriaAttributes = getOptionAriaAttributes;
+	filterStatusAnnouncerStylesB7s3NOHF.getOptionJssStyle = getOptionJssStyle;
+	filterStatusAnnouncerStylesB7s3NOHF.getOptionsJssStyle = getOptionsJssStyle;
+	filterStatusAnnouncerStylesB7s3NOHF.getPopoverJssStyle = getPopoverJssStyle;
+	filterStatusAnnouncerStylesB7s3NOHF.getPopoverKeyframesStyles = getPopoverKeyframesStyles;
+	filterStatusAnnouncerStylesB7s3NOHF.getSelectedSlotJssStyle = getSelectedSlotJssStyle;
+	filterStatusAnnouncerStylesB7s3NOHF.isUsableOption = isUsableOption;
+	filterStatusAnnouncerStylesB7s3NOHF.optionListUpdatePosition = optionListUpdatePosition;
+	filterStatusAnnouncerStylesB7s3NOHF.setHighlightedSelectOption = setHighlightedSelectOption;
+	filterStatusAnnouncerStylesB7s3NOHF.updateFilterResults = updateFilterResults;
+	filterStatusAnnouncerStylesB7s3NOHF.updateHighlightedOption = updateHighlightedOption;
+	return filterStatusAnnouncerStylesB7s3NOHF;
 }
 
-var supportsNativePopoverDuci7629 = {};
+var supportsNativePopoverQfX14TsL = {};
 
-var hasRequiredSupportsNativePopoverDuci7629;
+var hasRequiredSupportsNativePopoverQfX14TsL;
 
-function requireSupportsNativePopoverDuci7629 () {
-	if (hasRequiredSupportsNativePopoverDuci7629) return supportsNativePopoverDuci7629;
-	hasRequiredSupportsNativePopoverDuci7629 = 1;
+function requireSupportsNativePopoverQfX14TsL () {
+	if (hasRequiredSupportsNativePopoverQfX14TsL) return supportsNativePopoverQfX14TsL;
+	hasRequiredSupportsNativePopoverQfX14TsL = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	/**
 	 * Checks if the current environment supports the native Popover API.
@@ -29043,19 +29220,19 @@ function requireSupportsNativePopoverDuci7629 () {
 	// getter for easy mocking
 	const getHasNativePopoverSupport = () => hasNativePopoverSupport;
 
-	supportsNativePopoverDuci7629.getHasNativePopoverSupport = getHasNativePopoverSupport;
-	return supportsNativePopoverDuci7629;
+	supportsNativePopoverQfX14TsL.getHasNativePopoverSupport = getHasNativePopoverSupport;
+	return supportsNativePopoverQfX14TsL;
 }
 
-var throwIfElementIsNotOfKindD1HW_cxD = {};
+var throwIfElementIsNotOfKindDIlwUJhA = {};
 
-var hasRequiredThrowIfElementIsNotOfKindD1HW_cxD;
+var hasRequiredThrowIfElementIsNotOfKindDIlwUJhA;
 
-function requireThrowIfElementIsNotOfKindD1HW_cxD () {
-	if (hasRequiredThrowIfElementIsNotOfKindD1HW_cxD) return throwIfElementIsNotOfKindD1HW_cxD;
-	hasRequiredThrowIfElementIsNotOfKindD1HW_cxD = 1;
+function requireThrowIfElementIsNotOfKindDIlwUJhA () {
+	if (hasRequiredThrowIfElementIsNotOfKindDIlwUJhA) return throwIfElementIsNotOfKindDIlwUJhA;
+	hasRequiredThrowIfElementIsNotOfKindDIlwUJhA = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const throwIfElementIsNotOfKind = (host, element, tagNameOrNames) => {
 	    const prefixedTagNamesMap = index.getPrefixedTagNames(host);
@@ -29068,20 +29245,20 @@ function requireThrowIfElementIsNotOfKindD1HW_cxD () {
 	    }
 	};
 
-	throwIfElementIsNotOfKindD1HW_cxD.throwIfElementIsNotOfKind = throwIfElementIsNotOfKind;
-	return throwIfElementIsNotOfKindD1HW_cxD;
+	throwIfElementIsNotOfKindDIlwUJhA.throwIfElementIsNotOfKind = throwIfElementIsNotOfKind;
+	return throwIfElementIsNotOfKindDIlwUJhA;
 }
 
-var optgroupStylesDZ7YbSD1 = {};
+var optgroupStylesVNe0v2HY = {};
 
-var hasRequiredOptgroupStylesDZ7YbSD1;
+var hasRequiredOptgroupStylesVNe0v2HY;
 
-function requireOptgroupStylesDZ7YbSD1 () {
-	if (hasRequiredOptgroupStylesDZ7YbSD1) return optgroupStylesDZ7YbSD1;
-	hasRequiredOptgroupStylesDZ7YbSD1 = 1;
+function requireOptgroupStylesVNe0v2HY () {
+	if (hasRequiredOptgroupStylesVNe0v2HY) return optgroupStylesVNe0v2HY;
+	hasRequiredOptgroupStylesVNe0v2HY = 1;
 
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var colorPrimary = requireColorPrimaryCtfZkymE();
 	var fontWeightSemibold = requireFontWeightSemiboldGQr4oNNg();
 	var typescaleXs = requireTypescaleXsDg2owqik();
@@ -29118,20 +29295,20 @@ function requireOptgroupStylesDZ7YbSD1 () {
 	    });
 	};
 
-	optgroupStylesDZ7YbSD1.cssVarInternalOptgroupScaling = cssVarInternalOptgroupScaling;
-	optgroupStylesDZ7YbSD1.getComponentCss = getComponentCss;
-	return optgroupStylesDZ7YbSD1;
+	optgroupStylesVNe0v2HY.cssVarInternalOptgroupScaling = cssVarInternalOptgroupScaling;
+	optgroupStylesVNe0v2HY.getComponentCss = getComponentCss;
+	return optgroupStylesVNe0v2HY;
 }
 
-var throwIfPropIsUndefinedBxJPrDvi = {};
+var throwIfPropIsUndefined5nho0Qdm = {};
 
-var hasRequiredThrowIfPropIsUndefinedBxJPrDvi;
+var hasRequiredThrowIfPropIsUndefined5nho0Qdm;
 
-function requireThrowIfPropIsUndefinedBxJPrDvi () {
-	if (hasRequiredThrowIfPropIsUndefinedBxJPrDvi) return throwIfPropIsUndefinedBxJPrDvi;
-	hasRequiredThrowIfPropIsUndefinedBxJPrDvi = 1;
+function requireThrowIfPropIsUndefined5nho0Qdm () {
+	if (hasRequiredThrowIfPropIsUndefined5nho0Qdm) return throwIfPropIsUndefined5nho0Qdm;
+	hasRequiredThrowIfPropIsUndefined5nho0Qdm = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const throwIfPropIsUndefined = (element, propName, value) => {
 	    if (value === undefined) {
@@ -29139,8 +29316,8 @@ function requireThrowIfPropIsUndefinedBxJPrDvi () {
 	    }
 	};
 
-	throwIfPropIsUndefinedBxJPrDvi.throwIfPropIsUndefined = throwIfPropIsUndefined;
-	return throwIfPropIsUndefinedBxJPrDvi;
+	throwIfPropIsUndefined5nho0Qdm.throwIfPropIsUndefined = throwIfPropIsUndefined;
+	return throwIfPropIsUndefined5nho0Qdm;
 }
 
 var hasRequiredPMultiSelect_2_cjs_entry;
@@ -29149,28 +29326,28 @@ function requirePMultiSelect_2_cjs_entry () {
 	if (hasRequiredPMultiSelect_2_cjs_entry) return pMultiSelect_2_cjs_entry$2;
 	hasRequiredPMultiSelect_2_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var isClickOutside = requireIsClickOutsideBGUHjTj4();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
-	var isElementOfKind = requireIsElementOfKindBA7wyW7();
-	var filterStatusAnnouncerStyles = requireFilterStatusAnnouncerStyles7uDw1NwP();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var hasDescription = requireHasDescriptionCeR_sZ4Y();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
+	var isElementOfKind = requireIsElementOfKindLOZ8BKL3();
+	var filterStatusAnnouncerStyles = requireFilterStatusAnnouncerStylesB7s3NOHF();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var hasDescription = requireHasDescriptionJlHp6YuO();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var supportsNativePopover = requireSupportsNativePopoverDuci7629();
-	var throwIfElementIsNotOfKind = requireThrowIfElementIsNotOfKindD1HW_cxD();
-	var labelStyles = requireLabelStylesBcSduAkC();
+	var supportsNativePopover = requireSupportsNativePopoverQfX14TsL();
+	var throwIfElementIsNotOfKind = requireThrowIfElementIsNotOfKindDIlwUJhA();
+	var labelStyles = requireLabelStylesBVlOD9GZ();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var formStyles = requireFormStylesKMWlhwXz();
-	var optgroupStyles = requireOptgroupStylesDZ7YbSD1();
-	var checkboxCheckedBaseStyles = requireCheckboxCheckedBaseStylesBX2dhcDy();
+	var optgroupStyles = requireOptgroupStylesVNe0v2HY();
+	var checkboxCheckedBaseStyles = requireCheckboxCheckedBaseStylesTfp2Xr56();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	var spacingStaticXs = requireSpacingStaticXsCCGFNED();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
-	var throwIfPropIsUndefined = requireThrowIfPropIsUndefinedBxJPrDvi();
-	requireGetNamedSlotER751mnq();
-	requireA11yBtZXddqx();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
+	var throwIfPropIsUndefined = requireThrowIfPropIsUndefined5nho0Qdm();
+	requireGetNamedSlotDBF_9hiQ();
+	requireA11yC0kIHWOt();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorPrimaryCtfZkymE();
 	requireFontWeightNormalBZeqsj8y();
@@ -29186,9 +29363,10 @@ function requirePMultiSelect_2_cjs_entry () {
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorContrastLower_EStZ29E();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
 	requireSpacingStaticSmByDQ2OBj();
 	requireSpacingStaticMdDSArndBQ();
@@ -29379,7 +29557,7 @@ function requirePMultiSelect_2_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the multi-select control. */
@@ -29806,10 +29984,10 @@ function requirePOptgroup_cjs_entry () {
 	if (hasRequiredPOptgroup_cjs_entry) return pOptgroup_cjs_entry$2;
 	hasRequiredPOptgroup_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
-	var optgroupStyles = requireOptgroupStylesDZ7YbSD1();
-	requireIsParentOfKindCPkV7HiB();
+	var index = requireIndexCO1jYG4D();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
+	var optgroupStyles = requireOptgroupStylesVNe0v2HY();
+	requireIsParentOfKindUbMDQHp();
 	requireHostHiddenStyles3VpQlUl7();
 	requireColorPrimaryCtfZkymE();
 	requireFontWeightSemiboldGQr4oNNg();
@@ -29885,7 +30063,7 @@ function requirePPagination_cjs_entry () {
 	if (hasRequiredPPagination_cjs_entry) return pPagination_cjs_entry$2;
 	hasRequiredPPagination_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
@@ -29898,7 +30076,7 @@ function requirePPagination_cjs_entry () {
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	var spacingStaticSm = requireSpacingStaticSmByDQ2OBj();
 	var spacingStaticXs = requireSpacingStaticXsCCGFNED();
-	var getMediaQueryMax = requireGetMediaQueryMaxCWKoNkPJ();
+	var getMediaQueryMax = requireGetMediaQueryMaxNLpwtZbr();
 	var colorFrosted = requireColorFrostedBcGq8wdI();
 	var blurFrosted = requireBlurFrostedBCTpVUwD();
 
@@ -30235,14 +30413,14 @@ function requirePPinCode_cjs_entry () {
 	if (hasRequiredPPinCode_cjs_entry) return pPinCode_cjs_entry$2;
 	hasRequiredPPinCode_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var hasDescription = requireHasDescriptionCeR_sZ4Y();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var hasDescription = requireHasDescriptionJlHp6YuO();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var labelStyles = requireLabelStylesBcSduAkC();
-	var loadingMessageStyles = requireLoadingMessageStylesD6fdjnH9();
-	var fieldsetUtils = requireFieldsetUtilsBx94sq1L();
+	var labelStyles = requireLabelStylesBVlOD9GZ();
+	var loadingMessageStyles = requireLoadingMessageStylesCs3un0in();
+	var fieldsetUtils = requireFieldsetUtils0ZQbURKt();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -30253,16 +30431,17 @@ function requirePPinCode_cjs_entry () {
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	var radiusLg = requireRadiusLgDnAYukpB();
 	var radiusXl = requireRadiusXlBkApDqqr();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
 
 	const cssVarInternalPinCodeScaling = '--_p-pin-code-a';
@@ -30422,7 +30601,7 @@ function requirePPinCode_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the pin code fields to identify their purpose. */
@@ -30610,10 +30789,10 @@ function requirePPopover_cjs_entry () {
 	if (hasRequiredPPopover_cjs_entry) return pPopover_cjs_entry$2;
 	hasRequiredPPopover_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var isClickOutside = requireIsClickOutsideBGUHjTj4();
-	var a11y = requireA11yBtZXddqx();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
+	var a11y = requireA11yC0kIHWOt();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var createTopLayerController = requireCreateTopLayerControllerDqDftt9Q();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
@@ -30632,7 +30811,7 @@ function requirePPopover_cjs_entry () {
 	var spacingStaticSm = requireSpacingStaticSmByDQ2OBj();
 	var spacingStaticMd = requireSpacingStaticMdDSArndBQ();
 	var colorFrostedStrong = requireColorFrostedStrongCRO7iu25();
-	requireGetNamedSlotER751mnq();
+	requireGetNamedSlotDBF_9hiQ();
 
 	const POPOVER_DIRECTIONS = ['top', 'right', 'bottom', 'left'];
 	const POPOVER_ARIA_ATTRIBUTES = ['aria-label'];
@@ -31217,15 +31396,15 @@ function requirePRadioGroup_2_cjs_entry () {
 	if (hasRequiredPRadioGroup_2_cjs_entry) return pRadioGroup_2_cjs_entry$2;
 	hasRequiredPRadioGroup_2_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var hasDescription = requireHasDescriptionCeR_sZ4Y();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var hasDescription = requireHasDescriptionJlHp6YuO();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var throwIfElementIsNotOfKind = requireThrowIfElementIsNotOfKindD1HW_cxD();
-	var labelStyles = requireLabelStylesBcSduAkC();
-	var loadingMessageStyles = requireLoadingMessageStylesD6fdjnH9();
-	var fieldsetUtils = requireFieldsetUtilsBx94sq1L();
+	var throwIfElementIsNotOfKind = requireThrowIfElementIsNotOfKindDIlwUJhA();
+	var labelStyles = requireLabelStylesBVlOD9GZ();
+	var loadingMessageStyles = requireLoadingMessageStylesCs3un0in();
+	var fieldsetUtils = requireFieldsetUtils0ZQbURKt();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -31237,19 +31416,20 @@ function requirePRadioGroup_2_cjs_entry () {
 	var colorPrimary = requireColorPrimaryCtfZkymE();
 	var radiusFull = requireRadiusFullCYhM6RWu();
 	var typescaleSm = requireTypescaleSmCfWCHncH();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
-	var throwIfPropIsUndefined = requireThrowIfPropIsUndefinedBxJPrDvi();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
+	var throwIfPropIsUndefined = requireThrowIfPropIsUndefined5nho0Qdm();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
 
 	const GROUP_DIRECTIONS = ['row', 'column'];
@@ -31513,7 +31693,7 @@ function requirePRadioGroup_2_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the radio group to identify the group's purpose. */
@@ -31763,8 +31943,8 @@ function requirePScroller_cjs_entry () {
 	if (hasRequiredPScroller_cjs_entry) return pScroller_cjs_entry$2;
 	hasRequiredPScroller_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -32071,22 +32251,22 @@ var pScroller_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pSegmentedControl_2_cjs_entry$2 = {};
 
-var syncDfbImgwu = {};
+var syncDK8dHnrM = {};
 
-var hasRequiredSyncDfbImgwu;
+var hasRequiredSyncDK8dHnrM;
 
-function requireSyncDfbImgwu () {
-	if (hasRequiredSyncDfbImgwu) return syncDfbImgwu;
-	hasRequiredSyncDfbImgwu = 1;
+function requireSyncDK8dHnrM () {
+	if (hasRequiredSyncDK8dHnrM) return syncDK8dHnrM;
+	hasRequiredSyncDK8dHnrM = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const updateParent = (host) => {
 	    index.forceUpdate(host.parentElement);
 	};
 
-	syncDfbImgwu.updateParent = updateParent;
-	return syncDfbImgwu;
+	syncDK8dHnrM.updateParent = updateParent;
+	return syncDK8dHnrM;
 }
 
 var hasRequiredPSegmentedControl_2_cjs_entry;
@@ -32095,13 +32275,13 @@ function requirePSegmentedControl_2_cjs_entry () {
 	if (hasRequiredPSegmentedControl_2_cjs_entry) return pSegmentedControl_2_cjs_entry$2;
 	hasRequiredPSegmentedControl_2_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var hasDescription = requireHasDescriptionCeR_sZ4Y();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var hasDescription = requireHasDescriptionJlHp6YuO();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var labelStyles = requireLabelStylesBcSduAkC();
-	var fieldsetUtils = requireFieldsetUtilsBx94sq1L();
+	var labelStyles = requireLabelStylesBVlOD9GZ();
+	var fieldsetUtils = requireFieldsetUtils0ZQbURKt();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var spacingStaticXs = requireSpacingStaticXsCCGFNED();
@@ -32115,22 +32295,23 @@ function requirePSegmentedControl_2_cjs_entry () {
 	var colorPrimary = requireColorPrimaryCtfZkymE();
 	var radiusLg = requireRadiusLgDnAYukpB();
 	var radiusXl = requireRadiusXlBkApDqqr();
-	var isElementOfKind = requireIsElementOfKindBA7wyW7();
-	var sync = requireSyncDfbImgwu();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
-	var throwIfPropIsUndefined = requireThrowIfPropIsUndefinedBxJPrDvi();
+	var isElementOfKind = requireIsElementOfKindLOZ8BKL3();
+	var sync = requireSyncDK8dHnrM();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
+	var throwIfPropIsUndefined = requireThrowIfPropIsUndefined5nho0Qdm();
 	var getButtonBaseAriaAttributes = requireGetButtonBaseAriaAttributesDUA69J2t();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorContrastLower_EStZ29E();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorFrostedBcGq8wdI();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
 	requireFontWeightNormalBZeqsj8y();
 	requireTypescaleSmCfWCHncH();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
 	requireSpacingStaticSmByDQ2OBj();
 	requireSpacingStaticMdDSArndBQ();
@@ -32139,48 +32320,48 @@ function requirePSegmentedControl_2_cjs_entry () {
 	/** Holds the **Porsche Next** font family along with fallback fonts. */
 	const fontPorscheNext = "'Porsche Next','Arial Narrow',Arial,'Heiti SC',SimHei,sans-serif";
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use fontPorscheNext instead. */
+	/** @deprecated Use {@link fontPorscheNext} instead. This API will be removed with the next major release. */
 	const fontFamily = fontPorscheNext;
 
 	/** Holds a dynamic default line height specifically optimized for the Porsche Next typeface. */
 	const leadingNormal = 'calc(6px + 2.125ex)';
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use leadingNormal instead */
+	/** @deprecated Use {@link leadingNormal} instead. This API will be removed with the next major release. */
 	const fontLineHeight = leadingNormal;
 
 	/** Holds the **small** font size optimized for the Porsche Next typeface. */
 	const typescaleSm = '1rem';
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use typescaleSm instead. */
+	/** @deprecated Use {@link typescaleSm} instead. This API will be removed with the next major release. */
 	const fontSizeTextSmall = typescaleSm;
 
 	/** Holds the **x-small** font size optimized for the Porsche Next typeface. */
 	const typescaleXs = '.875rem';
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use typescaleXs instead. */
+	/** @deprecated Use {@link typescaleXs} instead. This API will be removed with the next major release. */
 	const fontSizeTextXSmall = typescaleXs;
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use 'normal' instead. */
+	/** @deprecated This API will be removed with the next major release. Use 'normal' instead. */
 	const fontStyleNormal = 'normal';
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use 'normal' instead. */
+	/** @deprecated This API will be removed with the next major release. Use 'normal' instead. */
 	const fontVariant = 'normal';
 
 	/** Holds the **normal** font weight optimized for the Porsche Next typeface. */
 	const fontWeightNormal = 400;
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use fontWeightNormal instead. */
+	/** @deprecated Use {@link fontWeightNormal} instead. This API will be removed with the next major release. */
 	const fontWeightRegular = fontWeightNormal;
 
 	const _textFontPartA = `${fontStyleNormal} ${fontVariant} ${fontWeightRegular} `;
 	const _textFontPartB = `/${fontLineHeight} ${fontFamily}`;
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use proseTextXs instead. */
+	/** @deprecated Use {@link proseTextXsStyle} instead. This API will be removed with the next major release. */
 	const textXSmallStyle = {
 	    font: `${_textFontPartA}${fontSizeTextXSmall}${_textFontPartB}`,
 	};
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use proseTextSm instead. */
+	/** @deprecated Use {@link proseTextSmStyle} instead. This API will be removed with the next major release. */
 	const textSmallStyle = {
 	    font: `${_textFontPartA}${fontSizeTextSmall}${_textFontPartB}`,
 	};
@@ -32397,7 +32578,7 @@ function requirePSegmentedControl_2_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the segmented control to describe the group of options. */
@@ -32586,29 +32767,29 @@ function requirePSelect_2_cjs_entry () {
 	if (hasRequiredPSelect_2_cjs_entry) return pSelect_2_cjs_entry$2;
 	hasRequiredPSelect_2_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var isClickOutside = requireIsClickOutsideBGUHjTj4();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
-	var isElementOfKind = requireIsElementOfKindBA7wyW7();
-	var filterStatusAnnouncerStyles = requireFilterStatusAnnouncerStyles7uDw1NwP();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var hasDescription = requireHasDescriptionCeR_sZ4Y();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
+	var isElementOfKind = requireIsElementOfKindLOZ8BKL3();
+	var filterStatusAnnouncerStyles = requireFilterStatusAnnouncerStylesB7s3NOHF();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var hasDescription = requireHasDescriptionJlHp6YuO();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var supportsNativePopover = requireSupportsNativePopoverDuci7629();
-	var throwIfElementIsNotOfKind = requireThrowIfElementIsNotOfKindD1HW_cxD();
-	var labelStyles = requireLabelStylesBcSduAkC();
+	var supportsNativePopover = requireSupportsNativePopoverQfX14TsL();
+	var throwIfElementIsNotOfKind = requireThrowIfElementIsNotOfKindDIlwUJhA();
+	var labelStyles = requireLabelStylesBVlOD9GZ();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var formStyles = requireFormStylesKMWlhwXz();
 	var radiusSm = requireRadiusSmCC0YvhYq();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	var typescaleSm = requireTypescaleSmCfWCHncH();
-	var optgroupStyles = requireOptgroupStylesDZ7YbSD1();
+	var optgroupStyles = requireOptgroupStylesVNe0v2HY();
 	var spacingStaticXs = requireSpacingStaticXsCCGFNED();
 	var getClosestHTMLElement = requireGetClosestHTMLElementCWqq05pb();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
-	requireGetNamedSlotER751mnq();
-	requireA11yBtZXddqx();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
+	requireGetNamedSlotDBF_9hiQ();
+	requireA11yC0kIHWOt();
 	requireHoverMediaQueryCOekSiqP();
 	requireColorPrimaryCtfZkymE();
 	requireFontWeightNormalBZeqsj8y();
@@ -32622,9 +32803,10 @@ function requirePSelect_2_cjs_entry () {
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorContrastLower_EStZ29E();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
 	requireSpacingStaticSmByDQ2OBj();
 	requireSpacingStaticMdDSArndBQ();
@@ -32818,7 +33000,7 @@ function requirePSelect_2_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the select control to identify its purpose. */
@@ -33256,19 +33438,19 @@ function requirePSheet_cjs_entry () {
 	if (hasRequiredPSheet_cjs_entry) return pSheet_cjs_entry$2;
 	hasRequiredPSheet_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
-	var getSlotTextContent = requireGetSlotTextContentCaQGlFop();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
-	var dialogBaseStyles = requireDialogBaseStylesB8MxEZCN();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
+	var getSlotTextContent = requireGetSlotTextContentDqBMbiGS();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
+	var dialogBaseStyles = requireDialogBaseStylesDo19TzVV();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var warnIfAriaAndHeadingPropsAreUndefined = requireWarnIfAriaAndHeadingPropsAreUndefinedDhTBrNCB();
+	var warnIfAriaAndHeadingPropsAreUndefined = requireWarnIfAriaAndHeadingPropsAreUndefinedCMTPanqf();
 	var setScrollLock = requireSetScrollLockDAlAb_bW();
 	var createTopLayerController = requireCreateTopLayerControllerDqDftt9Q();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var spacingFluidLg = requireSpacingFluidLgDfXeg2bP();
-	requireGetNamedSlotER751mnq();
-	requireFcDismissButtonStylesDT1d6i6G();
+	requireGetNamedSlotDBF_9hiQ();
+	requireFcDismissButtonStylesCDh3_1Jh();
 	requireHoverMediaQueryCOekSiqP();
 	requireGetInlineSVGBackgroundImageC2AJYBEX();
 	requireLeadingNormalBs8OKhqj();
@@ -33285,7 +33467,7 @@ function requirePSheet_cjs_entry () {
 	requireSpacingFluidMdC7TFhccF();
 	requireRadius2XlCy_MgMg();
 	requireRadius3XlBMeML5k5();
-	requireGridGapCswl5jSQ();
+	requireGridGapDrXbN1wr();
 	requireSpacingStatic2XsBXpEPF5_();
 	requireSpacingStaticMdDSArndBQ();
 
@@ -33451,8 +33633,8 @@ function requirePSpinner_cjs_entry () {
 	if (hasRequiredPSpinner_cjs_entry) return pSpinner_cjs_entry$2;
 	hasRequiredPSpinner_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var colorMap = requireColorMapD2SM08A2();
@@ -33617,15 +33799,15 @@ var pSpinner_cjs_entry$1 = /*#__PURE__*/_mergeNamespaces({
 
 var pStepperHorizontal_2_cjs_entry$2 = {};
 
-var throwIfChildrenAreNotOfKindCM5ie4WX = {};
+var throwIfChildrenAreNotOfKindM19GVOzU = {};
 
-var hasRequiredThrowIfChildrenAreNotOfKindCM5ie4WX;
+var hasRequiredThrowIfChildrenAreNotOfKindM19GVOzU;
 
-function requireThrowIfChildrenAreNotOfKindCM5ie4WX () {
-	if (hasRequiredThrowIfChildrenAreNotOfKindCM5ie4WX) return throwIfChildrenAreNotOfKindCM5ie4WX;
-	hasRequiredThrowIfChildrenAreNotOfKindCM5ie4WX = 1;
+function requireThrowIfChildrenAreNotOfKindM19GVOzU () {
+	if (hasRequiredThrowIfChildrenAreNotOfKindM19GVOzU) return throwIfChildrenAreNotOfKindM19GVOzU;
+	hasRequiredThrowIfChildrenAreNotOfKindM19GVOzU = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 
 	const areAllChildrenOfKind = (element, tagName) => {
 	    const children = Array.from(element.children);
@@ -33643,8 +33825,8 @@ function requireThrowIfChildrenAreNotOfKindCM5ie4WX () {
 	    }
 	};
 
-	throwIfChildrenAreNotOfKindCM5ie4WX.throwIfChildrenAreNotOfKind = throwIfChildrenAreNotOfKind;
-	return throwIfChildrenAreNotOfKindCM5ie4WX;
+	throwIfChildrenAreNotOfKindM19GVOzU.throwIfChildrenAreNotOfKind = throwIfChildrenAreNotOfKind;
+	return throwIfChildrenAreNotOfKindM19GVOzU;
 }
 
 var hasRequiredPStepperHorizontal_2_cjs_entry;
@@ -33653,17 +33835,17 @@ function requirePStepperHorizontal_2_cjs_entry () {
 	if (hasRequiredPStepperHorizontal_2_cjs_entry) return pStepperHorizontal_2_cjs_entry$2;
 	hasRequiredPStepperHorizontal_2_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var throwIfChildrenAreNotOfKind = requireThrowIfChildrenAreNotOfKindCM5ie4WX();
+	var throwIfChildrenAreNotOfKind = requireThrowIfChildrenAreNotOfKindM19GVOzU();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var sizeMap = requireSizeMapBChKLat3();
 	var fontWeightNormal = requireFontWeightNormalBZeqsj8y();
 	var typescaleSm = requireTypescaleSmCfWCHncH();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
-	var sync = requireSyncDfbImgwu();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
+	var sync = requireSyncDK8dHnrM();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
 	var spacingStaticXs = requireSpacingStaticXsHM83BRvM();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
 	var getInlineSVGBackgroundImage = requireGetInlineSVGBackgroundImageC2AJYBEX();
@@ -33677,7 +33859,7 @@ function requirePStepperHorizontal_2_cjs_entry () {
 	requireTypescaleMdFmduVeT6();
 	requireTypescaleXsDg2owqik();
 	requireTypescale2XsCMXT9_AX();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsParentOfKindUbMDQHp();
 
 	const throwIfChildCountIsExceeded = (element, allowedAmount) => {
 	    const childCount = element.children.length;
@@ -33971,11 +34153,11 @@ function requirePSwitch_cjs_entry () {
 	if (hasRequiredPSwitch_cjs_entry) return pSwitch_cjs_entry$2;
 	hasRequiredPSwitch_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var isDisabledOrLoading = requireIsDisabledOrLoadingDstO6iYY();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var alignLabel = requireAlignLabel8x6VjLXS();
-	var loadingMessageStyles = requireLoadingMessageStylesD6fdjnH9();
+	var loadingMessageStyles = requireLoadingMessageStylesCs3un0in();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -34021,7 +34203,7 @@ function requirePSwitch_cjs_entry () {
 	        '@global': {
 	            ':host': {
 	                [`${cssVarInternalSwitchScaling}`]: isCompact ? 0.64285714 : 1,
-	                ...index.buildResponsiveStyles(isStretched, (stretchValue) => ({
+	                ...index.buildResponsiveBooleanStyles(isStretched, (stretchValue) => ({
 	                    display: stretchValue ? 'flex' : 'inline-flex',
 	                })),
 	                ...hostHiddenStyles.addImportantToEachRule({
@@ -34030,7 +34212,7 @@ function requirePSwitch_cjs_entry () {
 	                    font: `${hostHiddenStyles.ref(typescaleSm.typescaleSm)} ${hostHiddenStyles.ref(leadingNormal.fontPorscheNext)}`, // needed for correct gap definition based on ex-unit
 	                    gap,
 	                    ...hostHiddenStyles.hostHiddenStyles,
-	                    ...index.buildResponsiveStyles(isStretched, (stretchValue) => ({
+	                    ...index.buildResponsiveBooleanStyles(isStretched, (stretchValue) => ({
 	                        justifyContent: stretchValue ? 'space-between' : 'flex-start',
 	                        width: stretchValue ? '100%' : 'auto', // prevents adjusting its size when used as flex or grid child
 	                        ...(!stretchValue && { verticalAlign: 'top' }),
@@ -34085,7 +34267,7 @@ function requirePSwitch_cjs_entry () {
 	                    })),
 	                ...index.mergeDeep(index.buildResponsiveStyles(alignLabel, (alignLabelValue) => ({
 	                    order: alignLabelValue === 'start' ? -1 : 0,
-	                })), index.buildResponsiveStyles(hideLabel, (isHidden) => hostHiddenStyles.getHiddenTextJssStyle(isHidden, {
+	                })), index.buildResponsiveBooleanStyles(hideLabel, (isHidden) => hostHiddenStyles.getHiddenTextJssStyle(isHidden, {
 	                    paddingTop: labelPaddingTop,
 	                }))),
 	            },
@@ -34208,8 +34390,8 @@ function requirePTable_7_cjs_entry () {
 	if (hasRequiredPTable_7_cjs_entry) return pTable_7_cjs_entry$2;
 	hasRequiredPTable_7_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var hasNamedSlot = requireHasNamedSlotDHrM1th();
+	var index = requireIndexCO1jYG4D();
+	var hasNamedSlot = requireHasNamedSlotCpOkED0y();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var spacingFluidMd = requireSpacingFluidMdC7TFhccF();
@@ -34221,7 +34403,7 @@ function requirePTable_7_cjs_entry () {
 	var spacingFluidSm = requireSpacingFluidSmDxpqva9Z();
 	var colorContrastLow = requireColorContrastLowB7Tc_TQk();
 	var colorFrosted = requireColorFrostedBcGq8wdI();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
 	var fontWeightSemibold = requireFontWeightSemiboldGQr4oNNg();
 	var typescaleXs = requireTypescaleXsDg2owqik();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
@@ -34229,8 +34411,8 @@ function requirePTable_7_cjs_entry () {
 	var blurFrosted = requireBlurFrostedBCTpVUwD();
 	var radiusSm = requireRadiusSmCC0YvhYq();
 	var spacingStaticXs = requireSpacingStaticXsCCGFNED();
-	requireGetNamedSlotER751mnq();
-	requireIsParentOfKindCPkV7HiB();
+	requireGetNamedSlotDBF_9hiQ();
+	requireIsParentOfKindUbMDQHp();
 
 	const getAttribute = (el, attributeName) => {
 	    return el.getAttribute(attributeName);
@@ -34664,8 +34846,8 @@ function requirePTabsBar_cjs_entry () {
 	if (hasRequiredPTabsBar_cjs_entry) return pTabsBar_cjs_entry$2;
 	hasRequiredPTabsBar_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var setAttributes = requireSetAttributesR25N9m8L();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var getDirectChildHTMLElements = requireGetDirectChildHTMLElementsBqOf_NL();
@@ -35163,17 +35345,17 @@ function requirePTabs_2_cjs_entry () {
 	if (hasRequiredPTabs_2_cjs_entry) return pTabs_2_cjs_entry$2;
 	hasRequiredPTabs_2_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var setAttributes = requireSetAttributesR25N9m8L();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var throwIfChildrenAreNotOfKind = requireThrowIfChildrenAreNotOfKindCM5ie4WX();
+	var throwIfChildrenAreNotOfKind = requireThrowIfChildrenAreNotOfKindM19GVOzU();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var spacingStaticSm = requireSpacingStaticSmByDQ2OBj();
-	var sync = requireSyncDfbImgwu();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
+	var sync = requireSyncDK8dHnrM();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
 	var colorPrimary = requireColorPrimaryCtfZkymE();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsParentOfKindUbMDQHp();
 
 	const removeAttribute = (el, attributeName) => {
 	    el.removeAttribute(attributeName);
@@ -35351,8 +35533,8 @@ function requirePTagDismissible_cjs_entry () {
 	if (hasRequiredPTagDismissible_cjs_entry) return pTagDismissible_cjs_entry$2;
 	hasRequiredPTagDismissible_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
@@ -35477,8 +35659,8 @@ function requirePTag_cjs_entry () {
 	if (hasRequiredPTag_cjs_entry) return pTag_cjs_entry$2;
 	hasRequiredPTag_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var getDirectChildHTMLElement = requireGetDirectChildHTMLElementBgsUJuKK();
+	var index = requireIndexCO1jYG4D();
+	var getDirectChildHTMLElement = requireGetDirectChildHTMLElementBjdpb1eX();
 	var spacingStaticXs = requireSpacingStaticXsHM83BRvM();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
@@ -35490,7 +35672,8 @@ function requirePTag_cjs_entry () {
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	var spacingStatic2Xs = requireSpacingStatic2XsBXpEPF5_();
 	var spacingStaticSm = requireSpacingStaticSmByDQ2OBj();
-	var colorSuccessMedium = requireColorSuccessMediumB3F_V0oA();
+	var colorSuccessMedium = requireColorSuccessMediumCkSIDUck();
+	var colorErrorMedium = requireColorErrorMediumBJIzBY();
 	var colorSuccessFrostedSoft = requireColorSuccessFrostedSoftDhQVV2Gq();
 	var colorFrosted = requireColorFrostedBcGq8wdI();
 	var colorContrastHigh = requireColorContrastHighWG95shR6();
@@ -35548,7 +35731,7 @@ function requirePTag_cjs_entry () {
 	    'success-frosted': hostHiddenStyles.ref(colorSuccessFrostedSoft.colorSuccessFrostedSoft),
 	    warning: hostHiddenStyles.ref(colorWarningMedium),
 	    'warning-frosted': hostHiddenStyles.ref(colorWarningFrostedSoft),
-	    error: hostHiddenStyles.ref(colorSuccessMedium.colorErrorMedium),
+	    error: hostHiddenStyles.ref(colorErrorMedium.colorErrorMedium),
 	    'error-frosted': hostHiddenStyles.ref(colorSuccessMedium.colorErrorFrostedSoft),
 	};
 	const getColors = (variant) => {
@@ -35691,7 +35874,7 @@ function requirePTextList_2_cjs_entry () {
 	if (hasRequiredPTextList_2_cjs_entry) return pTextList_2_cjs_entry$2;
 	hasRequiredPTextList_2_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var spacingStaticMd = requireSpacingStaticMdDSArndBQ();
 	var spacingStaticXs = requireSpacingStaticXsCCGFNED();
@@ -35699,8 +35882,8 @@ function requirePTextList_2_cjs_entry () {
 	var fontWeightNormal = requireFontWeightNormalBZeqsj8y();
 	var typescaleSm = requireTypescaleSmCfWCHncH();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
-	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindDNrNkF_r();
-	requireIsParentOfKindCPkV7HiB();
+	var throwIfParentIsNotOfKind = requireThrowIfParentIsNotOfKindBGCnACm();
+	requireIsParentOfKindUbMDQHp();
 
 	const TEXT_LIST_TYPES = ['unordered', 'numbered', 'alphabetically'];
 	const isListTypeOrdered = (type) => {
@@ -35842,13 +36025,13 @@ function requirePText_cjs_entry () {
 	if (hasRequiredPText_cjs_entry) return pText_cjs_entry$2;
 	hasRequiredPText_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var colorMap = requireColorMapD2SM08A2();
 	var sizeMap = requireSizeMapBChKLat3();
 	var weightMap = requireWeightMapCRyOCbCS();
-	var hasSpecificDirectChildTag = requireHasSpecificDirectChildTag8KTCydFG();
+	var hasSpecificDirectChildTag = requireHasSpecificDirectChildTag0ONDGmMY();
 	var typescaleSm = requireTypescaleSmCfWCHncH();
 	var leadingNormal = requireLeadingNormalBs8OKhqj();
 	requireColorWarningCfBtQXlw();
@@ -35866,7 +36049,7 @@ function requirePText_cjs_entry () {
 	requireTypescale2XsCMXT9_AX();
 	requireFontWeightSemiboldGQr4oNNg();
 	requireFontWeightNormalBZeqsj8y();
-	requireGetDirectChildHTMLElementBgsUJuKK();
+	requireGetDirectChildHTMLElementBjdpb1eX();
 	requireTransformSelectorToDirectChildSelectorB_8CS40K();
 
 	const TEXT_TAGS = ['p', 'span', 'div', 'address', 'blockquote', 'figcaption', 'cite', 'time', 'legend'];
@@ -36004,13 +36187,13 @@ function requirePTextarea_cjs_entry () {
 	if (hasRequiredPTextarea_cjs_entry) return pTextarea_cjs_entry$2;
 	hasRequiredPTextarea_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
-	var stateMessageStyles = requireStateMessageStylesOnjaIITZ();
-	var hasDescription = requireHasDescriptionCeR_sZ4Y();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
+	var stateMessageStyles = requireStateMessageStylesD8IESrZi();
+	var hasDescription = requireHasDescriptionJlHp6YuO();
 	var syncFormState = requireSyncFormStateDCKGKEj();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
-	var labelStyles = requireLabelStylesBcSduAkC();
+	var labelStyles = requireLabelStylesBVlOD9GZ();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
 	var hoverMediaQuery = requireHoverMediaQueryCOekSiqP();
@@ -36024,15 +36207,16 @@ function requirePTextarea_cjs_entry () {
 	var colorPrimary = requireColorPrimaryCtfZkymE();
 	var radiusLg = requireRadiusLgDnAYukpB();
 	var radiusXl = requireRadiusXlBkApDqqr();
-	requireHasNamedSlotDHrM1th();
-	requireGetNamedSlotER751mnq();
+	requireHasNamedSlotCpOkED0y();
+	requireGetNamedSlotDBF_9hiQ();
 	requireColorErrorDycYY56v();
 	requireColorSuccessCrVQsYxh();
 	requireColorContrastLower_EStZ29E();
 	requireColorContrastHighWG95shR6();
-	requireColorSuccessMediumB3F_V0oA();
+	requireColorErrorMediumBJIzBY();
+	requireColorSuccessMediumCkSIDUck();
 	requireColorSuccessFrostedSoftDhQVV2Gq();
-	requireIsParentOfKindCPkV7HiB();
+	requireIsParentOfKindUbMDQHp();
 	requireTypescaleXsDg2owqik();
 	requireSpacingStaticSmByDQ2OBj();
 	requireSpacingStaticMdDSArndBQ();
@@ -36163,7 +36347,7 @@ function requirePTextarea_cjs_entry () {
 	            this.internals = hostRef.$hostElement$["s-ei"];
 	        }
 	        else {
-	            this.internals = hostRef.$hostElement$.attachInternals?.();
+	            this.internals = hostRef.$hostElement$.attachInternals();
 	            hostRef.$hostElement$["s-ei"] = this.internals;
 	        }
 	        /** Sets the visible label text displayed above the textarea to identify its purpose. */
@@ -36286,14 +36470,14 @@ function requirePToast_2_cjs_entry () {
 	if (hasRequiredPToast_2_cjs_entry) return pToast_2_cjs_entry$2;
 	hasRequiredPToast_2_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
+	var index = requireIndexCO1jYG4D();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();
 	var preventFoucOfNestedElementsStyles = requirePreventFoucOfNestedElementsStylesCvuFvvrn();
-	var motionDurationModerate = requireMotionDurationModerateBHfJ8O37();
+	var motionDurationModerate = requireMotionDurationModerateDMJwb_A2();
 	var gridExtendedOffsetBase = requireGridExtendedOffsetBase7vRjJ10S();
-	var supportsNativePopover = requireSupportsNativePopoverDuci7629();
-	var fcDismissButtonStyles = requireFcDismissButtonStylesDT1d6i6G();
-	var notificationBaseStyles = requireNotificationBaseStylesCM3KqCH();
+	var supportsNativePopover = requireSupportsNativePopoverQfX14TsL();
+	var fcDismissButtonStyles = requireFcDismissButtonStylesCDh3_1Jh();
+	var notificationBaseStyles = requireNotificationBaseStylesC82sOkro();
 	var shadowLg = requireShadowLgCGLlslGh();
 	requireHoverMediaQueryCOekSiqP();
 	requireGetInlineSVGBackgroundImageC2AJYBEX();
@@ -36322,13 +36506,13 @@ function requirePToast_2_cjs_entry () {
 	/** Holds an **in** `transition-timing-function`. */
 	const easeIn = 'cubic-bezier(0,0,.2,1)';
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use easeIn instead. */
+	/** @deprecated Use {@link easeIn} instead. This API will be removed with the next major release. */
 	const motionEasingIn = easeIn;
 
 	/** Holds an **out** `transition-timing-function`. */
 	const easeOut = 'cubic-bezier(.4,0,.5,1)';
 
-	/** @deprecated since v4.0.0, will be removed with next major release. Use easeOut instead. */
+	/** @deprecated Use {@link easeOut} instead. This API will be removed with the next major release. */
 	const motionEasingOut = easeOut;
 
 	const throwIfRootNodeIsNotOneOfKind = (element, tagNames) => {
@@ -36568,8 +36752,8 @@ function requirePWordmark_cjs_entry () {
 	if (hasRequiredPWordmark_cjs_entry) return pWordmark_cjs_entry$2;
 	hasRequiredPWordmark_cjs_entry = 1;
 
-	var index = requireIndexDXYpCE_Y();
-	var a11y = requireA11yBtZXddqx();
+	var index = requireIndexCO1jYG4D();
+	var a11y = requireA11yC0kIHWOt();
 	var linkAriaAttribute = requireLinkAriaAttributeBh83uKB6();
 	var hasPropValueChanged = requireHasPropValueChangedD2Ej_Hhe();
 	var hostHiddenStyles = requireHostHiddenStyles3VpQlUl7();

@@ -50,7 +50,7 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
 | `compact` | `boolean` | `false` | Reduces the tag's padding and height for use in dense layouts where vertical space is limited. |
-| `icon` | `'none'`<br>one of 293 icon names — see [icon names](references/icons.md) | `'none'` | Sets the icon displayed inside the tag alongside the label. Use `none` to render the tag without an icon. |
+| `icon` | `'none'`<br>one of 294 icon names — see [icon names](references/icons.md) | `'none'` | Sets the icon displayed inside the tag alongside the label. Use `none` to render the tag without an icon. |
 | `iconSource` | `string` | `undefined` | Sets a URL to a custom SVG icon, overriding the built-in icon set when a brand-specific icon is needed. |
 | `variant` | `'primary'` `'secondary'` `'info'` `'info-frosted'` `'warning'` `'warning-frosted'` `'success'` `'success-frosted'` `'error'` `'error-frosted'` | `'secondary'` | Sets the visual style of the tag, which controls its background and text colors (e.g. `primary`, `secondary`, `notification-info`). |
 

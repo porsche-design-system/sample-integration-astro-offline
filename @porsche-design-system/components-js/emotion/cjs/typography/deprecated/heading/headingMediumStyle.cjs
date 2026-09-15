@@ -3,7 +3,7 @@
 var fontSizeHeadingMedium = require('../../../font/deprecated/fontSizeHeadingMedium.cjs');
 var headingShared = require('./headingShared.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use proseHeadingMd instead. */
+/** @deprecated Use {@link proseHeadingMdStyle} instead. This API will be removed with the next major release. */
 const headingMediumStyle = {
     font: `${headingShared._headingFontPartA}${fontSizeHeadingMedium.fontSizeHeadingMedium}${headingShared._headingFontPartB}`,
 };

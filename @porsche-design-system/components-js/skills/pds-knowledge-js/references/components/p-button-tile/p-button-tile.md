@@ -92,7 +92,7 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 | `description` _(required)_ | `string` | `undefined` | Sets the description text displayed in the tile's content area. |
 | `disabled` | `boolean` | `false` | Disables the tile, preventing button interaction. |
 | `gradient` | `boolean` | `false` | Shows a gradient overlay over the media slot to improve text legibility on bright images or videos. |
-| `icon` | `'none'`<br>one of 293 icon names — see [icon names](references/icons.md) | `'none'` | Sets the icon displayed in the tile's action button. Use `none` to show no icon. |
+| `icon` | `'none'`<br>one of 294 icon names — see [icon names](references/icons.md) | `'none'` | Sets the icon displayed in the tile's action button. Use `none` to show no icon. |
 | `iconSource` | `string` | `undefined` | Sets a path to a custom SVG icon for the action button, used instead of the built-in icon set. |
 | `label` _(required)_ | `string` | `undefined` | Sets the accessible label text of the action button rendered inside the tile. |
 | `loading` | `boolean` | `false` | Disables the tile and shows a loading spinner to indicate an ongoing operation. |

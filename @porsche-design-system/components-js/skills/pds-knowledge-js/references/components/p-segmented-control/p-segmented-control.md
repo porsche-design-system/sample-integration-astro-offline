@@ -145,7 +145,7 @@ Allowed parent: `p-segmented-control`.
 | --- | --- | --- | --- |
 | `aria` | `SegmentedControlItemAriaAttribute` | `undefined` | Sets ARIA attributes on the item's button element to improve accessibility for screen readers. |
 | `disabled` | `boolean` | `false` | Prevents this item from being selected and visually dims it; the parent's value will not change to this item's value. |
-| `icon` | `''`<br>one of 293 icon names — see [icon names](references/icons.md) | `undefined` | Sets an icon rendered inside the item button using an icon name from the PDS icon library. |
+| `icon` | `''`<br>one of 294 icon names — see [icon names](references/icons.md) | `undefined` | Sets an icon rendered inside the item button using an icon name from the PDS icon library. |
 | `iconSource` | `string` | `undefined` | Sets a URL to a custom SVG icon for the item button, overriding the built-in icon set. |
 | `label` | `string` | `undefined` | Sets a visible text label rendered inside the item button, used when no slotted content is provided. |
 | `value` _(required)_ | `string | number` | `undefined` | Sets the value emitted by the parent `p-segmented-control` when this item is selected. This property is*required**. |

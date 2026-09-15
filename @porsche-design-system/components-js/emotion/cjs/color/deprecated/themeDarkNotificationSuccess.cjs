@@ -2,7 +2,7 @@
 
 var colorSuccessDark = require('../../tokens/dist/esm/color/dark/semantic/colorSuccessDark.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use colorSuccessDark instead. */
+/** @deprecated Use {@link colorSuccess} instead. This API will be removed with the next major release. */
 const themeDarkNotificationSuccess = colorSuccessDark.colorSuccessDark;
 
 exports.themeDarkNotificationSuccess = themeDarkNotificationSuccess;

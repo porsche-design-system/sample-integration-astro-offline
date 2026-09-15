@@ -3,7 +3,7 @@
 var fontSizeHeadingXXLarge = require('../../../font/deprecated/fontSizeHeadingXXLarge.cjs');
 var headingShared = require('./headingShared.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use proseHeading2Xl instead. */
+/** @deprecated Use {@link proseHeading2XlStyle} instead. This API will be removed with the next major release. */
 const headingXXLargeStyle = {
     font: `${headingShared._headingFontPartA}${fontSizeHeadingXXLarge.fontSizeHeadingXXLarge}${headingShared._headingFontPartB}`,
 };

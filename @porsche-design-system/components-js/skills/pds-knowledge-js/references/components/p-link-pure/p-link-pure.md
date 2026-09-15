@@ -89,7 +89,7 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 | `download` | `string` | `undefined` | Sets the native `download` attribute to trigger a file download. Only applies when `href` is set. |
 | `hideLabel` | `boolean`<br>`BreakpointCustomizable<boolean>` | `false` | Hides the visible label while keeping it accessible to screen readers. Supports responsive breakpoint values. |
 | `href` | `string` | `undefined` | When set, the component renders as an anchor navigating to this URL. Otherwise, provide a slotted anchor element. |
-| `icon` | `''`<br>one of 293 icon names — see [icon names](references/icons.md) | `'arrow-right'` | Sets the icon displayed next to the label. |
+| `icon` | `''`<br>one of 294 icon names — see [icon names](references/icons.md) | `'arrow-right'` | Sets the icon displayed next to the label. |
 | `iconSource` | `string` | `undefined` | Sets a path to a custom SVG icon, used instead of the built-in icon set. |
 | `rel` | `string` | `undefined` | Sets the `rel` attribute on the link (e.g. `noopener`). Only applies when `href` is set. |
 | `size` | `'2xs'` `'xs'` `'sm'` `'md'` `'lg'` `'xl'` `'2xl'` `'3xl'` `'4xl'` `'5xl'` `'inherit'`<br>_deprecated:_ `'xx-small'` `'x-small'` `'small'` `'medium'` `'large'` `'x-large'`<br>`BreakpointCustomizable<LinkPureSize>` | `'sm'` | Sets the font size of the link label. Supports responsive breakpoint values. |

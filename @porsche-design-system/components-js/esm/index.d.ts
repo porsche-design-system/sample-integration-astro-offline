@@ -1,20 +1,11 @@
+import { type ComponentsManagerData } from '@porsche-design-system/components-manager-core';
 declare global {
     interface Window {
         /** @deprecated since v3 */
         PORSCHE_DESIGN_SYSTEM_CDN: 'auto' | 'cn';
     }
     interface Document {
-        porscheDesignSystem: {
-            [key: `${number}.${number}.${number}${`-rc.${number}` | ''}`]: {
-                prefixes: string[];
-                isReady: () => Promise<void>;
-                readyResolve: () => void;
-            };
-            cdn: {
-                url: string;
-                prefixes: string[];
-            };
-        };
+        porscheDesignSystem: ComponentsManagerData;
     }
 }
 /**

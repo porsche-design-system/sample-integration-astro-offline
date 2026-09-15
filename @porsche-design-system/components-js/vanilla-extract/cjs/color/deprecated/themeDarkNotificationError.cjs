@@ -2,7 +2,7 @@
 
 var colorErrorDark = require('../../tokens/dist/esm/color/dark/semantic/colorErrorDark.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use colorErrorDark instead. */
+/** @deprecated Use {@link colorError} instead. This API will be removed with the next major release. */
 const themeDarkNotificationError = colorErrorDark.colorErrorDark;
 
 exports.themeDarkNotificationError = themeDarkNotificationError;

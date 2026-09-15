@@ -96,7 +96,7 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 | `disabled` | `boolean` | `false` | Disables the button, preventing all interaction and blocking events. |
 | `form` | `string` | `undefined` | Associates the button with a form element by its ID, so it can submit or reset that form even when placed outside of it. |
 | `hideLabel` | `boolean`<br>`BreakpointCustomizable<boolean>` | `false` | Hides the visible label while keeping it accessible to screen readers. Supports responsive breakpoint values. |
-| `icon` | `''`<br>one of 293 icon names — see [icon names](references/icons.md) | `'arrow-right'` | Sets the icon displayed next to the label. |
+| `icon` | `''`<br>one of 294 icon names — see [icon names](references/icons.md) | `'arrow-right'` | Sets the icon displayed next to the label. |
 | `iconSource` | `string` | `undefined` | Sets a path to a custom SVG icon, used instead of the built-in icon set. |
 | `loading` | `boolean` | `false` | Disables the button and replaces its icon with a loading spinner to indicate an ongoing operation. |
 | `name` | `string` | `undefined` | Sets the name submitted with the form data when this button triggers form submission. |
