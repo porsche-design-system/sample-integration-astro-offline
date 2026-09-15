@@ -38,28 +38,27 @@
 @mixin prose-text-2xs {
   @include -prose-text(font.$typescale-2xs);
 }
-
-/* alias (deprecated) */
+// @deprecated Use prose-text-xl() instead. This API will be removed with the next major release.
 @mixin pds-text-x-large {
   @include prose-text-xl();
 }
-/* alias (deprecated) */
+// @deprecated Use prose-text-lg() instead. This API will be removed with the next major release.
 @mixin pds-text-large {
   @include prose-text-lg();
 }
-/* alias (deprecated) */
+// @deprecated Use prose-text-md() instead. This API will be removed with the next major release.
 @mixin pds-text-medium {
   @include prose-text-md();
 }
-/* alias (deprecated) */
+// @deprecated Use prose-text-sm() instead. This API will be removed with the next major release.
 @mixin pds-text-small {
   @include prose-text-sm();
 }
-/* alias (deprecated) */
+// @deprecated Use prose-text-xs() instead. This API will be removed with the next major release.
 @mixin pds-text-x-small {
   @include prose-text-xs();
 }
-/* alias (deprecated) */
+// @deprecated Use prose-text-2xs() instead. This API will be removed with the next major release.
 @mixin pds-text-xx-small {
   @include prose-text-2xs();
 }

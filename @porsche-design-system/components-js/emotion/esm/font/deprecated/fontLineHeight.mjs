@@ -1,6 +1,6 @@
 import { leadingNormal } from '../../tokens/dist/esm/font/lineHeight/leadingNormal.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use leadingNormal instead */
+/** @deprecated Use {@link leadingNormal} instead. This API will be removed with the next major release. */
 const fontLineHeight = leadingNormal;
 
 export { fontLineHeight };

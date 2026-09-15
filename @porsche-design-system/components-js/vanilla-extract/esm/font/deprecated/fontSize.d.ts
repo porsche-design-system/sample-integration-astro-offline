@@ -1,4 +1,4 @@
-/** @deprecated since v4.0.0, will be removed with next major release. Use typescale variables instead. */
+/** @deprecated This API will be removed with the next major release. Use typescale variables instead. */
 export declare const fontSize: {
     text: {
         xxSmall: string;

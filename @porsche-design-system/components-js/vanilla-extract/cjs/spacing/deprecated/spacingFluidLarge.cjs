@@ -2,7 +2,7 @@
 
 var spacingFluidLg = require('../../tokens/dist/esm/spacing/fluid/spacingFluidLg.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use spacingFluidLg instead. */
+/** @deprecated Use {@link spacingFluidLg} instead. This API will be removed with the next major release. */
 const spacingFluidLarge = spacingFluidLg.spacingFluidLg;
 
 exports.spacingFluidLarge = spacingFluidLarge;

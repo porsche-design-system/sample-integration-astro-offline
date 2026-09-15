@@ -46,7 +46,7 @@ See [accessibility integration examples](./accessibility.md) for paired anti-pat
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| `actionIcon` | `''`<br>one of 293 icon names — see [icon names](references/icons.md) | `'arrow-right'` | Sets the icon displayed inside the action button using a PDS icon name. |
+| `actionIcon` | `''`<br>one of 294 icon names — see [icon names](references/icons.md) | `'arrow-right'` | Sets the icon displayed inside the action button using a PDS icon name. |
 | `actionLabel` | `string` | `undefined` | Sets the label text of the optional action button inside the notification. |
 | `actionLoading` | `boolean` | `false` | Disables the action button and shows a spinner to indicate an ongoing operation. |
 | `description` | `string` | `''` | Sets the supporting description text shown below the heading. |

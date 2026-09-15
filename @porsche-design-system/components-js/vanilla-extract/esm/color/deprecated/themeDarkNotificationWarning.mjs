@@ -1,6 +1,6 @@
 import { colorWarningDark } from '../../tokens/dist/esm/color/dark/semantic/colorWarningDark.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use colorWarningDark instead. */
+/** @deprecated Use {@link colorWarning} instead. This API will be removed with the next major release. */
 const themeDarkNotificationWarning = colorWarningDark;
 
 export { themeDarkNotificationWarning };

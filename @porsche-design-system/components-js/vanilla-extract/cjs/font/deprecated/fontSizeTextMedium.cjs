@@ -2,7 +2,7 @@
 
 var typescaleMd = require('../../tokens/dist/esm/font/size/typescaleMd.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use typescaleMd instead. */
+/** @deprecated Use {@link typescaleMd} instead. This API will be removed with the next major release. */
 const fontSizeTextMedium = typescaleMd.typescaleMd;
 
 exports.fontSizeTextMedium = fontSizeTextMedium;

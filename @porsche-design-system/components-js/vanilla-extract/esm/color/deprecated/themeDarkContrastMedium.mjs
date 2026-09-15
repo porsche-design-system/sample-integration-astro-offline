@@ -1,6 +1,6 @@
 import { colorContrastMediumDark } from '../../tokens/dist/esm/color/dark/foreground/colorContrastMediumDark.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use colorContrastMediumDark instead. */
+/** @deprecated Use {@link colorContrastMedium} instead. This API will be removed with the next major release. */
 const themeDarkContrastMedium = colorContrastMediumDark;
 
 export { themeDarkContrastMedium };

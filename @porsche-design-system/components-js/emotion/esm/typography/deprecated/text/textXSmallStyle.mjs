@@ -1,7 +1,7 @@
 import { fontSizeTextXSmall } from '../../../font/deprecated/fontSizeTextXSmall.mjs';
 import { _textFontPartA, _textFontPartB } from './textShared.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use proseTextXs instead. */
+/** @deprecated Use {@link proseTextXsStyle} instead. This API will be removed with the next major release. */
 const textXSmallStyle = {
     font: `${_textFontPartA}${fontSizeTextXSmall}${_textFontPartB}`,
 };

@@ -1,6 +1,6 @@
 import { spacingStaticXl } from '../../tokens/dist/esm/spacing/static/spacingStaticXl.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use spacingStaticXl instead. */
+/** @deprecated Use {@link spacingStaticXl} instead. This API will be removed with the next major release. */
 const spacingStaticXLarge = spacingStaticXl;
 
 export { spacingStaticXLarge };

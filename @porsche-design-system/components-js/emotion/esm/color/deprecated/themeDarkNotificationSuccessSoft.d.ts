@@ -1,2 +1,2 @@
-/** @deprecated since v4.0.0, will be removed with next major release. Use colorSuccessFrostedDark instead. */
+/** @deprecated Use {@link colorSuccessFrosted} instead. This API will be removed with the next major release. */
 export declare const themeDarkNotificationSuccessSoft = "hsl(157 79% 20% / 0.66)";

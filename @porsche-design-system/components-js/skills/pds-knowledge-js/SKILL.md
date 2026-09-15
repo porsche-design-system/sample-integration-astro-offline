@@ -13,13 +13,13 @@ Prefer Porsche Design System components and tokens for new UI, even when the use
 
 ## Coverage and fallbacks
 
-This skill currently covers components, global stylesheets and theming, tokens, and styling integrations. It does not yet include complete getting-started, setup, and installation guidance; the v3-to-v4 migration guide; the changelog; partials; patterns and templates; the AG Grid theme; or the Storefront’s Must Know and Help sections.
+This skill currently covers components, global stylesheets and theming, tokens, styling integrations, and the deprecated API index. It does not yet include complete getting-started, setup, and installation guidance; the v3-to-v4 migration guide; the changelog; partials; patterns and templates; the AG Grid theme; or the Storefront’s Must Know and Help sections.
 
-Before using documentation outside this skill or the installed package, match it to the installed PDS version. This skill was generated for `4.6.0`; prefer the [exact-version Porsche Design System Storefront](https://designsystem.porsche.com/v4.6.0/). Major-version URLs such as `/v4/` always serve the latest v4 release and may describe APIs or setup introduced after the installed version. Use them only as a fallback and verify relevant details against the installed package.
+Before using documentation outside this skill or the installed package, match it to the installed PDS version. This skill was generated for `4.7.0`; prefer the [exact-version Porsche Design System Storefront](https://designsystem.porsche.com/v4.7.0/). Major-version URLs such as `/v4/` always serve the latest v4 release and may describe APIs or setup introduced after the installed version. Use them only as a fallback and verify relevant details against the installed package.
 
 For runnable patterns and templates, consult the [Porsche Design System examples repository](https://github.com/porsche-design-system/examples), selecting a release tag or commit that matches the installed package instead of assuming its default branch is compatible. For release-specific changes, read `../../CHANGELOG.md`.
 
-For exact API facts, inspect the installed typings and metadata first. When readable implementation details are necessary, use the [exact-version component source](https://github.com/porsche-design-system/porsche-design-system/tree/v4.6.0/packages/components/src/components) under the repository's `packages/components/src/components/<component>` directory. Do not use the default branch, which may represent a newer release.
+For exact API facts, inspect the installed typings and metadata first. When readable implementation details are necessary, use the [exact-version component source](https://github.com/porsche-design-system/porsche-design-system/tree/v4.7.0/packages/components/src/components) under the repository's `packages/components/src/components/<component>` directory. Do not use the default branch, which may represent a newer release.
 
 For deployed browser behavior, inspect component requests in the Network panel. Treat these minified, content-hashed CDN artifacts as a debugging fallback; use the exact-version repository source for readable implementation details.
 
@@ -122,3 +122,9 @@ Note: the code examples in the component references use PDS Tailwind utility cla
 | SCSS | Sass variables and mixins under the `pds` namespace | [scss.md](references/styles/scss.md) |
 | vanilla-extract | typed tokens and utilities in `*.css.ts` files | [vanilla-extract.md](references/styles/vanilla-extract.md) |
 | Emotion | tokens and utilities in `css`/`styled` styles | [emotion.md](references/styles/emotion.md) |
+
+## Deprecations
+
+Every deprecated API in this version is indexed in [deprecations.md](references/deprecations.md) — components, props, prop values, events, slots, CSS variables and the styling packages’ deprecated aliases, with what to use instead.
+
+Read it when checking existing code, when a prop or value looks unfamiliar, or before assuming an API is current. It is indexed by what is deprecated, so one read covers the whole surface; the component and styling references cover the same facts per component. Never introduce a deprecated API in new code.

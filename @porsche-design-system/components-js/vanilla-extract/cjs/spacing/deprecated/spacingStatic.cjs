@@ -7,7 +7,7 @@ var spacingStaticXLarge = require('./spacingStaticXLarge.cjs');
 var spacingStaticXSmall = require('./spacingStaticXSmall.cjs');
 var spacingStaticXXLarge = require('./spacingStaticXXLarge.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use spacing variables directly instead. */
+/** @deprecated This API will be removed with the next major release. Use spacing variables directly instead. */
 const spacingStatic = {
     xSmall: spacingStaticXSmall.spacingStaticXSmall,
     small: spacingStaticSmall.spacingStaticSmall,

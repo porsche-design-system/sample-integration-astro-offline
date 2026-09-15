@@ -3,7 +3,7 @@
 var fontSizeTextXLarge = require('../../../font/deprecated/fontSizeTextXLarge.cjs');
 var textShared = require('./textShared.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use proseTextXl instead. */
+/** @deprecated Use {@link proseTextXlStyle} instead. This API will be removed with the next major release. */
 const textXLargeStyle = {
     font: `${textShared._textFontPartA}${fontSizeTextXLarge.fontSizeTextXLarge}${textShared._textFontPartB}`,
 };

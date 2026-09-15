@@ -1,6 +1,6 @@
 import { spacingFluidSm } from '../../tokens/dist/esm/spacing/fluid/spacingFluidSm.mjs';
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use spacingFluidSm instead. */
+/** @deprecated Use {@link spacingFluidSm} instead. This API will be removed with the next major release. */
 const spacingFluidSmall = spacingFluidSm;
 
 export { spacingFluidSmall };

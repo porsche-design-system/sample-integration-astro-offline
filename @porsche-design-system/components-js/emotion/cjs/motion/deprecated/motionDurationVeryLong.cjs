@@ -2,7 +2,7 @@
 
 var durationXl = require('../../tokens/dist/esm/motion/duration/durationXl.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use durationXl instead. */
+/** @deprecated Use {@link durationXl} instead. This API will be removed with the next major release. */
 const motionDurationVeryLong = durationXl.durationXl;
 
 exports.motionDurationVeryLong = motionDurationVeryLong;

@@ -21,7 +21,7 @@ var themeDarkStateDisabled = require('./themeDarkStateDisabled.cjs');
 var themeDarkStateFocus = require('./themeDarkStateFocus.cjs');
 var themeDarkStateHover = require('./themeDarkStateHover.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use individual variables instead. */
+/** @deprecated This API will be removed with the next major release. Use individual variables instead. */
 const themeDark = {
     primary: themeDarkPrimary.themeDarkPrimary,
     background: {

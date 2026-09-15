@@ -3,7 +3,7 @@
 var typescale3Xl = require('../../../font/typescale3Xl.cjs');
 var displayShared = require('./displayShared.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use proseHeading3XlStyle instead. */
+/** @deprecated Use {@link proseHeading3XlStyle} instead. This API will be removed with the next major release. */
 const displaySmallStyle = {
     font: `${displayShared._displayFontPartA}${typescale3Xl.typescale3Xl}${displayShared._displayFontPartB}`,
 };

@@ -2,7 +2,7 @@
 
 var spacingFluid2Xl = require('../../tokens/dist/esm/spacing/fluid/spacingFluid2Xl.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use spacingFluid2Xl instead. */
+/** @deprecated Use {@link spacingFluid2Xl} instead. This API will be removed with the next major release. */
 const spacingFluidXXLarge = spacingFluid2Xl.spacingFluid2Xl;
 
 exports.spacingFluidXXLarge = spacingFluidXXLarge;

@@ -2,7 +2,7 @@
 
 var colorContrastHighDark = require('../../tokens/dist/esm/color/dark/foreground/colorContrastHighDark.cjs');
 
-/** @deprecated since v4.0.0, will be removed with next major release. Use colorContrastHighDark instead. */
+/** @deprecated Use {@link colorContrastHigh} instead. This API will be removed with the next major release. */
 const themeDarkContrastHigh = colorContrastHighDark.colorContrastHighDark;
 
 exports.themeDarkContrastHigh = themeDarkContrastHigh;
